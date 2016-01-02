@@ -13,8 +13,10 @@ A RESTful API framework for managing containers over a set of Docker Nodes runni
 
 
 Full stack design can be read here 
-	* [Development Plan][Development Plan]
-	* [Daemon Design] [Daemon Design]
+```
+	 [Development Plan][Development Plan]
+	 [Daemon Design] [Daemon Design]
+```
 
 ##THE STACK
 
