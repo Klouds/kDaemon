@@ -12,9 +12,9 @@ A RESTful API framework for managing containers over a set of Docker Nodes runni
 	* Forward container access information to Consul for loadbalancing endpoints through a reverse proxy (such as HAProxy or Nginx)
 
 
-Full stack design can be read here:
- [Development Plan] [Daemon Design]
-	
+Full stack design can be read here 
+	* [Development Plan][Development Plan]
+	* [Daemon Design] [Daemon Design]
 
 ##THE STACK
 
