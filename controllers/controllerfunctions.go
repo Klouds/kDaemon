@@ -1,87 +1,21 @@
 package controllers
 
 import (
-	"net/http"
  	_ "github.com/go-sql-driver/mysql"
     "github.com/jinzhu/gorm"
     "github.com/superordinate/kDaemon/models"
-    "github.com/gorilla/securecookie"
-    "time"
     "fmt"
     "os"
+
 )
-
-type ErrorMessage struct {
-	Message	string
-
-}
 
 var (
 	db *gorm.DB
-	cookieHandler *securecookie.SecureCookie 
 )
 
 //Initializes supporting functions
 func Init() {
-	//InitCookieHandler()
 	InitDB()
-}
-
-
-/*Session Management */
-//Initialize the cookie handler
-func InitCookieHandler() {
-	cookieHandler = securecookie.New(
-    	securecookie.GenerateRandomKey(64),
-     	securecookie.GenerateRandomKey(32))
-
-}
-
-//Open a new session
-func setSession(userName string, response http.ResponseWriter) {
-	value := map[string]string{
-		"name": userName,
-	}
-
-	if encoded, err := cookieHandler.Encode("kloudsSession", value); err == nil {
-	 	cookie := &http.Cookie {
-		    Name:  "kloudsSession",
-		    Value: encoded,
-		    Path:  "/",
-		    HttpOnly: true,
-
-		}
-		
-		http.SetCookie(response, cookie)
-	}
-}
-
-//Gets the logged in username
-func getUserName(request *http.Request) (userName string) {
-    if cookie, err := request.Cookie("kloudsSession"); err == nil {
-       	cookieValue := make(map[string]string)
-
-       	if err = cookieHandler.Decode("kloudsSession", cookie.Value, &cookieValue); err == nil {
-           userName = cookieValue["name"]
-       	}
-    }
-
-   	return userName
-}
-
-//clears the active session
-func clearSession(response http.ResponseWriter) {
-	loc, _ := time.LoadLocation("UTC")
-
-   	cookie := &http.Cookie{
-    	Name:   "kloudsSession",
-        Value:  "",
-        Path:   "/",
-        Expires: time.Date(1970, 1, 1,1,1,1,0,loc),
-        MaxAge: 0,
-    }
-    fmt.Println("clearing session")
-    http.SetCookie(response, cookie)
 }
 
 /* DATABASE FUNCTIONALITY */
@@ -118,6 +52,45 @@ func InitDB() {
     fmt.Println("Doing a thing.")
 }
 
+//Node database functions
+//Create a new node in the database
+func CreateNode(n *models.Node) (bool, error) {
+     fmt.Println("Creating Node: " + n.Hostname)
+
+     //TODO: Check for auth
+
+     err := db.Create(&n).Error
+     if  err != nil {
+        return false, err
+     }
+
+     return true, err
+}
+
+func DeleteNode(id int64) (bool, error) {
+    fmt.Println("Deleting Node: ", id)
+
+    node := models.Node{}
+
+    err := db.Where(&models.Node{Id: id}).First(&node).Error 
+
+    if err != nil {
+        return false, err
+    }
+    //TODO: Check for auth
+    //      Migrate all containers
+
+    //Delete node from database
+    err = db.Delete(&node).Error
+
+    if err != nil {
+       return false, err
+    }
+
+    return true, err
+
+}
+
 
 /* HELPER FUNCTIONS */
 
@@ -134,13 +107,7 @@ func InitDB() {
 //     }, str)
 // }
 
-// /* USER DATABASE CALLS */
-// //Create a new user in the database
-// func CreateUser(u *models.User) {
-// 	fmt.Println("Creating user: " + u.Username)
 
-// 	db.Create(&u)
-// }
 
 // //Check if Username exists, returns false if username not taken
 // func CheckForExistingUsername(u *models.User) bool {

@@ -5,6 +5,7 @@
 
 
 A RESTful API framework for managing containers over a set of Docker Nodes running Prometheus as a monitoring solution.
+Will also run a watcher process that will monitor, fix and/or notify administration on the state of the cluster.
 
 ###Features
 	* Make daemon aware of new docker/prometheus endpoints (adding nodes to the cluster)
@@ -73,25 +74,25 @@ OR
 
 ### ENDPOINTS
 ```
- * POST /%API_VERSION%/node/create  -- Creates a node
- * PUT /%API_VERSION%/nodes/update  -- Edits a node
- * DELETE /%API_VERSION%/nodes/delete  -- Deletes a node
- * GET /%API_VERSION%/nodes/:id  -- Gets node information
+ * POST /%API_VERSION%/node/create  			-- Creates a node
+ * PUT /%API_VERSION%/nodes/update 			 	-- Edits a node
+ * DELETE /%API_VERSION%/nodes/delete  			-- Deletes a node
+ * GET /%API_VERSION%/nodes/:id  				-- Gets node information
  
- * POST /%API_VERSION%/application/create  -- Creates an application in the database
- * PUT /%API_VERSION%/applications/update  -- Edits an application
- * DELETE /%API_VERSION%/applications/delete  -- Deletes an application
- * GET /%API_VERSION%/applications/:id  -- Gets application information
+ * POST /%API_VERSION%/application/create  		-- Creates an application in the database
+ * PUT /%API_VERSION%/applications/update  		-- Edits an application
+ * DELETE /%API_VERSION%/applications/delete  	-- Deletes an application
+ * GET /%API_VERSION%/applications/:id  		-- Gets application information
 
- * POST /%API_VERSION%/container/create  -- Creates a container on the cluster
- * PUT /%API_VERSION%/containers/update  -- Edits a container
- * DELETE /%API_VERSION%/containers/delete  -- Deletes a container
- * GET /%API_VERSION%/containers/:id  -- Gets container information
+ * POST /%API_VERSION%/container/create  		-- Creates a container on the cluster
+ * PUT /%API_VERSION%/containers/update  		-- Edits a container
+ * DELETE /%API_VERSION%/containers/delete  	-- Deletes a container
+ * GET /%API_VERSION%/containers/:id  			-- Gets container information
 
- * POST /%API_VERSION%/user/create  -- Creates a user
- * PUT /%API_VERSION%/users/update  -- Edits a user
- * DELETE /%API_VERSION%/users/delete  -- Deletes a user
- * GET /%API_VERSION%/users/:id  -- Gets user information
+ * POST /%API_VERSION%/user/create  			-- Creates a user
+ * PUT /%API_VERSION%/users/update  			-- Edits a user
+ * DELETE /%API_VERSION%/users/delete  			-- Deletes a user
+ * GET /%API_VERSION%/users/:id  				-- Gets user information
  ```
 
 

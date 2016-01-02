@@ -1,7 +1,8 @@
 package models
 
 import (
-
+	"github.com/superordinate/kDaemon/common"
+	
 )
 
 type Node struct {
@@ -13,4 +14,13 @@ type Node struct {
 	  PIPAddr 	string 	`sql:"size:30; not null; unique;" json:"pipaddr"`  //prometheus
 	  PPort 	string 	`sql:"size:255; not null;" json:"pport"`
 	  IsEnabled	bool 	`sql:"default:true" json:"isenabled"`
+}
+
+func (n *Node) Validate() bool {
+	valid := true
+
+	valid = common.ValidIP4(n.DIPAddr) && common.ValidIP4(n.PIPAddr) && 
+			common.ValidPort(n.DPort) && common.ValidPort(n.PPort)
+
+	return valid
 }
