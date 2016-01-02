@@ -66,6 +66,7 @@ OR
 ```
 
 ### ENDPOINTS
+```
  * POST /%API_VERSION%/node/create  -- Creates a node
  * PUT /%API_VERSION%/nodes/update  -- Edits a node
  * DELETE /%API_VERSION%/nodes/delete  -- Deletes a node
@@ -85,4 +86,5 @@ OR
  * PUT /%API_VERSION%/users/update  -- Edits a user
  * DELETE /%API_VERSION%/users/delete  -- Deletes a user
  * GET /%API_VERSION%/users/:id  -- Gets user information
+ ```
 
