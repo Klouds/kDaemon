@@ -21,10 +21,10 @@ Full stack design can be read here
 
 ```
 
-docker-prometheus --\   /---> consul ---> haproxy-consul  <---\
-			   		  \	/									   \
-docker-prometheus ---->kDaemon -><-- klouds-frontend <-------User
-			   		  /					 
+docker-prometheus --\    /---> consul ---> haproxy-consul  <--\
+			   		 \	/									   \
+docker-prometheus --->kDaemon -><-- klouds-frontend <----------User
+			   		 /					 
 docker-prometheus __/	 
 
 ```
@@ -38,6 +38,10 @@ MYSQL_HOST= 127.0.0.1:3306	 			<-- Points to your database
 MYSQL_USER= root						<-- User for your mysql database
 MYSQL_PASSWORD= iamapassword			<-- password for you mysql user
 
+###Dependencies
+
+	* Your nodes need to be running the docker API and Prometheus API
+	* You must have a mysql host with a database named 'kDaemon'
 
 ###To build (linux):
 
@@ -90,5 +94,7 @@ OR
  * GET /%API_VERSION%/users/:id  -- Gets user information
  ```
 
+
+#### Main Contributor [Ozzadar](https://github.com/Ozzadar)
 [Development Plan]: https://docs.google.com/document/d/1A4-0g1E52wdW9L-hoeAZzay5Uotv1GcBPtXLU1msw2w/edit?usp=sharing
 [Daemon Design]: https://docs.google.com/document/d/1EkI7uQzdt1xMwb1etcweYQFCLthK_l9aHZvHOunshzs/edit?usp=sharing

@@ -49,30 +49,30 @@ func (r *Routing) Init() {
 	
 	//Application Management
 
-	r.Mux.GET("/"+ APIVERSION + "/application/create", ac.CreateApplication)
-	r.Mux.GET("/"+ APIVERSION + "/applications/:id/delete", ac.DeleteApplication)
-	r.Mux.GET("/"+ APIVERSION + "/applications/:id/update", ac.EditApplication)
+	r.Mux.POST("/"+ APIVERSION + "/application/create", ac.CreateApplication)
+	r.Mux.DELETE("/"+ APIVERSION + "/applications/:id/delete", ac.DeleteApplication)
+	r.Mux.PUT("/"+ APIVERSION + "/applications/:id/update", ac.EditApplication)
 	r.Mux.GET("/"+ APIVERSION + "/applications/:id", ac.ApplicationInformation)
 	r.Mux.GET("/"+ APIVERSION + "/applications/:id/", ac.ApplicationInformation)
 
 	//Container Management
-	r.Mux.GET("/"+ APIVERSION + "/container/create", cc.CreateContainer)
-	r.Mux.GET("/"+ APIVERSION + "/containers/:id/delete", cc.DeleteContainer)
-	r.Mux.GET("/"+ APIVERSION + "/containers/:id/update", cc.EditContainer)
+	r.Mux.POST("/"+ APIVERSION + "/container/create", cc.CreateContainer)
+	r.Mux.DELETE("/"+ APIVERSION + "/containers/:id/delete", cc.DeleteContainer)
+	r.Mux.PUT("/"+ APIVERSION + "/containers/:id/update", cc.EditContainer)
 	r.Mux.GET("/"+ APIVERSION + "/containers/:id", cc.ContainerInformation)
 	r.Mux.GET("/"+ APIVERSION + "/containers/:id/", cc.ContainerInformation)
 
 	//Container Management
 	r.Mux.POST("/"+ APIVERSION + "/node/create", nc.CreateNode)
-	r.Mux.GET("/"+ APIVERSION + "/nodes/:id/delete", nc.DeleteNode)
-	r.Mux.GET("/"+ APIVERSION + "/nodes/:id/update", nc.EditNode)
+	r.Mux.DELETE("/"+ APIVERSION + "/nodes/:id/delete", nc.DeleteNode)
+	r.Mux.PUT("/"+ APIVERSION + "/nodes/:id/update", nc.EditNode)
 	r.Mux.GET("/"+ APIVERSION + "/nodes/:id", nc.NodeInformation)
 	r.Mux.GET("/"+ APIVERSION + "/nodes/:id/", nc.NodeInformation)
 
 	//User Management
-	r.Mux.GET("/"+ APIVERSION + "/user/create", uc.CreateUser)
-	r.Mux.GET("/"+ APIVERSION + "/users/:id/delete", uc.DeleteUser)
-	r.Mux.GET("/"+ APIVERSION + "/users/:id/update", uc.EditUser)
+	r.Mux.POST("/"+ APIVERSION + "/user/create", uc.CreateUser)
+	r.Mux.DELETE("/"+ APIVERSION + "/users/:id/delete", uc.DeleteUser)
+	r.Mux.PUT("/"+ APIVERSION + "/users/:id/update", uc.EditUser)
 	r.Mux.GET("/"+ APIVERSION + "/users/:id", uc.UserInformation)
 	r.Mux.GET("/"+ APIVERSION + "/users/:id/", uc.UserInformation)
 
