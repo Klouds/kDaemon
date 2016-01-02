@@ -77,7 +77,7 @@ func DeleteNode(id int64) (bool, error) {
     if err != nil {
         return false, err
     }
-    //TODO: Check for auth
+    //  TODO: Check for auth
     //      Migrate all containers
 
     //Delete node from database
@@ -89,6 +89,14 @@ func DeleteNode(id int64) (bool, error) {
 
     return true, err
 
+}
+
+func GetNode(id int64) (*models.Node, error) {
+ node := &models.Node{}
+
+ err := db.Where(&models.Node{Id: id}).First(&node).Error
+
+ return node, err
 }
 
 

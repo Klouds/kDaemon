@@ -49,7 +49,7 @@ func (c *NodeController) DeleteNode(rw http.ResponseWriter, r *http.Request, p h
 	nodeid, err := strconv.Atoi(p.ByName("id"))
 
 	if err != nil {
-		rw.Write([]byte("Not a valid ID"))
+		c.JSON(rw, http.StatusBadRequest, "invalid id")
 		return
 	}
 
@@ -57,7 +57,7 @@ func (c *NodeController) DeleteNode(rw http.ResponseWriter, r *http.Request, p h
 	success, _ := DeleteNode(int64(nodeid))
 
 	if !success {
-		c.JSON(rw, http.StatusBadRequest, "Node doesn't exist")
+		c.JSON(rw, http.StatusNotFound, "Node doesn't exist")
 		return
 	}
 
@@ -71,17 +71,21 @@ func (c *NodeController) EditNode(rw http.ResponseWriter, r *http.Request, p htt
 
 func (c *NodeController) NodeInformation(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
-	/*
-	node := &models.Node{
-		Id: 0,
-		UserID: 0,
-		Hostname: "testNode",
-		DIPAddr: "127.0.0.1",
-		DPort: "2575",
-		PIPAddr: "127.0.0.1",
-		PPort: "9090",
-		IsEnabled: true,
+	//Gets the node id
+	nodeid, err := strconv.Atoi(p.ByName("id"))
+
+	if err != nil {
+		c.JSON(rw, http.StatusBadRequest, "invalid id")
+		return
 	}
-*/
-	rw.Write([]byte("Showing info for Node: " + p.ByName("id")))
+
+	//Attempts to retrieve the node from the database
+	node, err := GetNode(int64(nodeid))
+
+	if err != nil {
+		c.JSON(rw, http.StatusNotFound, "Node doesn't exist")
+		return
+	}
+
+	c.JSON(rw, http.StatusOK, node)
 }
