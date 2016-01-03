@@ -72,7 +72,7 @@ OR
 
 ```
 
-### ENDPOINTS
+### ENDPOINTS [X] = Not implemented
 ```
  * POST /%API_VERSION%/node/create  			-- Creates a node
  * PUT /%API_VERSION%/nodes/update 			 	-- Edits a node
@@ -85,14 +85,14 @@ OR
  * GET /%API_VERSION%/applications/:id  		-- Gets application information
 
  * POST /%API_VERSION%/container/create  		-- Creates a container on the cluster
- * PUT /%API_VERSION%/containers/update  		-- Edits a container
- * DELETE /%API_VERSION%/containers/delete  	-- Deletes a container
+ * PUT /%API_VERSION%/containers/update  		-- Edits a container [X]
+ * DELETE /%API_VERSION%/containers/delete  	-- Deletes a container [X]
  * GET /%API_VERSION%/containers/:id  			-- Gets container information
 
- * POST /%API_VERSION%/user/create  			-- Creates a user
- * PUT /%API_VERSION%/users/update  			-- Edits a user
- * DELETE /%API_VERSION%/users/delete  			-- Deletes a user
- * GET /%API_VERSION%/users/:id  				-- Gets user information
+ * POST /%API_VERSION%/user/create  			-- Creates a user [X]
+ * PUT /%API_VERSION%/users/update  			-- Edits a users [X]
+ * DELETE /%API_VERSION%/users/delete  			-- Deletes a user [X]
+ * GET /%API_VERSION%/users/:id  				-- Gets user information [X]
  ```
 
 
