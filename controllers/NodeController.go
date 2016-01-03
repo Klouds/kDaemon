@@ -26,6 +26,7 @@ func (c *NodeController) CreateNode(rw http.ResponseWriter, r *http.Request, p h
 		return
 	}
 
+
 	//Validates the Node passed in
 
 	if newnode.Validate() {

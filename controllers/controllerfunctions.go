@@ -32,13 +32,11 @@ func InitDB() {
     dbm, err := gorm.Open("mysql", mysqluser+ ":" + mysqlpass + 
     		"@(" + mysqlhost + ")/kdaemon?charset=utf8&parseTime=True")
 
-	fmt.Println("Doing a thing.")
     if(err != nil){
         panic("Unable to connect to the database")
     } else {
     	fmt.Println("Database connection established.")
     }
-    fmt.Println("Doing a thing.")
     db = &dbm
     dbm.DB().Ping()
     dbm.DB().SetMaxIdleConns(10)
@@ -49,10 +47,16 @@ func InitDB() {
     	fmt.Println("Node table not found, creating it now")
         dbm.CreateTable(&models.Node{})
     } 
-    fmt.Println("Doing a thing.")
+
+    if !dbm.HasTable(&models.Application{}){
+        fmt.Println("Application table not found, creating it now")
+        dbm.CreateTable(&models.Application{})
+    } 
+
 }
 
 //Node database functions
+
 //Create a new node in the database
 func CreateNode(n *models.Node) (bool, error) {
      fmt.Println("Creating Node: " + n.Hostname)
@@ -67,6 +71,7 @@ func CreateNode(n *models.Node) (bool, error) {
      return true, err
 }
 
+//delete Node
 func DeleteNode(id int64) (bool, error) {
     fmt.Println("Deleting Node: ", id)
 
@@ -91,6 +96,7 @@ func DeleteNode(id int64) (bool, error) {
 
 }
 
+//Get node information
 func GetNode(id int64) (*models.Node, error) {
  node := &models.Node{}
 
@@ -99,7 +105,7 @@ func GetNode(id int64) (*models.Node, error) {
  return node, err
 }
 
-//UpdateUser
+//Update node
 func UpdateNode(node *models.Node) (bool, error) {
 
     newnode := models.Node{}
@@ -110,6 +116,75 @@ func UpdateNode(node *models.Node) (bool, error) {
     }
 
     err = db.Save(&node).Error
+
+    if err != nil {
+        return false, err
+    }
+
+    return true, nil
+} 
+
+//Application database functions
+
+//Create a new application in the database
+func CreateApplication(a *models.Application) (bool, error) {
+     fmt.Println("Creating Application: " + a.Name)
+
+     //TODO: Check for auth
+
+     err := db.Create(&a).Error
+     if  err != nil {
+        return false, err
+     }
+
+     return true, err
+}
+
+//Get application information
+func GetApplication(id int64) (*models.Application, error) {
+ app := &models.Application{}
+
+ err := db.Where(&models.Application{Id: id}).First(&app).Error
+
+ return app, err
+}
+
+//delete application from database
+func DeleteApplication(id int64) (bool, error) {
+    fmt.Println("Deleting Application: ", id)
+
+    app := models.Application{}
+
+    err := db.Where(&models.Application{Id: id}).First(&app).Error 
+
+    if err != nil {
+        return false, err
+    }
+    //  TODO: Check for auth
+    //      Delete all containers
+
+    //Delete application from database
+    err = db.Delete(&app).Error
+
+    if err != nil {
+       return false, err
+    }
+
+    return true, err
+
+}
+
+//Update Application
+func UpdateApplication(app *models.Application) (bool, error) {
+
+    newapp := models.Application{}
+    err := db.Where(&models.Application{Id: app.Id}).First(&newapp).Error 
+
+    if err != nil {
+       return false, err
+    }
+
+    err = db.Save(&app).Error
 
     if err != nil {
         return false, err

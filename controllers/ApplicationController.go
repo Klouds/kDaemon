@@ -4,6 +4,9 @@ import (
 	"net/http"
 	"gopkg.in/unrolled/render.v1"
 	"github.com/julienschmidt/httprouter"
+	"github.com/superordinate/kDaemon/models"
+	"encoding/json"
+	"strconv"
 )
 
 type ApplicationController struct {
@@ -19,17 +22,99 @@ type ApplicationController struct {
 
 
 func (c *ApplicationController) CreateApplication(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	rw.Write([]byte("Create Application"))
+	
+	//creates a new application object populated with JSON from data
+	newapp := models.Application{}
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&newapp)
+
+	if err != nil {
+		panic(err)
+		return
+	}
+
+	//Validates the Node passed in
+
+	if newapp.Validate() {
+		//Adds the node to the database
+		success, _ := CreateApplication(&newapp)
+
+
+		if success == false {
+			c.JSON(rw, http.StatusConflict, "Application conflict. Make sure your application is unique.")
+			return
+		}
+		//return success message with new node information
+		c.JSON(rw, http.StatusCreated, newapp)
+	} else {
+		c.JSON(rw, http.StatusBadRequest, newapp)
+	}
 }
 
 func (c *ApplicationController) DeleteApplication(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	rw.Write([]byte("Removing Application: " + p.ByName("id")))
+	//Gets the app id
+	appid, err := strconv.Atoi(p.ByName("id"))
+
+	if err != nil {
+		c.JSON(rw, http.StatusBadRequest, "invalid id")
+		return
+	}
+
+	//Attempts to remove the node
+	success, _ := DeleteApplication(int64(appid))
+
+	if !success {
+		c.JSON(rw, http.StatusNotFound, "Application doesn't exist")
+		return
+	}
+
+	c.JSON(rw, http.StatusOK, "Application deleted successfully")
 }
 
 func (c *ApplicationController) EditApplication(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	rw.Write([]byte("Editting Application: " + p.ByName("id")))
+	//creates a new application object populated with JSON from data
+	app := models.Application{}
+	decoder := json.NewDecoder(r.Body)
+
+	err := decoder.Decode(&app)
+	if err != nil {
+		panic(err)
+		return
+	}
+
+	//Validates the Node passed in
+
+	if app.Validate() {
+		//Adds the node to the database
+		success, _ := UpdateApplication(&app)
+
+		if success == false {
+			c.JSON(rw, http.StatusNotFound, "Application doesn't exist")
+			return
+		}
+		//return success message with new node information
+		c.JSON(rw, http.StatusCreated, app)
+	} else {
+		c.JSON(rw, http.StatusBadRequest, "Invalid format")
+	}
 }
 
 func (c *ApplicationController) ApplicationInformation(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	rw.Write([]byte("Showing info for Application: " + p.ByName("id")))
+	//Gets the app id
+	appid, err := strconv.Atoi(p.ByName("id"))
+
+	if err != nil {
+		c.JSON(rw, http.StatusBadRequest, "invalid id")
+		return
+	}
+
+	//Attempts to retrieve the application from the database
+	app, err := GetApplication(int64(appid))
+
+	if err != nil {
+		c.JSON(rw, http.StatusNotFound, "Node doesn't exist")
+		return
+	}
+
+	c.JSON(rw, http.StatusOK, app)
 }
