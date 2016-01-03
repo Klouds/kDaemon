@@ -15,6 +15,7 @@ type Application struct {
 	  IsEnabled		bool 			`sql:"default:true" json:"is_enabled"`
 }
 
+//Interface function
 func (a *Application) GetJSON() (string, error) {
 	b, err := json.Marshal(a)
     if err != nil {
@@ -46,9 +47,7 @@ func (n *Application) Validate() bool {
 	s := n.GetPorts()
 
 	for _,value := range s {
-
-		finalstring := strings.TrimSpace(value)
-		valid = valid && ValidPort(finalstring)
+		valid = valid && ValidPort(value)
 	}
 
 	return valid
@@ -57,6 +56,10 @@ func (n *Application) Validate() bool {
 func (n *Application) GetPorts() []string {
 
 	s := strings.Split(n.ExposedPorts, ",")
+
+	for _,value := range s {
+		value = strings.TrimSpace(value)
+	}
 
 	return s
 }

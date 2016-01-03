@@ -16,11 +16,13 @@
 package watcher
 
 import (
+		docker "github.com/fsouza/go-dockerclient"
 		"github.com/superordinate/kDaemon/models"
 		"github.com/superordinate/kDaemon/database"
 		"github.com/superordinate/kDaemon/logging"
 		"encoding/json"
 		"strings"
+		"strconv"
 )
 
 var commands = [...]string{
@@ -86,7 +88,7 @@ func RunQueue() {
 
 		if job.Type == "LC" {
 			if (job.InUse == false) {
-				job.InUse = true;
+				job.InUse = true
 				go AddContainer(job)
 			}
 		}
@@ -97,6 +99,7 @@ func RunQueue() {
 //Commands
 func AddContainer(job *Job){
 	
+	job.InUse = true
 
 	newcontainer := models.Container{}
 	decoder := json.NewDecoder(strings.NewReader(job.Body))
@@ -104,7 +107,6 @@ func AddContainer(job *Job){
 	if err != nil {
 		logging.Log(err)
 		job.Complete = true		//bad information, don't try to launch again
-		job.InUse = false
 		return
 	}
 
@@ -112,8 +114,8 @@ func AddContainer(job *Job){
 	id := DetermineBestNodeForLaunch()
 	node, err := database.GetNode(id)
 	if err != nil {
-		job.Complete = true 	//bad node, so try to launch in the future
 		logging.Log(err)
+		job.Complete = false 	//bad node, so try to launch in the future
 		job.InUse = false
 		return 
 	}
@@ -123,36 +125,76 @@ func AddContainer(job *Job){
 	if err != nil {
 		logging.Log(err)
 		job.Complete = true		//Application doesn't exist, don't try to launch in the future
+		return
+	}
+
+	//Launch the application on the given node
+	err = LaunchAppOnNode(app, node)
+
+	if err != nil {
+		logging.Log(err)
+		job.Complete = false		//Application doesn't exist, don't try to launch in the future
 		job.InUse = false
 		return
 	}
 
-	//compiler errors without using values right now
-	node.Hostname = "rawr"
-	app.Name = "fake"
-
-
-	LaunchAppOnNode(app, node)
-
-	//try to create container
-		//pull if image not found
-		//try to create again
-
-	//start container
-
-
 	logging.Log(newcontainer.Name)
- 	job.InUse = false
 	job.Complete = true
 	return
 
 }
 
 func DeleteJob(i int) {
+	index := strconv.Itoa(i)
+	logging.Log("Deleting job: " + queue[i].Type+ " at index " + index)
 	queue = append(queue[:i], queue[i+1:]...)
 }
 
-func LaunchAppOnNode(app *models.Application, node *models.Node) {
+func LaunchAppOnNode(app *models.Application, node *models.Node) (error) {
 
+	client,err := docker.NewClient(node.DIPAddr + ":" + node.DPort)
 
+	if err != nil {
+		logging.Log(err)
+	}
+
+	ports := app.GetPorts()
+
+	port := ports[0] +"/tcp"
+	exposedPort := map[docker.Port]struct{}{
+        docker.Port(port) : {}}
+	portbindings:= map[docker.Port][]docker.PortBinding{
+        docker.Port(port): {}}
+
+     //try to create container
+	containeropts := docker.CreateContainerOptions {
+		Name: "rawr",
+		Config: &docker.Config {
+				ExposedPorts: exposedPort,
+				Image: app.DockerImage,
+
+			},
+		HostConfig: &docker.HostConfig {
+			PublishAllPorts: true,
+			PortBindings: portbindings,
+			Privileged: false,			
+
+		},
+	}
+
+	cont, err := client.CreateContainer(containeropts)
+	
+	if err != nil {
+		logging.Log(err)
+	}
+	
+	err = client.StartContainer(cont.ID, nil)
+    if err != nil {
+        logging.Log(err)
+    }
+		//pull if image not found
+		//try to create again
+
+	//start container
+	return nil
 }

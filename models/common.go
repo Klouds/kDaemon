@@ -7,11 +7,13 @@ import (
     "strconv"
 
  )
-//Validation functions
+
+//Interface for REST objects
 type JSONObject interface{
 	GetJSON() (string, error)
 }
 
+//Validation functions
 func ValidIP4(ipAddr string) bool {
 	ipAddr = strings.Trim(ipAddr, " ")
 

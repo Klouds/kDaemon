@@ -16,6 +16,7 @@ type Node struct {
 	  IsEnabled	bool 	`sql:"default:true" json:"is_enabled"`
 }
 
+//Interface function
 func (n *Node) GetJSON() (string, error) {
 	b, err := json.Marshal(n)
     if err != nil {
