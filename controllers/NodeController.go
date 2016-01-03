@@ -6,6 +6,7 @@ import (
 	"gopkg.in/unrolled/render.v1"
 	"encoding/json"
 	"github.com/superordinate/kDaemon/models"
+	"github.com/superordinate/kDaemon/database"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -31,7 +32,7 @@ func (c *NodeController) CreateNode(rw http.ResponseWriter, r *http.Request, p h
 
 	if newnode.Validate() {
 		//Adds the node to the database
-		success, _ := CreateNode(&newnode)
+		success, _ := database.CreateNode(&newnode)
 
 		if success == false {
 			c.JSON(rw, http.StatusConflict, "Node conflicts with existing node. Make sure your node is unique.")
@@ -40,7 +41,9 @@ func (c *NodeController) CreateNode(rw http.ResponseWriter, r *http.Request, p h
 		//return success message with new node information
 		c.JSON(rw, http.StatusCreated, newnode)
 	} else {
-		c.JSON(rw, http.StatusBadRequest, "Invalid format")
+
+		body, _ := newnode.GetJSON()
+		c.JSON(rw, http.StatusBadRequest, "Invalid format" + body)
 	}
 	
 }
@@ -55,7 +58,7 @@ func (c *NodeController) DeleteNode(rw http.ResponseWriter, r *http.Request, p h
 	}
 
 	//Attempts to remove the node
-	success, _ := DeleteNode(int64(nodeid))
+	success, _ := database.DeleteNode(int64(nodeid))
 
 	if !success {
 		c.JSON(rw, http.StatusNotFound, "Node doesn't exist")
@@ -81,7 +84,7 @@ func (c *NodeController) EditNode(rw http.ResponseWriter, r *http.Request, p htt
 
 	if newnode.Validate() {
 		//Adds the node to the database
-		success, _ := UpdateNode(&newnode)
+		success, _ := database.UpdateNode(&newnode)
 
 		if success == false {
 			c.JSON(rw, http.StatusNotFound, "Node doesn't exist")
@@ -105,7 +108,7 @@ func (c *NodeController) NodeInformation(rw http.ResponseWriter, r *http.Request
 	}
 
 	//Attempts to retrieve the node from the database
-	node, err := GetNode(int64(nodeid))
+	node, err := database.GetNode(int64(nodeid))
 
 	if err != nil {
 		c.JSON(rw, http.StatusNotFound, "Node doesn't exist")

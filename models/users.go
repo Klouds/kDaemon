@@ -3,6 +3,7 @@ package models
 import (
 	"regexp"
 	"unicode"
+	
 )
 
 //User struct for database entries

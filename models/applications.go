@@ -1,19 +1,28 @@
 package models
 
 import (
-	"github.com/superordinate/kDaemon/common"
 	"strings"
+	"encoding/json"
+	"github.com/superordinate/kDaemon/logging"
 )
 type Application struct {
 	  Id       		int64 			`json:"id"`
-	  UserID    	int64			`sql:"not null;" json:"userid"`
+	  UserID    	int64			`sql:"not null;" json:"user_id"`
 	  Name	 		string			`sql:"size:255; not null; unique;" json:"name"`
-	  ExposedPorts	string	`json:"exposed_ports"` //docker
+	  ExposedPorts	string			`json:"exposed_ports"` //docker
 	  DockerImage	string			`sql:"size:255; not null;" json:"docker_image"`
-	  Dependencies 	string 	`json:"dependencies"`  
-	  IsEnabled		bool 			`sql:"default:true" json:"isenabled"`
+	  Dependencies 	string 			`json:"dependencies"`  
+	  IsEnabled		bool 			`sql:"default:true" json:"is_enabled"`
 }
 
+func (a *Application) GetJSON() (string, error) {
+	b, err := json.Marshal(a)
+    if err != nil {
+        logging.Log(err)
+        return "",err;
+    }
+    return string(b),err;
+}
 
 func (n *Application) AddPort(text string) {
 	if len(n.ExposedPorts) < 1 {
@@ -39,7 +48,7 @@ func (n *Application) Validate() bool {
 	for _,value := range s {
 
 		finalstring := strings.TrimSpace(value)
-		valid = valid && common.ValidPort(finalstring)
+		valid = valid && ValidPort(finalstring)
 	}
 
 	return valid

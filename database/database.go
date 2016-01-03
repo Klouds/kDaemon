@@ -1,10 +1,10 @@
-package controllers
+package database
 
 import (
  	_ "github.com/go-sql-driver/mysql"
     "github.com/jinzhu/gorm"
     "github.com/superordinate/kDaemon/models"
-    "fmt"
+    "github.com/superordinate/kDaemon/logging"
     "os"
 
 )
@@ -22,20 +22,18 @@ func Init() {
 // connect to the db
 func InitDB() {
 
-	fmt.Println("Initializing Database connection.")
+	logging.Log("Initializing Database connection.")
 	mysqlhost := os.Getenv("MYSQL_HOST")
 	mysqluser := os.Getenv("MYSQL_USER")
 	mysqlpass := os.Getenv("MYSQL_PASSWORD")
 
-	fmt.Println("mysql", mysqluser+ ":" + mysqlpass + 
-    		"@(" + mysqlhost + ")/kdaemon")
     dbm, err := gorm.Open("mysql", mysqluser+ ":" + mysqlpass + 
     		"@(" + mysqlhost + ")/kdaemon?charset=utf8&parseTime=True")
 
     if(err != nil){
         panic("Unable to connect to the database")
     } else {
-    	fmt.Println("Database connection established.")
+    	logging.Log("Database connection established.")
     }
     db = &dbm
     dbm.DB().Ping()
@@ -44,13 +42,18 @@ func InitDB() {
     db.LogMode(true)
  
     if !dbm.HasTable(&models.Node{}){
-    	fmt.Println("Node table not found, creating it now")
+    	logging.Log("Node table not found, creating it now")
         dbm.CreateTable(&models.Node{})
     } 
 
     if !dbm.HasTable(&models.Application{}){
-        fmt.Println("Application table not found, creating it now")
+        logging.Log("Application table not found, creating it now")
         dbm.CreateTable(&models.Application{})
+    } 
+
+    if !dbm.HasTable(&models.Container{}){
+        logging.Log("Container table not found, creating it now")
+        dbm.CreateTable(&models.Container{})
     } 
 
 }
@@ -59,7 +62,7 @@ func InitDB() {
 
 //Create a new node in the database
 func CreateNode(n *models.Node) (bool, error) {
-     fmt.Println("Creating Node: " + n.Hostname)
+     logging.Log("Creating Node: " + n.Hostname)
 
      //TODO: Check for auth
 
@@ -73,7 +76,7 @@ func CreateNode(n *models.Node) (bool, error) {
 
 //delete Node
 func DeleteNode(id int64) (bool, error) {
-    fmt.Println("Deleting Node: ", id)
+    logging.Log("Deleting Node: ", id)
 
     node := models.Node{}
 
@@ -128,7 +131,7 @@ func UpdateNode(node *models.Node) (bool, error) {
 
 //Create a new application in the database
 func CreateApplication(a *models.Application) (bool, error) {
-     fmt.Println("Creating Application: " + a.Name)
+     logging.Log("Creating Application: " + a.Name)
 
      //TODO: Check for auth
 
@@ -151,7 +154,7 @@ func GetApplication(id int64) (*models.Application, error) {
 
 //delete application from database
 func DeleteApplication(id int64) (bool, error) {
-    fmt.Println("Deleting Application: ", id)
+    logging.Log("Deleting Application: ", id)
 
     app := models.Application{}
 
@@ -193,7 +196,13 @@ func UpdateApplication(app *models.Application) (bool, error) {
     return true, nil
 } 
 
-/* HELPER FUNCTIONS */
+
+
+
+
+/* OLD CODE THAT MAY BE USEFUL
+
+HELPER FUNCTIONS */
 
 
 // //strips all whitespace out of a string

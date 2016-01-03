@@ -6,7 +6,8 @@ import (
 	"gopkg.in/unrolled/render.v1"
 	"github.com/julienschmidt/httprouter"
 	"github.com/superordinate/kDaemon/controllers"
-	"fmt"
+	"github.com/superordinate/kDaemon/database"
+	"github.com/superordinate/kDaemon/logging"
 )
 
 type Routing struct {
@@ -18,14 +19,13 @@ type Routing struct {
 
 func (r *Routing) Init() {
 
-	controllers.Init()
+	database.Init()
 	r.Render = render.New(render.Options{Directory: "views",
 		IndentJSON: true,
 		Funcs: []template.FuncMap{
         {
 
             "str2html": func(raw string) template.HTML {
-            	fmt.Println(raw)
                 return template.HTML(raw)
             },
             "add": func(x,y int) int {
@@ -78,4 +78,6 @@ func (r *Routing) Init() {
 
 
 	r.Mux.NotFound = http.FileServer(http.Dir("public"))
+
+	logging.Log("Web server active")
 }

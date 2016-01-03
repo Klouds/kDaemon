@@ -5,6 +5,7 @@ import (
 	"gopkg.in/unrolled/render.v1"
 	"github.com/julienschmidt/httprouter"
 	"github.com/superordinate/kDaemon/models"
+	"github.com/superordinate/kDaemon/database"
 	"encoding/json"
 	"strconv"
 )
@@ -13,11 +14,6 @@ type ApplicationController struct {
 	AppController
 	*render.Render
 }
-
-
-
-
-
 
 
 
@@ -37,7 +33,7 @@ func (c *ApplicationController) CreateApplication(rw http.ResponseWriter, r *htt
 
 	if newapp.Validate() {
 		//Adds the node to the database
-		success, _ := CreateApplication(&newapp)
+		success, _ := database.CreateApplication(&newapp)
 
 
 		if success == false {
@@ -61,7 +57,7 @@ func (c *ApplicationController) DeleteApplication(rw http.ResponseWriter, r *htt
 	}
 
 	//Attempts to remove the node
-	success, _ := DeleteApplication(int64(appid))
+	success, _ := database.DeleteApplication(int64(appid))
 
 	if !success {
 		c.JSON(rw, http.StatusNotFound, "Application doesn't exist")
@@ -86,7 +82,7 @@ func (c *ApplicationController) EditApplication(rw http.ResponseWriter, r *http.
 
 	if app.Validate() {
 		//Adds the node to the database
-		success, _ := UpdateApplication(&app)
+		success, _ := database.UpdateApplication(&app)
 
 		if success == false {
 			c.JSON(rw, http.StatusNotFound, "Application doesn't exist")
@@ -109,7 +105,7 @@ func (c *ApplicationController) ApplicationInformation(rw http.ResponseWriter, r
 	}
 
 	//Attempts to retrieve the application from the database
-	app, err := GetApplication(int64(appid))
+	app, err := database.GetApplication(int64(appid))
 
 	if err != nil {
 		c.JSON(rw, http.StatusNotFound, "Node doesn't exist")

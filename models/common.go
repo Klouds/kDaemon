@@ -1,4 +1,4 @@
-package common
+package models
 
 import (
 
@@ -8,6 +8,9 @@ import (
 
  )
 //Validation functions
+type JSONObject interface{
+	GetJSON() (string, error)
+}
 
 func ValidIP4(ipAddr string) bool {
 	ipAddr = strings.Trim(ipAddr, " ")
