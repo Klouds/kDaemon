@@ -99,6 +99,24 @@ func GetNode(id int64) (*models.Node, error) {
  return node, err
 }
 
+//UpdateUser
+func UpdateNode(node *models.Node) (bool, error) {
+
+    newnode := models.Node{}
+    err := db.Where(&models.Node{Id: node.Id}).First(&newnode).Error 
+
+    if err != nil {
+       return false, err
+    }
+
+    err = db.Save(&node).Error
+
+    if err != nil {
+        return false, err
+    }
+
+    return true, nil
+} 
 
 /* HELPER FUNCTIONS */
 

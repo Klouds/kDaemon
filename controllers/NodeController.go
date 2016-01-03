@@ -66,7 +66,31 @@ func (c *NodeController) DeleteNode(rw http.ResponseWriter, r *http.Request, p h
 }
 
 func (c *NodeController) EditNode(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	rw.Write([]byte("Editting Node: " + p.ByName("id")))
+		//creates a new node object populated with JSON from data
+	newnode := models.Node{}
+	decoder := json.NewDecoder(r.Body)
+
+	err := decoder.Decode(&newnode)
+	if err != nil {
+		panic(err)
+		return
+	}
+
+	//Validates the Node passed in
+
+	if newnode.Validate() {
+		//Adds the node to the database
+		success, _ := UpdateNode(&newnode)
+
+		if success == false {
+			c.JSON(rw, http.StatusNotFound, "Node doesn't exist")
+			return
+		}
+		//return success message with new node information
+		c.JSON(rw, http.StatusCreated, newnode)
+	} else {
+		c.JSON(rw, http.StatusBadRequest, "Invalid format")
+	}
 }
 
 func (c *NodeController) NodeInformation(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
