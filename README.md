@@ -57,7 +57,7 @@ go build .
 
 ``` 
 
-	MYSQL_HOST=127.0.0.1:3306 MYSQL_USER=root MYSQL_PASSWORD=iamapassword ./klouds
+	MYSQL_HOST=127.0.0.1:3306 MYSQL_USER=root MYSQL_PASSWORD=iamapassword ./kDaemon
 
 ```
 

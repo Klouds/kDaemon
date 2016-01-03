@@ -54,7 +54,7 @@ func AddContainer(job *Job){
 		return
 	}
 	logging.Log(newcontainer)
-
+	database.CreateContainer(&newcontainer)
 	//save container information to database.
 	job.Complete = true
 	return

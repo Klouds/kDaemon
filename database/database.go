@@ -196,7 +196,21 @@ func UpdateApplication(app *models.Application) (bool, error) {
     return true, nil
 } 
 
+//Container database Functions
 
+//Create a new node in the database
+func CreateContainer(c *models.Container) (bool, error) {
+     logging.Log("Creating Container: " + c.Name)
+
+     //TODO: Check for auth
+
+     err := db.Create(&c).Error
+     if  err != nil {
+        return false, err
+     }
+
+     return true, err
+}
 
 
 
