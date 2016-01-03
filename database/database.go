@@ -212,7 +212,14 @@ func CreateContainer(c *models.Container) (bool, error) {
      return true, err
 }
 
+//Get container information
+func GetContainer(id int64) (*models.Container, error) {
+ cont := &models.Container{}
 
+ err := db.Where(&models.Container{Id: id}).First(&cont).Error
+
+ return cont, err
+}
 
 /* OLD CODE THAT MAY BE USEFUL
 

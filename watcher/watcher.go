@@ -16,15 +16,12 @@
 package watcher
 
 import (
-		//docker "github.com/fsouza/go-dockerclient"
 		"github.com/superordinate/kDaemon/models"
-		//"github.com/superordinate/kDaemon/database"
 		"github.com/superordinate/kDaemon/logging"
-		//"encoding/json"
-		//"strings"
 		"strconv"
 )
 
+/* Job Commands. For queueing up actions on the cluster.*/
 var commands = [...]string{
 	"LC",  //Launch Container
 	"SC",  //Shutdown Container
