@@ -9,7 +9,6 @@ import (
 	"github.com/superordinate/kDaemon/models"
 	"github.com/superordinate/kDaemon/database"
 	"strconv"
-	//"github.com/superordinate/kDaemon/logging"
 )
 
 type ContainerController struct {
