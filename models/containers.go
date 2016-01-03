@@ -7,6 +7,7 @@ import (
 
 type Container struct {
 	  Id       		int64 	`json:"id"`
+	  NodeID		int64	`json:"node_id"`
 	  ApplicationID int64 	`json:"application_id"`
 	  UserID 		int64	`json:"user_id"`
 	  Name	 		string	`sql:"size:255; not null; unique;" json:"name"`
@@ -16,6 +17,7 @@ type Container struct {
 	  IsEnabled		bool 	`sql:"default:true" json:"is_enabled"`
 }
 
+//Interface function
 func (c Container) GetJSON() (string, error) {
 	b, err := json.Marshal(c)
     if err != nil {

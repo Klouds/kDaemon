@@ -102,6 +102,7 @@ func AddContainer(job *Job){
 	job.InUse = true
 
 	newcontainer := models.Container{}
+	newcontainer.Status = "Initialized"
 	decoder := json.NewDecoder(strings.NewReader(job.Body))
 	err := decoder.Decode(&newcontainer)
 	if err != nil {
@@ -124,21 +125,26 @@ func AddContainer(job *Job){
 	app, err := database.GetApplication(newcontainer.ApplicationID)
 	if err != nil {
 		logging.Log(err)
-		job.Complete = true		//Application doesn't exist, don't try to launch in the future
+		job.Complete = true			//Application doesn't exist, don't try to launch in the future
 		return
 	}
 
-	//Launch the application on the given node
-	err = LaunchAppOnNode(app, node)
+	//Launch the container on the given node
+
+	err = LaunchAppOnNode(app, node, &newcontainer)
 
 	if err != nil {
 		logging.Log(err)
-		job.Complete = false		//Application doesn't exist, don't try to launch in the future
+		job.Complete = false		//Something went wrong
 		job.InUse = false
 		return
 	}
+	logging.Log(newcontainer)
+	
+	
 
-	logging.Log(newcontainer.Name)
+	
+
 	job.Complete = true
 	return
 
@@ -150,7 +156,7 @@ func DeleteJob(i int) {
 	queue = append(queue[:i], queue[i+1:]...)
 }
 
-func LaunchAppOnNode(app *models.Application, node *models.Node) (error) {
+func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Container) (error) {
 
 	client,err := docker.NewClient(node.DIPAddr + ":" + node.DPort)
 
@@ -168,7 +174,7 @@ func LaunchAppOnNode(app *models.Application, node *models.Node) (error) {
 
      //try to create container
 	containeropts := docker.CreateContainerOptions {
-		Name: "rawr",
+		Name: cont.Name,
 		Config: &docker.Config {
 				ExposedPorts: exposedPort,
 				Image: app.DockerImage,
@@ -182,19 +188,29 @@ func LaunchAppOnNode(app *models.Application, node *models.Node) (error) {
 		},
 	}
 
-	cont, err := client.CreateContainer(containeropts)
+	cont.Status = "Created"
+
+	dock_cont, err := client.CreateContainer(containeropts)
 	
 	if err != nil {
 		logging.Log(err)
+		return err
 	}
-	
-	err = client.StartContainer(cont.ID, nil)
-    if err != nil {
-        logging.Log(err)
-    }
 		//pull if image not found
 		//try to create again
 
 	//start container
+	err = client.StartContainer(dock_cont.ID, nil)
+    if err != nil {
+        logging.Log(err)
+        return err
+    }
+
+    cont.ContainerID = dock_cont.ID
+    cont.NodeID = node.Id
+    cont.ApplicationID = app.Id
+    cont.Status = "Launched"
+
+	
 	return nil
 }
