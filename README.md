@@ -1,5 +1,7 @@
 # Klouds Cluster Daemon
 # Version 0.0 
+[![wercker status](https://app.wercker.com/status/7a1a06d652cb003d898554754a8c3c3d/m "wercker status")](https://app.wercker.com/project/bykey/7a1a06d652cb003d898554754a8c3c3d)
+
 
 <img src="http://www.ozzadar.com/klouds.png" align="center"/>
 
