@@ -3,6 +3,8 @@
 
 	This package watches the cluster state and maintains container state across the cluster.
 
+	Runs as a separate goroutine =)
+
 	Responsibilities:
 		- Poll for monitoring data
 		- Migrate containers to ideal location
@@ -40,6 +42,7 @@ var queue []*Job
 
 
 func MainLoop() {
+	//Starts the watcher loop.
 	logging.Log("Watcher started")
 	for {
 		RunQueue()
@@ -75,15 +78,16 @@ func AddJob(command string, object models.JSONObject) {
 //Job Queue
 func RunQueue() {
 	for index, job := range queue {
-		logging.Log(queue)
 		if job.Complete == true {
+			job.InUse = true;
 			DeleteJob(index)
 			continue;
 		}
 
 		if job.Type == "LC" {
 			if (job.InUse == false) {
-				AddContainer(job)
+				job.InUse = true;
+				go AddContainer(job)
 			}
 		}
 	}
@@ -92,14 +96,13 @@ func RunQueue() {
 
 //Commands
 func AddContainer(job *Job){
-	job.InUse = true;
+	
 
 	newcontainer := models.Container{}
 	decoder := json.NewDecoder(strings.NewReader(job.Body))
 	err := decoder.Decode(&newcontainer)
 	if err != nil {
 		logging.Log(err)
-		logging.Log("exit at 1")
 		job.Complete = true		//bad information, don't try to launch again
 		job.InUse = false
 		return
@@ -111,7 +114,6 @@ func AddContainer(job *Job){
 	if err != nil {
 		job.Complete = true 	//bad node, so try to launch in the future
 		logging.Log(err)
-		logging.Log("exit at 2")
 		job.InUse = false
 		return 
 	}
@@ -120,15 +122,17 @@ func AddContainer(job *Job){
 	app, err := database.GetApplication(newcontainer.ApplicationID)
 	if err != nil {
 		logging.Log(err)
-		logging.Log("exit at 3")
 		job.Complete = true		//Application doesn't exist, don't try to launch in the future
 		job.InUse = false
 		return
 	}
 
+	//compiler errors without using values right now
 	node.Hostname = "rawr"
 	app.Name = "fake"
 
+
+	LaunchAppOnNode(app, node)
 
 	//try to create container
 		//pull if image not found
@@ -146,4 +150,9 @@ func AddContainer(job *Job){
 
 func DeleteJob(i int) {
 	queue = append(queue[:i], queue[i+1:]...)
+}
+
+func LaunchAppOnNode(app *models.Application, node *models.Node) {
+
+
 }
