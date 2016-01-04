@@ -4,6 +4,7 @@ import (
 	"github.com/superordinate/kDaemon/logging"
 	"github.com/superordinate/kDaemon/database"
 	"github.com/superordinate/kDaemon/models"
+	"errors"
 )
 
 var i = 1
@@ -12,8 +13,6 @@ var i = 1
 func DetermineBestNodeForLaunch() (*models.Node, error) {
 	
 	nodes, err := database.GetNodes()
-	logging.Log("ALLNODES")
-	logging.Log(nodes)
 
 	if err != nil {
 		logging.Log(err)
@@ -21,21 +20,24 @@ func DetermineBestNodeForLaunch() (*models.Node, error) {
 	}
 
 	idealnode := nodes[0]
-
-	logging.Log(idealnode)
-
 	for i:= 1; i<len(nodes); i++ {
-		if idealnode.ContainerCount > nodes[i].ContainerCount {
-
-			logging.Log("COMPARING AGAINST")
-			logging.Log(nodes[i])
+		if idealnode.IsHealthy == false  && nodes[i].IsHealthy == true {
 			idealnode = nodes[i]
+			continue
+		}
+
+		if idealnode.ContainerCount > nodes[i].ContainerCount{
+			if nodes[i].IsHealthy == true {
+				logging.Log(nodes[i])
+				idealnode = nodes[i]
+			}
 		}
 	}
-
-	logging.Log("IDEAL NODE")
-	logging.Log(idealnode)
 	//On launch load balancing goes here
+
+	if idealnode.IsHealthy == false {
+		return &idealnode, errors.New("ERROR")
+	}
 
 	return &idealnode, nil
 }

@@ -14,6 +14,7 @@ type Node struct {
 	  PIPAddr 			string 	`sql:"size:30; not null; unique;" json:"p_ipaddr"`  //prometheus
 	  PPort 			string 	`sql:"size:255; not null;" json:"p_port"`
 	  ContainerCount 	int 	`json:"container_count"`
+	  IsHealthy			bool	`json:"is_healthy"`
 	  IsEnabled			bool 	`sql:"default:true" json:"is_enabled"`
 }
 

@@ -46,17 +46,17 @@ func AddContainer(job *Job){
 	err = LaunchAppOnNode(app, node, &newcontainer)
 	node.ContainerCount = node.ContainerCount + 1
 
-
 	if err != nil {
 		logging.Log(err)
-		job.Complete = false		//Something went wrong
-		job.InUse = false
+		job.Complete = true		//Something went wrong, container name conflicts happen here
 		return
 	}
 
-	logging.Log(newcontainer)
+	_, err = database.UpdateContainer(&newcontainer)
 
-	database.CreateContainer(&newcontainer)
+	if err != nil {
+		database.CreateContainer(&newcontainer)
+	}
 
 	database.UpdateNode(node)
 
@@ -98,13 +98,26 @@ func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Co
 		},
 	}
 
-	cont.Status = "Created"
+	cont.Status = "CREATE"
 
 	dock_cont, err := client.CreateContainer(containeropts)
 	
 	if err != nil {
 		logging.Log(err)
-		return err
+
+		err = client.StartContainer(cont.Name, nil)
+	    if err != nil {
+	        logging.Log(err)
+	        return err
+	    }
+
+     	cont.ContainerID = dock_cont.ID
+	    cont.NodeID = node.Id
+	    cont.ApplicationID = app.Id
+	    cont.IsEnabled = true
+	    cont.Status = "LAUNCHED"
+	    
+	    return nil		
 	}
 		//pull if image not found
 		//try to create again
@@ -119,7 +132,8 @@ func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Co
     cont.ContainerID = dock_cont.ID
     cont.NodeID = node.Id
     cont.ApplicationID = app.Id
-    cont.Status = "Launched"
+    cont.IsEnabled = true
+    cont.Status = "LAUNCHED"
 
 	
 	return nil

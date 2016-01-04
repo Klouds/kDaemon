@@ -39,7 +39,7 @@ func InitDB() {
     dbm.DB().Ping()
     dbm.DB().SetMaxIdleConns(10)
     dbm.DB().SetMaxOpenConns(100)
-    db.LogMode(true)
+    db.LogMode(false)
  
     if !dbm.HasTable(&models.Node{}){
     	logging.Log("Node table not found, creating it now")
@@ -229,6 +229,24 @@ func CreateContainer(c *models.Container) (bool, error) {
 
      return true, err
 }
+
+func UpdateContainer(cont *models.Container) (bool, error) {
+
+    newcont := models.Container{}
+    err := db.Where(&models.Application{Id: cont.Id}).First(&newcont).Error 
+
+    if err != nil {
+       return false, err
+    }
+
+    err = db.Save(&cont).Error
+
+    if err != nil {
+        return false, err
+    }
+
+    return true, nil
+} 
 
 //Get container information
 func GetContainer(id int64) (*models.Container, error) {
