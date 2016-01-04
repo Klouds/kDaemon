@@ -6,14 +6,15 @@ import (
 )
 
 type Node struct {
-	  Id       	int64 	`json:"id"`
-	  UserID    int64	`sql:"not null;" json:"user_id"`
-	  Hostname 	string	`sql:"size:255; not null; unique;" json:"hostname"`
-	  DIPAddr	string 	`sql:"size:255; not null; unique;" json:"d_ipaddr"` //docker
-	  DPort		string	`sql:"size:30; not null;" json:"d_port"`
-	  PIPAddr 	string 	`sql:"size:30; not null; unique;" json:"p_ipaddr"`  //prometheus
-	  PPort 	string 	`sql:"size:255; not null;" json:"p_port"`
-	  IsEnabled	bool 	`sql:"default:true" json:"is_enabled"`
+	  Id       			int64 	`json:"id"`
+	  UserID    		int64	`sql:"not null;" json:"user_id"`
+	  Hostname 			string	`sql:"size:255; not null; unique;" json:"hostname"`
+	  DIPAddr			string 	`sql:"size:255; not null; unique;" json:"d_ipaddr"` //docker
+	  DPort				string	`sql:"size:30; not null;" json:"d_port"`
+	  PIPAddr 			string 	`sql:"size:30; not null; unique;" json:"p_ipaddr"`  //prometheus
+	  PPort 			string 	`sql:"size:255; not null;" json:"p_port"`
+	  ContainerCount 	int 	`json:"container_count"`
+	  IsEnabled			bool 	`sql:"default:true" json:"is_enabled"`
 }
 
 //Interface function

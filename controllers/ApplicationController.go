@@ -114,3 +114,16 @@ func (c *ApplicationController) ApplicationInformation(rw http.ResponseWriter, r
 
 	c.JSON(rw, http.StatusOK, app)
 }
+
+func (c *ApplicationController) AllApplications(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+	//Attempts to retrieve the node from the database
+	apps, err := database.GetApplications()
+
+	if err != nil {
+		c.JSON(rw, http.StatusNotFound, "No apps")
+		return
+	}
+
+	c.JSON(rw, http.StatusOK, apps)
+}

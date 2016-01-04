@@ -117,3 +117,16 @@ func (c *NodeController) NodeInformation(rw http.ResponseWriter, r *http.Request
 
 	c.JSON(rw, http.StatusOK, node)
 }
+
+func (c *NodeController) AllNodes(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+	//Attempts to retrieve the node from the database
+	nodes, err := database.GetNodes()
+
+	if err != nil {
+		c.JSON(rw, http.StatusNotFound, "No nodes")
+		return
+	}
+
+	c.JSON(rw, http.StatusOK, nodes)
+}

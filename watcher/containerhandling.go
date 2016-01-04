@@ -7,7 +7,6 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 	"encoding/json"
 	"strings"
-
 )
 
 //Commands
@@ -21,16 +20,15 @@ func AddContainer(job *Job){
 	err := decoder.Decode(&newcontainer)
 	if err != nil {
 		logging.Log(err)
-		job.Complete = true		//bad information, don't try to launch again
+		job.Complete = true			//bad information, don't try to launch again
 		return
 	}
 
 	/* Determine node to launch on */
-	id := DetermineBestNodeForLaunch()
-	node, err := database.GetNode(id)
+	node, err := DetermineBestNodeForLaunch()
 	if err != nil {
 		logging.Log(err)
-		job.Complete = false 	//bad node, so try to launch in the future
+		job.Complete = false 		//bad node, so try to launch in the future
 		job.InUse = false
 		return 
 	}
@@ -46,6 +44,8 @@ func AddContainer(job *Job){
 	//Launch the container on the given node
 
 	err = LaunchAppOnNode(app, node, &newcontainer)
+	node.ContainerCount = node.ContainerCount + 1
+
 
 	if err != nil {
 		logging.Log(err)
@@ -53,8 +53,13 @@ func AddContainer(job *Job){
 		job.InUse = false
 		return
 	}
+
 	logging.Log(newcontainer)
+
 	database.CreateContainer(&newcontainer)
+
+	database.UpdateNode(node)
+
 	//save container information to database.
 	job.Complete = true
 	return

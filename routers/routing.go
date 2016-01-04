@@ -54,6 +54,7 @@ func (r *Routing) Init() {
 	r.Mux.PUT("/"+ APIVERSION + "/applications/:id/update", ac.EditApplication)
 	r.Mux.GET("/"+ APIVERSION + "/applications/:id", ac.ApplicationInformation)
 	r.Mux.GET("/"+ APIVERSION + "/applications/:id/", ac.ApplicationInformation)
+	r.Mux.GET("/"+ APIVERSION + "/applications", ac.AllApplications)
 
 	//Container Management
 	r.Mux.POST("/"+ APIVERSION + "/container/create", cc.CreateContainer)
@@ -61,13 +62,15 @@ func (r *Routing) Init() {
 	r.Mux.PUT("/"+ APIVERSION + "/containers/:id/update", cc.EditContainer)
 	r.Mux.GET("/"+ APIVERSION + "/containers/:id", cc.ContainerInformation)
 	r.Mux.GET("/"+ APIVERSION + "/containers/:id/", cc.ContainerInformation)
+	r.Mux.GET("/"+ APIVERSION + "/containers", cc.AllContainers)
 
-	//Container Management
+	//Node Management
 	r.Mux.POST("/"+ APIVERSION + "/node/create", nc.CreateNode)
 	r.Mux.DELETE("/"+ APIVERSION + "/nodes/:id/delete", nc.DeleteNode)
 	r.Mux.PUT("/"+ APIVERSION + "/nodes/:id/update", nc.EditNode)
 	r.Mux.GET("/"+ APIVERSION + "/nodes/:id", nc.NodeInformation)
 	r.Mux.GET("/"+ APIVERSION + "/nodes/:id/", nc.NodeInformation)
+	r.Mux.GET("/"+ APIVERSION + "/nodes", nc.AllNodes)
 
 	//User Management
 	r.Mux.POST("/"+ APIVERSION + "/user/create", uc.CreateUser)

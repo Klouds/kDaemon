@@ -108,6 +108,15 @@ func GetNode(id int64) (*models.Node, error) {
  return node, err
 }
 
+func GetNodes() ([]models.Node, error) {
+    //Returns a list of all applications 
+    nodes := []models.Node{}
+
+    err := db.Find(&nodes).Error
+
+    return nodes, err
+}
+
 //Update node
 func UpdateNode(node *models.Node) (bool, error) {
 
@@ -150,6 +159,15 @@ func GetApplication(id int64) (*models.Application, error) {
  err := db.Where(&models.Application{Id: id}).First(&app).Error
 
  return app, err
+}
+
+func GetApplications() ([]models.Application, error) {
+    //Returns a list of all applications 
+    apps := []models.Application{}
+
+    err := db.Find(&apps).Error
+
+    return apps, err
 }
 
 //delete application from database
@@ -220,6 +238,17 @@ func GetContainer(id int64) (*models.Container, error) {
 
  return cont, err
 }
+
+
+func GetContainers() ([]models.Container, error) {
+    //Returns a list of all applications 
+    conts := []models.Container{}
+
+    err := db.Find(&conts).Error
+
+    return conts, err
+}
+
 
 /* OLD CODE THAT MAY BE USEFUL
 

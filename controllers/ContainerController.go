@@ -62,3 +62,16 @@ func (c *ContainerController) ContainerInformation(rw http.ResponseWriter, r *ht
 
 	c.JSON(rw, http.StatusOK, cont)
 }
+
+func (c *ContainerController) AllContainers(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+	//Attempts to retrieve the node from the database
+	conts, err := database.GetContainers()
+
+	if err != nil {
+		c.JSON(rw, http.StatusNotFound, "No containers")
+		return
+	}
+
+	c.JSON(rw, http.StatusOK, conts)
+}
