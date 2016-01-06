@@ -81,16 +81,19 @@ OR
  * PUT /%API_VERSION%/nodes/update 			 	-- Edits a node
  * DELETE /%API_VERSION%/nodes/delete  			-- Deletes a node
  * GET /%API_VERSION%/nodes/:id  				-- Gets node information
+ * GET /%API_VERSION%/nodes  					-- Gets all nodes
  
  * POST /%API_VERSION%/application/create  		-- Creates an application in the database
  * PUT /%API_VERSION%/applications/update  		-- Edits an application
  * DELETE /%API_VERSION%/applications/delete  	-- Deletes an application
  * GET /%API_VERSION%/applications/:id  		-- Gets application information
+ * GET /%API_VERSION%/applications  			-- Gets all applications
 
  * POST /%API_VERSION%/container/create  		-- Creates a container on the cluster
  * PUT /%API_VERSION%/containers/update  		-- Edits a container [X]
  * DELETE /%API_VERSION%/containers/delete  	-- Deletes a container [X]
  * GET /%API_VERSION%/containers/:id  			-- Gets container information
+ * GET /%API_VERSION%/containers  				-- Gets all containers
 
  * POST /%API_VERSION%/user/create  			-- Creates a user [X]
  * PUT /%API_VERSION%/users/update  			-- Edits a users [X]

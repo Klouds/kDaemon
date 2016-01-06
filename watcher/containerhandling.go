@@ -74,6 +74,37 @@ func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Co
 		logging.Log(err)
 	}
 
+	//Check if container with name already exists
+	exContainer, err := client.InspectContainer(cont.Name)
+
+	if err == nil {
+
+		logging.Log("Container already exists on host! Attempting to restart it")
+		//Start the existing container
+		inerr := client.StartContainer(exContainer.Name, exContainer.HostConfig)
+
+		if inerr != nil {
+			logging.Log("Restarting container failed, deleting container and launching a fresh one")
+			//Delete the container
+			containeropts := docker.RemoveContainerOptions {
+				ID: exContainer.ID,
+				RemoveVolumes: true,
+				Force: true,
+			}
+
+			client.RemoveContainer(containeropts)
+
+		} else {
+			//Container restarted successfully
+			cont.ContainerID = exContainer.ID
+		    cont.NodeID = node.Id
+		    cont.ApplicationID = app.Id
+		    cont.IsEnabled = true
+		    cont.Status = "LAUNCHED"
+			return nil
+		}
+	}
+
 	ports := app.GetPorts()
 
 	port := ports[0] +"/tcp"
@@ -105,19 +136,7 @@ func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Co
 	if err != nil {
 		logging.Log(err)
 
-		err = client.StartContainer(cont.Name, nil)
-	    if err != nil {
-	        logging.Log(err)
-	        return err
-	    }
-
-     	cont.ContainerID = dock_cont.ID
-	    cont.NodeID = node.Id
-	    cont.ApplicationID = app.Id
-	    cont.IsEnabled = true
-	    cont.Status = "LAUNCHED"
-	    
-	    return nil		
+		return nil		
 	}
 		//pull if image not found
 		//try to create again
