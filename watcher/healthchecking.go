@@ -70,13 +70,14 @@ func CheckContainers() error{
 		return err
 	}
 
-	for _, value := range containers {
+	for index, value := range containers {
 
 		node, err := database.GetNode(value.NodeID)
 
 		if err != nil || node.IsHealthy == false {
 			logging.Log ("HC > NODE ISNT HEALTHY, MIGRATING NODES")
-			go MigrateContainer(&value, node)
+			
+			go MigrateContainer(&containers[index], node)
 
 			continue;
 		}

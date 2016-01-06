@@ -74,6 +74,7 @@ func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Co
 		logging.Log(err)
 	}
 
+	logging.Log(cont)
 	//Check if container with name already exists
 	exContainer, err := client.InspectContainer(cont.Name)
 
