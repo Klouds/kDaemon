@@ -77,7 +77,17 @@ func CheckContainers() error{
 		if err != nil || node.IsHealthy == false {
 			logging.Log ("HC > NODE ISNT HEALTHY, MIGRATING NODES")
 			
-			go MigrateContainer(&containers[index], node)
+				node.ContainerCount = node.ContainerCount - 1
+
+			if node.ContainerCount <= 0 {
+				node.ContainerCount = 0
+			}
+
+			logging.Log("HC > NODE INFORMATION")
+			logging.Log(node)
+			database.UpdateNode(node)
+			
+			MigrateContainer(&containers[index])
 
 			continue;
 		}
@@ -96,7 +106,7 @@ func CheckContainers() error{
 			logging.Log("HC > CONTAINER | " + value.Name + " | DOESNT EXIST")
 			value.Status = "DOWN"
 
-			AddJob("LC", value)
+			AddJob("LC", containers[index])
 			continue
 		}
 
@@ -109,7 +119,18 @@ func CheckContainers() error{
 			//if container doesn't start, attempt migration
 		    if err != nil {
 		    	logging.Log("HC > CONTAINER WONT START, | " + value.Name + " | MIGRATING")
-		        MigrateContainer(&value, node)
+
+		    	node.ContainerCount = node.ContainerCount - 1
+
+				if node.ContainerCount <= 0 {
+					node.ContainerCount = 0
+				}
+
+				logging.Log("HC > NODE INFORMATION")
+				logging.Log(node)
+				database.UpdateNode(node)
+
+		        MigrateContainer(&containers[index])
 		        continue
 		    }
 		} else {
@@ -121,18 +142,12 @@ func CheckContainers() error{
 	return nil
 }
 
-func MigrateContainer(container *models.Container, node *models.Node) {
+func MigrateContainer(container *models.Container) {
 	//loses data but maintains uptime at the moment
 	container.NodeID = 0
 	container.Status = "DOWN"
 	container.IsEnabled = false
-	node.ContainerCount = node.ContainerCount - 1
 
-	if node.ContainerCount <= 0 {
-		node.ContainerCount = 0
-	}
-
-	database.UpdateNode(node)
 	database.UpdateContainer(container)
 
 	AddJob("LC", container)

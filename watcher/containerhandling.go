@@ -16,6 +16,7 @@ func AddContainer(job *Job){
 
 	newcontainer := models.Container{}
 	newcontainer.Status = "Initialized"
+
 	decoder := json.NewDecoder(strings.NewReader(job.Body))
 	err := decoder.Decode(&newcontainer)
 	if err != nil {
@@ -43,22 +44,19 @@ func AddContainer(job *Job){
 
 	//Launch the container on the given node
 
+    node.ContainerCount = node.ContainerCount + 1
+    database.UpdateNode(node)
+
 	err = LaunchAppOnNode(app, node, &newcontainer)
-	node.ContainerCount = node.ContainerCount + 1
+	
 
 	if err != nil {
 		logging.Log(err)
+		node.ContainerCount = node.ContainerCount - 1
+        database.UpdateNode(node)
 		job.Complete = true		//Something went wrong, container name conflicts happen here
 		return
 	}
-
-	_, err = database.UpdateContainer(&newcontainer)
-
-	if err != nil {
-		database.CreateContainer(&newcontainer)
-	}
-
-	database.UpdateNode(node)
 
 	//save container information to database.
 	job.Complete = true
@@ -102,6 +100,16 @@ func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Co
 		    cont.ApplicationID = app.Id
 		    cont.IsEnabled = true
 		    cont.Status = "LAUNCHED"
+
+
+		    _, err = database.UpdateContainer(cont)
+
+			if err != nil {
+				database.CreateContainer(cont)
+			}
+
+			
+			
 			return nil
 		}
 	}
@@ -154,6 +162,22 @@ func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Co
     cont.ApplicationID = app.Id
     cont.IsEnabled = true
     cont.Status = "LAUNCHED"
+
+    newnode, err := database.GetNode(node.Id) 
+
+    if err != nil {
+    	logging.Log(err)
+    }
+
+    newnode.ContainerCount = newnode.ContainerCount + 1
+
+    _, err = database.UpdateContainer(cont)
+
+	if err != nil {
+		database.CreateContainer(cont)
+	}
+
+	database.UpdateNode(newnode)
 
 	
 	return nil
