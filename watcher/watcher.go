@@ -26,9 +26,12 @@ const HC_INTERVAL = time.Duration(15) * time.Second
 
 /* Job Commands. For queueing up actions on the cluster.*/
 var commands = [...]string{
-	"LC",  //Launch Container
+	
 	"SC",  //Shutdown Container
 	"HC",  //Performs a global health check
+	"RC",  //Removes a container from a node
+	"LC",  //Launch Container on a node
+
 	"NAC", //Not a command
 }
 
@@ -82,6 +85,7 @@ func AddJob(command string, object models.JSONObject) {
 
 //Job Queue
 func RunQueue() {
+	currentTime := time.Now().Local()
 	for index, job := range queue {
 		if job.Complete == true {
 			job.InUse = true;
@@ -92,14 +96,26 @@ func RunQueue() {
 		if job.Type == "LC" {
 			if (job.InUse == false) {
 				job.InUse = true
+				logging.Log("LC > LAUNCHING CONTAINER ON NODE: " + currentTime.String())
 				go AddContainer(job)
 			}
 		}
 
 		if job.Type == "HC" {
 			if (job.InUse == false) {
+				
 				job.InUse = true
+				logging.Log("HC > PERFORMING HEALTH CHECK AT " + currentTime.String())
 				go PerformHealthCheck(job)
+			}
+		}
+
+		if job.Type == "RC" {
+			if (job.InUse == false) {
+				currentTime := time.Now().Local()
+				job.InUse = true
+				logging.Log("RC > REMOVING CONTAINER AT " + currentTime.String())
+				go RemoveContainer(job)
 			}
 		}
 	}
@@ -110,18 +126,15 @@ func RunQueue() {
 func DeleteJob(i int) {
 	index := strconv.Itoa(i)
 	logging.Log("Deleting job: " + queue[i].Type+ " at index " + index)
+
+
 	queue = append(queue[:i], queue[i+1:]...)
 }
 
 func ScheduleHealthCheck(interval time.Duration) {
-	
-
 	for _ = range time.Tick(interval) {
 		//Tick
-		currentTime := time.Now().Local()
-		logging.Log("HC > PERFORMING HEALTH CHECK AT " + currentTime.String())
 		
-
 		newjob := &Job {
 			Type: "HC",
 			Body: "{}",

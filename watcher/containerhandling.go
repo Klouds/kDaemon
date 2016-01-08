@@ -7,6 +7,7 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 	"encoding/json"
 	"strings"
+	"errors"
 )
 
 //Commands
@@ -44,19 +45,19 @@ func AddContainer(job *Job){
 
 	//Launch the container on the given node
 
-    node.ContainerCount = node.ContainerCount + 1
-    database.UpdateNode(node)
-
 	err = LaunchAppOnNode(app, node, &newcontainer)
 	
 
 	if err != nil {
 		logging.Log(err)
-		node.ContainerCount = node.ContainerCount - 1
-        database.UpdateNode(node)
-		job.Complete = true		//Something went wrong, container name conflicts happen here
+        job.Complete = false		//Something went wrong, container name conflicts happen here
+		job.InUse = false
 		return
 	}
+
+	database.CreateContainer(&newcontainer)
+	node.ContainerCount = node.ContainerCount + 1
+	database.UpdateNode(node)	
 
 	//save container information to database.
 	job.Complete = true
@@ -64,56 +65,116 @@ func AddContainer(job *Job){
 
 }
 
-func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Container) (error) {
 
+func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Container) (error) {
+	
 	client,err := docker.NewClient(node.DIPAddr + ":" + node.DPort)
 
 	if err != nil {
 		logging.Log(err)
 	}
 
-	logging.Log(cont)
-	//Check if container with name already exists
-	exContainer, err := client.InspectContainer(cont.Name)
-
-	if err == nil {
-
-		logging.Log("Container already exists on host! Attempting to restart it")
-		//Start the existing container
-		inerr := client.StartContainer(exContainer.Name, exContainer.HostConfig)
-
-		if inerr != nil {
-			logging.Log("Restarting container failed, deleting container and launching a fresh one")
-			//Delete the container
-			containeropts := docker.RemoveContainerOptions {
-				ID: exContainer.ID,
-				RemoveVolumes: true,
-				Force: true,
-			}
-
-			client.RemoveContainer(containeropts)
-
+	//Does image exist
+	if imageExists(app.DockerImage, client) == nil {
+		//does container exist
+		if containerExists(cont.Name, client) == nil{
+				//delete container 
+				if removeContainer(cont.Name, client) != nil {
+					return errors.New("Container exists but cannot be removed.")
+				}
 		} else {
-			//Container restarted successfully
-			cont.ContainerID = exContainer.ID
+			logging.Log("Container doesn't exist")
+		}
+
+	} else { 	//image doesnt exist
+		//pull image
+		if pullImage(app.DockerImage, client) == nil {
+			return errors.New("Pulling image")
+		}
+		
+	}
+
+	//try to create container
+	if  createContainer(cont.Name, app, client) == nil {
+		logging.Log("Created Container")
+		//start container
+		if startContainer(cont.Name, client) == nil {
+			logging.Log("starting Container")
+			cont.ContainerID = cont.Name
 		    cont.NodeID = node.Id
 		    cont.ApplicationID = app.Id
 		    cont.IsEnabled = true
 		    cont.Status = "LAUNCHED"
 
-
-		    _, err = database.UpdateContainer(cont)
-
-			if err != nil {
-				database.CreateContainer(cont)
-			}
-
-			
-			
-			return nil
+		    _, _ = database.CreateContainer(cont)
+		} else {
+			return errors.New("Tried to start container, but it failed.")
 		}
+	} else {
+		return errors.New("Tried to create container, but it failed.")
+	}
+	
+	return nil
+}
+
+func RemoveContainer(job *Job) {
+	job.InUse = true
+	
+
+	//Get container info
+	newcontainer := models.Container{}
+	decoder := json.NewDecoder(strings.NewReader(job.Body))
+	err := decoder.Decode(&newcontainer)
+	if err != nil {
+		logging.Log(err)
+		job.Complete = true			//bad information, don't try to launch again
+		return
 	}
 
+	node, err := database.GetNode(newcontainer.ApplicationID)
+
+	if err != nil {
+		logging.Log("RC > Container doesn't exist in Database")
+	}
+
+	if RemoveContainerFromNode(node, &newcontainer) == nil {
+		//if successful
+		logging.Log("RC > Container Removed from node successfully")
+		job.Complete = true;
+	} else {
+		logging.Log("RC > Container removal unsuccessful. Must not be running on Node.")
+		job.Complete = false;
+		job.InUse = false;
+	}
+}
+
+func RemoveContainerFromNode(node *models.Node, cont *models.Container) (error) {
+	
+	client,err := docker.NewClient(node.DIPAddr + ":" + node.DPort)
+
+	if err != nil {
+		logging.Log(err)
+	}
+
+	if containerExists(cont.Name, client) == nil{
+			//delete container 
+			if removeContainer(cont.Name, client) != nil {
+				return errors.New("RC > Container exists but cannot be removed.")
+			}
+	} else {
+		logging.Log("RC > Container doesn't exist")
+	}
+
+	err = database.DeleteContainer(cont.Id)
+
+	if err == nil {
+		node.ContainerCount = node.ContainerCount - 1
+		database.UpdateNode(node)
+	}
+	return err
+}
+
+func createContainer(name string, app *models.Application, client *docker.Client) error {
 	ports := app.GetPorts()
 
 	port := ports[0] +"/tcp"
@@ -124,7 +185,7 @@ func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Co
 
      //try to create container
 	containeropts := docker.CreateContainerOptions {
-		Name: cont.Name,
+		Name: name,
 		Config: &docker.Config {
 				ExposedPorts: exposedPort,
 				Image: app.DockerImage,
@@ -138,47 +199,58 @@ func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Co
 		},
 	}
 
-	cont.Status = "CREATE"
+	_, err := client.CreateContainer(containeropts)
 
-	dock_cont, err := client.CreateContainer(containeropts)
-	
-	if err != nil {
-		logging.Log(err)
+	return err
+}
 
-		return nil		
-	}
-		//pull if image not found
-		//try to create again
+func startContainer(name string, client *docker.Client) error {
+	return client.StartContainer(name, nil)
+}
 
-	//start container
-	err = client.StartContainer(dock_cont.ID, nil)
-    if err != nil {
-        logging.Log(err)
-        return err
-    }
+func imageExists(image string, client *docker.Client) error{
+	img, err := client.InspectImage(image)
 
-    cont.ContainerID = dock_cont.ID
-    cont.NodeID = node.Id
-    cont.ApplicationID = app.Id
-    cont.IsEnabled = true
-    cont.Status = "LAUNCHED"
-
-    newnode, err := database.GetNode(node.Id) 
-
-    if err != nil {
-    	logging.Log(err)
-    }
-
-    newnode.ContainerCount = newnode.ContainerCount + 1
-
-    _, err = database.UpdateContainer(cont)
-
-	if err != nil {
-		database.CreateContainer(cont)
+	if img == nil {
+		err = errors.New("Image doesn't exist")
+	} else {
+		err = nil
 	}
 
-	database.UpdateNode(newnode)
+	return err
+}
+
+func containerExists(name string, client *docker.Client) error{
+	cont, err := client.InspectContainer(name)
 
 	
-	return nil
+	if cont != nil {
+		err = nil
+	} else {
+		err = errors.New("Container exists")
+	}
+
+	return err	
+}
+
+func removeContainer(name string, client *docker.Client) error {
+
+	logging.Log("Removing container")
+	rmcontopts := docker.RemoveContainerOptions {
+		ID: name,
+		RemoveVolumes: true,
+		Force: true,
+	}
+
+	return client.RemoveContainer(rmcontopts)
+}
+
+func pullImage(image string, client *docker.Client) error {
+
+	imageopts := docker.PullImageOptions {
+		Repository: image,
+	}
+
+	return client.PullImage(imageopts, docker.AuthConfiguration{})
+
 }

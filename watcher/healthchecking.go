@@ -26,6 +26,8 @@ func PerformHealthCheck(job *Job) {
 	CheckContainers()
 
 	job.Complete = true
+	currentTime := time.Now().Local()
+	logging.Log("HC > HEALTH CHECK COMPLETE AT " + currentTime.String())
 	
 }
 
@@ -37,22 +39,24 @@ func CheckNodes() ([]models.Node, error) {
 		return nodes, err
 	}
 
-	for _, value := range nodes {
-		//Check Node for basic ping
+	logging.Log(nodes)
 
-		conn, err := net.DialTimeout("tcp", value.DIPAddr + ":" + value.DPort, timeout)
+	for index, _ := range nodes {
+		//Check Node for basic ping
+		conn, err := net.DialTimeout("tcp", nodes[index].DIPAddr + ":" + nodes[index].DPort, timeout)
 		if err != nil {
-			value.IsEnabled = false
-			value.IsHealthy = false
-			logging.Log("HC > NODE | " + value.Hostname + " | IS CURRENTLY NOT ACCESSIBLE")
-			database.UpdateNode(&value)
+			nodes[index].IsEnabled = false
+			nodes[index].IsHealthy = false
+			logging.Log("HC > NODE | " + nodes[index].Hostname + " | IS CURRENTLY NOT ACCESSIBLE")
+			database.UpdateNode(&nodes[index])
 			continue;
 		} 
-		logging.Log("HC > NODE WITH HOSTNAME | " + value.Hostname + " | IS HEALTHY")
-		value.IsHealthy = true
-		value.IsEnabled = true
 
-		database.UpdateNode(&value)
+		logging.Log("HC > NODE WITH HOSTNAME | " + nodes[index].Hostname + " | IS HEALTHY")
+		nodes[index].IsHealthy = true
+		nodes[index].IsEnabled = true
+
+		database.UpdateNode(&nodes[index])
 		conn.Close()
 
 	}
@@ -76,17 +80,7 @@ func CheckContainers() error{
 
 		if err != nil || node.IsHealthy == false {
 			logging.Log ("HC > NODE ISNT HEALTHY, MIGRATING NODES")
-			
-				node.ContainerCount = node.ContainerCount - 1
 
-			if node.ContainerCount <= 0 {
-				node.ContainerCount = 0
-			}
-
-			logging.Log("HC > NODE INFORMATION")
-			logging.Log(node)
-			database.UpdateNode(node)
-			
 			MigrateContainer(&containers[index])
 
 			continue;
@@ -120,16 +114,6 @@ func CheckContainers() error{
 		    if err != nil {
 		    	logging.Log("HC > CONTAINER WONT START, | " + value.Name + " | MIGRATING")
 
-		    	node.ContainerCount = node.ContainerCount - 1
-
-				if node.ContainerCount <= 0 {
-					node.ContainerCount = 0
-				}
-
-				logging.Log("HC > NODE INFORMATION")
-				logging.Log(node)
-				database.UpdateNode(node)
-
 		        MigrateContainer(&containers[index])
 		        continue
 		    }
@@ -144,11 +128,7 @@ func CheckContainers() error{
 
 func MigrateContainer(container *models.Container) {
 	//loses data but maintains uptime at the moment
-	container.NodeID = 0
-	container.Status = "DOWN"
-	container.IsEnabled = false
 
-	database.UpdateContainer(container)
-
+	AddJob("RC", container)
 	AddJob("LC", container)
 }

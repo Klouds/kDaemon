@@ -28,7 +28,6 @@ func DetermineBestNodeForLaunch() (*models.Node, error) {
 
 		if idealnode.ContainerCount > nodes[i].ContainerCount{
 			if nodes[i].IsHealthy == true {
-				logging.Log(nodes[i])
 				idealnode = nodes[i]
 			}
 		}

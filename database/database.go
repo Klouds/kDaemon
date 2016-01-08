@@ -126,7 +126,6 @@ func UpdateNode(node *models.Node) (bool, error) {
     if err != nil {
        return false, err
     }
-
     err = db.Save(&node).Error
 
     if err != nil {
@@ -267,6 +266,25 @@ func GetContainers() ([]models.Container, error) {
     return conts, err
 }
 
+func DeleteContainer(id int64) error {
+    logging.Log("Deleting Application: ", id)
+
+    cont := models.Container{}
+
+    err := db.Where(&models.Container{Id: id}).First(&cont).Error 
+
+    if err != nil {
+        return err
+    }
+    //  TODO: Check for auth
+    //      Delete all containers
+
+    //Delete application from database
+    err = db.Delete(&cont).Error
+
+    return err
+
+}
 
 /* OLD CODE THAT MAY BE USEFUL
 
