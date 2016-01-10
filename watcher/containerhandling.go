@@ -55,10 +55,6 @@ func AddContainer(job *Job){
 		return
 	}
 
-	database.CreateContainer(&newcontainer)
-	node.ContainerCount = node.ContainerCount + 1
-	database.UpdateNode(node)	
-
 	//save container information to database.
 	job.Complete = true
 	return
@@ -97,16 +93,33 @@ func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Co
 	//try to create container
 	if  createContainer(cont.Name, app, client) == nil {
 		logging.Log("Created Container")
+		_, err := database.CreateContainer(cont)
+		if err != nil {
+	    	logging.Log("LC > Could not create the container on the database.")
+	    } 
 		//start container
 		if startContainer(cont.Name, client) == nil {
 			logging.Log("starting Container")
+			node.ContainerCount = node.ContainerCount +1
 			cont.ContainerID = cont.Name
 		    cont.NodeID = node.Id
 		    cont.ApplicationID = app.Id
 		    cont.IsEnabled = true
 		    cont.Status = "LAUNCHED"
 
-		    _, _ = database.CreateContainer(cont)
+		    logging.Log(node)
+	    	_, err := database.UpdateContainer(cont)
+
+	    	if err != nil {
+	    		logging.Log("LC > Could not save the container to the database.")
+	    	}
+
+	    	_, err = database.UpdateNode(node)
+
+	    	if err != nil {
+	    		logging.Log("LC > Could not save the node to the database.")
+	    	}
+
 		} else {
 			return errors.New("Tried to start container, but it failed.")
 		}
@@ -131,14 +144,18 @@ func RemoveContainer(job *Job) {
 		return
 	}
 
-	node, err := database.GetNode(newcontainer.ApplicationID)
+	node, err := database.GetNode(newcontainer.NodeID)
 
 	if err != nil {
-		logging.Log("RC > Container doesn't exist in Database")
+		logging.Log("RC > Node doesn't exist in Database")
 	}
 
 	if RemoveContainerFromNode(node, &newcontainer) == nil {
 		//if successful
+
+		node.ContainerCount = node.ContainerCount - 1
+		database.UpdateNode(node)
+
 		logging.Log("RC > Container Removed from node successfully")
 		job.Complete = true;
 	} else {
@@ -153,7 +170,8 @@ func RemoveContainerFromNode(node *models.Node, cont *models.Container) (error) 
 	client,err := docker.NewClient(node.DIPAddr + ":" + node.DPort)
 
 	if err != nil {
-		logging.Log(err)
+		logging.Log(node)
+		logging.Log("THE THING IS BROKEN")
 	}
 
 	if containerExists(cont.Name, client) == nil{
@@ -167,10 +185,6 @@ func RemoveContainerFromNode(node *models.Node, cont *models.Container) (error) 
 
 	err = database.DeleteContainer(cont.Id)
 
-	if err == nil {
-		node.ContainerCount = node.ContainerCount - 1
-		database.UpdateNode(node)
-	}
 	return err
 }
 

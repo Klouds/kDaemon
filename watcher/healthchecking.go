@@ -7,6 +7,8 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 	"net"
 	"time"
+	"errors"
+	"strconv"
 )
 
 const timeout = time.Duration(5) * time.Second
@@ -23,7 +25,9 @@ func PerformHealthCheck(job *Job) {
 		return
 	}
 	//Check if containers are running
-	CheckContainers()
+	conts, err := CheckContainers()
+	
+	CountContainers(conts, nodes)
 
 	job.Complete = true
 	currentTime := time.Now().Local()
@@ -65,13 +69,13 @@ func CheckNodes() ([]models.Node, error) {
 
 }
 
-func CheckContainers() error{
+func CheckContainers() ([]models.Container, error ){
 	logging.Log("HC > STARTING CONTAINER CHECK")
 	
 	containers, err := database.GetContainers()
 	if err != nil {
 		logging.Log("HC > THERE ARE NO CONTAINERS, SKIPPING HEALTHCHECK")
-		return err
+		return nil, err
 	}
 
 	for index, value := range containers {
@@ -94,7 +98,7 @@ func CheckContainers() error{
 			continue
 		}
 
-		dock_cont, err := client.InspectContainer(value.ContainerID)
+		dock_cont, err := client.InspectContainer(value.ContainerID) 
 
 		if err != nil {
 			logging.Log("HC > CONTAINER | " + value.Name + " | DOESNT EXIST")
@@ -123,8 +127,38 @@ func CheckContainers() error{
 		}		
 	}
 
-	return nil
+	return containers, nil
 }
+
+func CountContainers(conts []models.Container, nodes []models.Node) (error) {
+	//If container count == 0 reset all counts to zero and return
+
+
+	if len(conts) <= 0 {
+
+		logging.Log("HC > RESETTING ALL COUNTS TO ZERO")
+		for i, value := range nodes {
+			value.ContainerCount = 0
+			database.UpdateNode(&nodes[i])
+		}	
+		return errors.New("No Containers")
+	}
+
+	nodeCounts := make(map[string]int)
+
+	logging.Log("HC > COUNTING CONTAINERS")
+
+	//Loop through containers and count the containers belonging to which nodes
+	for _, value := range conts {
+		nodeCounts[strconv.FormatInt(value.NodeID, 10)] = nodeCounts[strconv.FormatInt(value.NodeID, 10)] + 1
+	}
+	for _, value := range nodes {
+		logging.Log(value.ContainerCount)
+		database.UpdateNode(&value)
+	}	
+	
+	return nil
+} 
 
 func MigrateContainer(container *models.Container) {
 	//loses data but maintains uptime at the moment
@@ -132,3 +166,4 @@ func MigrateContainer(container *models.Container) {
 	AddJob("RC", container)
 	AddJob("LC", container)
 }
+

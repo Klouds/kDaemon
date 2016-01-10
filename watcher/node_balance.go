@@ -20,6 +20,7 @@ func DetermineBestNodeForLaunch() (*models.Node, error) {
 	}
 
 	idealnode := nodes[0]
+	
 	for i:= 1; i<len(nodes); i++ {
 		if idealnode.IsHealthy == false  && nodes[i].IsHealthy == true {
 			idealnode = nodes[i]
