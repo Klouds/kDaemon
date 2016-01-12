@@ -22,6 +22,7 @@ func Init() {
 func InitDB() {
 
 	logging.Log("Initializing Database connection.")
+
 	mysqlhost, err := config.Config.GetString("default", "mysql_host") 
     if err != nil {
         logging.Log("Problem with config file! (mysql_host)")
@@ -38,9 +39,13 @@ func InitDB() {
     if err != nil {
         logging.Log("Problem with config file! (mysql_port)")
     }
+    mysqldbname, err := config.Config.GetString("default", "mysql_dbname")
+    if err != nil {
+        logging.Log("Problem with config file! (mysql_dbname)")
+    }
 
     dbm, err := gorm.Open("mysql", mysqluser+ ":" + mysqlpass + 
-    		"@(" + mysqlhost + ":" + mysqlport + ")/kdaemon?charset=utf8&parseTime=True")
+    		"@(" + mysqlhost + ":" + mysqlport + ")/" + mysqldbname + "?charset=utf8&parseTime=True")
 
     if(err != nil){
         panic("Unable to connect to the database")

@@ -36,44 +36,41 @@ docker-prometheus __/
 
 ##HOW TO USE:
 
-###Environment Variables
+###Configuration -- conf/app.conf
 
-MYSQL_HOST= 127.0.0.1:3306	 			<-- Points to your database
-MYSQL_USER= root						<-- User for your mysql database
-MYSQL_PASSWORD= iamapassword			<-- password for you mysql user
+```
+	[default]
+	bind_ip = 0.0.0.0   			# IP to bind API to
+	bind_port = 1337				# Port to bind API to
+	mysql_host = localhost 			# Address to mysql server
+	mysql_port = 3306				# port for mysql server
+	mysql_user = root				# mysql username
+	mysql_password = thesecretsauce	# mysql password
+	mysql_dbname = kDaemon			# database name
+
+```
 
 ###Dependencies
 
-	* Your nodes need to be running the docker API and Prometheus API
-	* You must have a mysql host with a database named 'kDaemon'
+	* Your nodes need to be running the docker API
+	* You must have a mysql host
 
 ###To build (linux):
 
 
 ```
-go get github.com/superordinate/kDaemon
-cd $GOPATH/src/github.com/superordinate/kDaemon
-go build .
+	go get github.com/superordinate/kDaemon
+	cd $GOPATH/src/github.com/superordinate/kDaemon
+	go build .
 
 ```
 ### To Run
 
 ``` 
-
-	MYSQL_HOST=127.0.0.1:3306 MYSQL_USER=root MYSQL_PASSWORD=iamapassword ./kDaemon
-
-```
-
-OR
-
-```
-	export MYSQL_HOST= 127.0.0.1:3306
-	export MYSQL_USER= root	
-	export MYSQL_PASSWORD= iamapassword
-
 	./kDaemon
 
 ```
+
 
 ### ENDPOINTS [X] = Not implemented
 ```
