@@ -36,7 +36,7 @@ docker-prometheus __/
 
 ##HOW TO USE:
 
-###Configuration -- conf/app.conf
+###Configuration -- config/app.conf
 
 ```
 	[default]

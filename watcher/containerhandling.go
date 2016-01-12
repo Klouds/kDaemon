@@ -107,7 +107,6 @@ func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Co
 		    cont.IsEnabled = true
 		    cont.Status = "LAUNCHED"
 
-		    logging.Log(node)
 	    	_, err := database.UpdateContainer(cont)
 
 	    	if err != nil {

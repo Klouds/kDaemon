@@ -43,8 +43,6 @@ func CheckNodes() ([]models.Node, error) {
 		return nodes, err
 	}
 
-	logging.Log(nodes)
-
 	for index, _ := range nodes {
 		//Check Node for basic ping
 		conn, err := net.DialTimeout("tcp", nodes[index].DIPAddr + ":" + nodes[index].DPort, timeout)

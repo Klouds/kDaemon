@@ -11,34 +11,48 @@ import (
 
 func main() {
 
+	//Load the config file.
 	err := config.LoadConfig()
-
 	if err != nil {
 		logging.Log("CONFIG FILE CANNOT BE LOADED")
 		return
 	}
-
-	logging.Log(config.Config)
 	
+	//Load some config file data
 	host, err := config.Config.GetString("default", "bind_ip")
-
 	if err != nil {
 		logging.Log("Problem with config file! (bind_ip)")
+		return
 	}
 
-	port, err := config.Config.GetString("default", "bind_port")
+	apiport, err := config.Config.GetString("default", "api_port")
 	if err != nil {
-		logging.Log("Problem with config file! (bind_port)")
+		logging.Log("Problem with config file! (api_port)")
+		return
 	}
 
-	var newmux routers.Routing
-	newmux.Init()
+	uiport, err := config.Config.GetString("default", "ui_port")
+	if err != nil {
+		logging.Log("Problem with config file! (ui_port)")
+		return
+	}
+
+
+	//Run the API
+	var api routers.APIRouting
+	api.Init()
+
+	//Run the UI
+	var ui routers.UIRouting
+	ui.Init()
 	
 	//Starts the cluster watcher
 	go watcher.MainLoop()
 
-	//Hosts the web server
-	http.ListenAndServe(host + ":" + port, newmux.Mux)
-	
+	//Hosts the api server
+	go http.ListenAndServe(host + ":" + apiport, api.Mux)
+
+	//Hosts the ui server
+	http.ListenAndServe(host + ":" + uiport, ui.Mux)
 	
 }
