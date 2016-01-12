@@ -22,7 +22,7 @@ import (
 		"time"
 )
 
-const HC_INTERVAL = time.Duration(15) * time.Second
+const HC_INTERVAL = time.Duration(30) * time.Second
 
 /* Job Commands. For queueing up actions on the cluster.*/
 var commands = [...]string{
@@ -50,6 +50,16 @@ func MainLoop() {
 
 	//Starts the watcher loop.
 	logging.Log("Watcher started")
+
+	//perform a healthcheck on launch and then schedule a new healthcheck every HC_INTERVAL
+	newjob := &Job {
+		Type: "HC",
+		Body: "{}",
+		InUse: false,
+		Complete: false,
+	}
+
+	queue = append(queue, newjob)
 	go ScheduleHealthCheck(HC_INTERVAL)
 
 	for {

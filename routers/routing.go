@@ -8,16 +8,17 @@ import (
 	"github.com/superordinate/kDaemon/controllers"
 	"github.com/superordinate/kDaemon/database"
 	"github.com/superordinate/kDaemon/logging"
+
 )
 
 type Routing struct {
 
 	Render *render.Render
 	Mux *httprouter.Router
-
 }
 
 func (r *Routing) Init() {
+
 
 	database.Init()
 	r.Render = render.New(render.Options{Directory: "views",

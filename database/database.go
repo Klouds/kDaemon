@@ -5,8 +5,7 @@ import (
     "github.com/jinzhu/gorm"
     "github.com/superordinate/kDaemon/models"
     "github.com/superordinate/kDaemon/logging"
-    "os"
-
+    "github.com/superordinate/kDaemon/config"
 )
 
 var (
@@ -23,12 +22,25 @@ func Init() {
 func InitDB() {
 
 	logging.Log("Initializing Database connection.")
-	mysqlhost := os.Getenv("MYSQL_HOST")
-	mysqluser := os.Getenv("MYSQL_USER")
-	mysqlpass := os.Getenv("MYSQL_PASSWORD")
+	mysqlhost, err := config.Config.GetString("default", "mysql_host") 
+    if err != nil {
+        logging.Log("Problem with config file! (mysql_host)")
+    }
+    mysqlport, err := config.Config.GetString("default", "mysql_port")
+    if err != nil {
+        logging.Log("Problem with config file! (mysql_port)")
+    }
+	mysqluser, err := config.Config.GetString("default", "mysql_user")
+    if err != nil {
+        logging.Log("Problem with config file! (mysql_user)")
+    }
+	mysqlpass, err := config.Config.GetString("default", "mysql_password")
+    if err != nil {
+        logging.Log("Problem with config file! (mysql_port)")
+    }
 
     dbm, err := gorm.Open("mysql", mysqluser+ ":" + mysqlpass + 
-    		"@(" + mysqlhost + ")/kdaemon?charset=utf8&parseTime=True")
+    		"@(" + mysqlhost + ":" + mysqlport + ")/kdaemon?charset=utf8&parseTime=True")
 
     if(err != nil){
         panic("Unable to connect to the database")

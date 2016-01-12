@@ -152,8 +152,9 @@ func CountContainers(conts []models.Container, nodes []models.Node) (error) {
 	for _, value := range conts {
 		nodeCounts[strconv.FormatInt(value.NodeID, 10)] = nodeCounts[strconv.FormatInt(value.NodeID, 10)] + 1
 	}
+
 	for _, value := range nodes {
-		logging.Log(value.ContainerCount)
+		value.ContainerCount = nodeCounts[strconv.FormatInt(value.Id, 10)]
 		database.UpdateNode(&value)
 	}	
 	
