@@ -24,12 +24,11 @@ Full stack design can be read here
 ##THE STACK
 
 ```
-
-docker-prometheus --\    /---> consul ---> haproxy-consul  <--\
-			   		 \	/									   \
-docker-prometheus --->kDaemon -><-- klouds-frontend <----------User
-			   		 /					 
-docker-prometheus __/	 
+	docker-prometheus --\    /---> consul ---> haproxy-consul  <--\
+				   		 \	/									   \
+	docker-prometheus --->kDaemon -><-- klouds-frontend <----------User
+				   		 /					 
+	docker-prometheus __/	 
 
 ```
 

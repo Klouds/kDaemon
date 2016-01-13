@@ -1,14 +1,14 @@
 package watcher
 
 import (
-	"github.com/superordinate/kDaemon/logging"
-	"github.com/superordinate/kDaemon/database"
-	"github.com/superordinate/kDaemon/models"
-	docker "github.com/fsouza/go-dockerclient"
-	"net"
-	"time"
 	"errors"
+	docker "github.com/fsouza/go-dockerclient"
+	"github.com/superordinate/kDaemon/database"
+	"github.com/superordinate/kDaemon/logging"
+	"github.com/superordinate/kDaemon/models"
+	"net"
 	"strconv"
+	"time"
 )
 
 const timeout = time.Duration(5) * time.Second
@@ -26,13 +26,13 @@ func PerformHealthCheck(job *Job) {
 	}
 	//Check if containers are running
 	conts, err := CheckContainers()
-	
+
 	CountContainers(conts, nodes)
 
 	job.Complete = true
 	currentTime := time.Now().Local()
 	logging.Log("HC > HEALTH CHECK COMPLETE AT " + currentTime.String())
-	
+
 }
 
 func CheckNodes() ([]models.Node, error) {
@@ -45,14 +45,14 @@ func CheckNodes() ([]models.Node, error) {
 
 	for index, _ := range nodes {
 		//Check Node for basic ping
-		conn, err := net.DialTimeout("tcp", nodes[index].DIPAddr + ":" + nodes[index].DPort, timeout)
+		conn, err := net.DialTimeout("tcp", nodes[index].DIPAddr+":"+nodes[index].DPort, timeout)
 		if err != nil {
 			nodes[index].IsEnabled = false
 			nodes[index].IsHealthy = false
 			logging.Log("HC > NODE | " + nodes[index].Hostname + " | IS CURRENTLY NOT ACCESSIBLE")
 			database.UpdateNode(&nodes[index])
-			continue;
-		} 
+			continue
+		}
 
 		logging.Log("HC > NODE WITH HOSTNAME | " + nodes[index].Hostname + " | IS HEALTHY")
 		nodes[index].IsHealthy = true
@@ -67,9 +67,9 @@ func CheckNodes() ([]models.Node, error) {
 
 }
 
-func CheckContainers() ([]models.Container, error ){
+func CheckContainers() ([]models.Container, error) {
 	logging.Log("HC > STARTING CONTAINER CHECK")
-	
+
 	containers, err := database.GetContainers()
 	if err != nil {
 		logging.Log("HC > THERE ARE NO CONTAINERS, SKIPPING HEALTHCHECK")
@@ -81,22 +81,22 @@ func CheckContainers() ([]models.Container, error ){
 		node, err := database.GetNode(value.NodeID)
 
 		if err != nil || node.IsHealthy == false {
-			logging.Log ("HC > NODE ISNT HEALTHY, MIGRATING NODES")
+			logging.Log("HC > NODE ISNT HEALTHY, MIGRATING NODES")
 
 			MigrateContainer(&containers[index])
 
-			continue;
+			continue
 		}
 
 		//if node is healthy, check that container is running
-		client,err := docker.NewClient(node.DIPAddr + ":" + node.DPort)
+		client, err := docker.NewClient(node.DIPAddr + ":" + node.DPort)
 
 		if err != nil {
 			logging.Log(err)
 			continue
 		}
 
-		dock_cont, err := client.InspectContainer(value.ContainerID) 
+		dock_cont, err := client.InspectContainer(value.ContainerID)
 
 		if err != nil {
 			logging.Log("HC > CONTAINER | " + value.Name + " | DOESNT EXIST")
@@ -107,30 +107,29 @@ func CheckContainers() ([]models.Container, error ){
 		}
 
 		//Check if container is already running
-		if dock_cont.State.Running == false { 
+		if dock_cont.State.Running == false {
 			//if its not running, attempt to start container
 			//start container
 			err = client.StartContainer(value.ContainerID, nil)
 
 			//if container doesn't start, attempt migration
-		    if err != nil {
-		    	logging.Log("HC > CONTAINER WONT START, | " + value.Name + " | MIGRATING")
+			if err != nil {
+				logging.Log("HC > CONTAINER WONT START, | " + value.Name + " | MIGRATING")
 
-		        MigrateContainer(&containers[index])
-		        continue
-		    }
+				MigrateContainer(&containers[index])
+				continue
+			}
 		} else {
 			logging.Log("HC> CONTAINER | " + value.Name + " | IS RUNNING AND HEALTHY")
 			continue
-		}		
+		}
 	}
 
 	return containers, nil
 }
 
-func CountContainers(conts []models.Container, nodes []models.Node) (error) {
+func CountContainers(conts []models.Container, nodes []models.Node) error {
 	//If container count == 0 reset all counts to zero and return
-
 
 	if len(conts) <= 0 {
 
@@ -138,7 +137,7 @@ func CountContainers(conts []models.Container, nodes []models.Node) (error) {
 		for i, value := range nodes {
 			value.ContainerCount = 0
 			database.UpdateNode(&nodes[i])
-		}	
+		}
 		return errors.New("No Containers")
 	}
 
@@ -154,10 +153,10 @@ func CountContainers(conts []models.Container, nodes []models.Node) (error) {
 	for _, value := range nodes {
 		value.ContainerCount = nodeCounts[strconv.FormatInt(value.Id, 10)]
 		database.UpdateNode(&value)
-	}	
-	
+	}
+
 	return nil
-} 
+}
 
 func MigrateContainer(container *models.Container) {
 	//loses data but maintains uptime at the moment
@@ -165,4 +164,3 @@ func MigrateContainer(container *models.Container) {
 	AddJob("RC", container)
 	AddJob("LC", container)
 }
-

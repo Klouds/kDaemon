@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"net/http"
-	"gopkg.in/unrolled/render.v1"
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
-	"github.com/superordinate/kDaemon/watcher"
-	"github.com/superordinate/kDaemon/models"
 	"github.com/superordinate/kDaemon/database"
+	"github.com/superordinate/kDaemon/models"
+	"github.com/superordinate/kDaemon/watcher"
+	"gopkg.in/unrolled/render.v1"
+	"net/http"
 	"strconv"
 )
 
@@ -31,7 +31,6 @@ func (c *ContainerController) CreateContainer(rw http.ResponseWriter, r *http.Re
 
 	c.JSON(rw, http.StatusOK, newcontainer)
 }
-
 
 //This function must be passed as Jobs to the watcher, due to runtime container changes.
 func (c *ContainerController) DeleteContainer(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {

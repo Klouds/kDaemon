@@ -1,12 +1,12 @@
 package controllers
 
 import (
-	"net/http"
-	"gopkg.in/unrolled/render.v1"
-	"github.com/julienschmidt/httprouter"
-	"github.com/superordinate/kDaemon/models"
-	"github.com/superordinate/kDaemon/database"
 	"encoding/json"
+	"github.com/julienschmidt/httprouter"
+	"github.com/superordinate/kDaemon/database"
+	"github.com/superordinate/kDaemon/models"
+	"gopkg.in/unrolled/render.v1"
+	"net/http"
 	"strconv"
 )
 
@@ -15,10 +15,8 @@ type ApplicationController struct {
 	*render.Render
 }
 
-
-
 func (c *ApplicationController) CreateApplication(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	
+
 	//creates a new application object populated with JSON from data
 	newapp := models.Application{}
 	decoder := json.NewDecoder(r.Body)
@@ -34,7 +32,6 @@ func (c *ApplicationController) CreateApplication(rw http.ResponseWriter, r *htt
 	if newapp.Validate() {
 		//Adds the node to the database
 		success, _ := database.CreateApplication(&newapp)
-
 
 		if success == false {
 			c.JSON(rw, http.StatusConflict, "Application conflict. Make sure your application is unique.")

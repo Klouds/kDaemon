@@ -1,15 +1,13 @@
 package models
 
 import (
-
-    "regexp"
-    "strings"
-    "strconv"
-
- )
+	"regexp"
+	"strconv"
+	"strings"
+)
 
 //Interface for REST objects
-type JSONObject interface{
+type JSONObject interface {
 	GetJSON() (string, error)
 }
 
@@ -17,12 +15,12 @@ type JSONObject interface{
 func ValidIP4(ipAddr string) bool {
 	ipAddr = strings.Trim(ipAddr, " ")
 
-	 re, _ := regexp.Compile(`^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`)
-     
-     if re.MatchString(ipAddr) {
-             return true
-     }
-     return false
+	re, _ := regexp.Compile(`^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`)
+
+	if re.MatchString(ipAddr) {
+		return true
+	}
+	return false
 }
 
 func ValidPort(port string) bool {
@@ -36,7 +34,7 @@ func ValidPort(port string) bool {
 
 	if i < 0 || i > 65535 {
 		return false
-	} 
+	}
 
 	return true
 

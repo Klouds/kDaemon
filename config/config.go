@@ -12,5 +12,5 @@ func LoadConfig() error {
 	Config, err = goconf.ReadConfigFile("config/app.conf")
 
 	return err
-	
+
 }

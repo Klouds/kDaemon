@@ -1,20 +1,19 @@
 package controllers
 
 import (
-	"strconv"
-	"net/http"
-	"gopkg.in/unrolled/render.v1"
 	"encoding/json"
-	"github.com/superordinate/kDaemon/models"
-	"github.com/superordinate/kDaemon/database"
 	"github.com/julienschmidt/httprouter"
+	"github.com/superordinate/kDaemon/database"
+	"github.com/superordinate/kDaemon/models"
+	"gopkg.in/unrolled/render.v1"
+	"net/http"
+	"strconv"
 )
 
 type NodeController struct {
 	AppController
 	*render.Render
 }
-
 
 func (c *NodeController) CreateNode(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
@@ -26,7 +25,6 @@ func (c *NodeController) CreateNode(rw http.ResponseWriter, r *http.Request, p h
 		panic(err)
 		return
 	}
-
 
 	//Validates the Node passed in
 
@@ -43,9 +41,9 @@ func (c *NodeController) CreateNode(rw http.ResponseWriter, r *http.Request, p h
 	} else {
 
 		body, _ := newnode.GetJSON()
-		c.JSON(rw, http.StatusBadRequest, "Invalid format" + body)
+		c.JSON(rw, http.StatusBadRequest, "Invalid format"+body)
 	}
-	
+
 }
 
 func (c *NodeController) DeleteNode(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -70,7 +68,7 @@ func (c *NodeController) DeleteNode(rw http.ResponseWriter, r *http.Request, p h
 }
 
 func (c *NodeController) EditNode(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		//creates a new node object populated with JSON from data
+	//creates a new node object populated with JSON from data
 	newnode := models.Node{}
 	decoder := json.NewDecoder(r.Body)
 
