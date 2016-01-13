@@ -36,6 +36,7 @@ func (r *UIRouting) Init() {
 
 	uic := &controllers.UIController{Render: r.Render}
 
+	//Testing auto login with git push here
 	r.Mux.GET("/", uic.Index)
 
 	r.Mux.NotFound = http.FileServer(http.Dir("public"))
