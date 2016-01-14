@@ -35,16 +35,13 @@ Full stack design can be read here
 
 ##HOW TO USE:
 
-	For development, it is okay to publicly expose your docker endpoints with
-		``
-			docker run -H 0.0.0.0:2375 -H unix:///var/run/docker.sock -d &
+For development, it is okay to publicly expose your docker endpoints with
+```
+	docker run -H 0.0.0.0:2375 -H unix:///var/run/docker.sock -d &
+```
 
-		``
+If attempting to deploy in production, you will want to point your docker hosts into a VPN and have kDaemon linked through this VPN. We suggest using [Weave][Weave]. Support for Docker authentication is in the pipeline though you should use VPNs regardless.
 
-
-	If attempting to deploy in production, you will want to point your docker hosts into a VPN and have kDaemon linked through this VPN.
-	We suggest using [Weave][Weave]
-	
 ###Configuration -- config/app.conf
 
 ```
