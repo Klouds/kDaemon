@@ -1,4 +1,4 @@
-FROM base/archlinux:latest
+FROM l3iggs/archlinux:latest
 RUN pacman --noconfirm -Sy archlinux-keyring
 RUN pacman-db-upgrade
 RUN pacman --noconfirm -Syy
