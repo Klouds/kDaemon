@@ -41,6 +41,7 @@ Full stack design can be read here
 	[default]
 	bind_ip = 0.0.0.0   			# IP to bind API to
 	bind_port = 1337				# Port to bind API to
+	ui_port = 13337					# Port to bind UI to
 	mysql_host = localhost 			# Address to mysql server
 	mysql_port = 3306				# port for mysql server
 	mysql_user = root				# mysql username
@@ -97,6 +98,11 @@ Full stack design can be read here
  * GET /%API_VERSION%/users/:id  				-- Gets user information [X]
  ```
 
+### UI -- bind_ip:ui_port
+
+![alt text](http://ozzadar.com/kdaemon/nodes.png width=400 "Nodes")
+![alt text](http://ozzadar.com/kdaemon/apps.png width=400 "Apps")
+![alt text](http://ozzadar.com/kdaemon/containers.png width=400 "Containers")
 
 #### Main Contributor [Ozzadar](https://github.com/Ozzadar)
 [Development Plan]: https://docs.google.com/document/d/1A4-0g1E52wdW9L-hoeAZzay5Uotv1GcBPtXLU1msw2w/edit?usp=sharing

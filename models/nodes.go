@@ -16,8 +16,6 @@ type Node struct {
 	ContainerCount int    `json:"container_count"`
 	IsHealthy      bool   `json:"is_healthy"`
 	IsEnabled      bool   `sql:"default:true" json:"is_enabled"`
-	//Add location settings
-	Location map[string]string `json:"location"`
 }
 
 //Interface function

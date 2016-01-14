@@ -1,12 +1,11 @@
 package main
 
 import (
-	"net/http"
-	"github.com/superordinate/kDaemon/routers"
-	"github.com/superordinate/kDaemon/watcher"
 	"github.com/superordinate/kDaemon/config"
 	"github.com/superordinate/kDaemon/logging"
-
+	"github.com/superordinate/kDaemon/routers"
+	"github.com/superordinate/kDaemon/watcher"
+	"net/http"
 )
 
 func main() {
@@ -17,7 +16,7 @@ func main() {
 		logging.Log("CONFIG FILE CANNOT BE LOADED")
 		return
 	}
-	
+
 	//Load some config file data
 	host, err := config.Config.GetString("default", "bind_ip")
 	if err != nil {
@@ -37,7 +36,6 @@ func main() {
 		return
 	}
 
-
 	//Run the API
 	var api routers.APIRouting
 	api.Init()
@@ -45,14 +43,15 @@ func main() {
 	//Run the UI
 	var ui routers.UIRouting
 	ui.Init()
-	
+
 	//Starts the cluster watcher
 	go watcher.MainLoop()
 
 	//Hosts the api server
-	go http.ListenAndServe(host + ":" + apiport, api.Mux)
+	go http.ListenAndServe(host+":"+apiport, api.Mux)
 
 	//Hosts the ui server
-	http.ListenAndServe(host + ":" + uiport, ui.Mux)
-	
+	logging.Log("hosting web server on port: " + uiport)
+	http.ListenAndServe(host+":"+uiport, ui.Mux)
+
 }

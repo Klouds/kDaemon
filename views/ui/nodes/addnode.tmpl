@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+	<body>
+		{{template "ui/header"}}
+
+		<div id="page">
+			{{template "ui/menu"}}
+			<div class="container">
+
+			    <hr class="featurette-divider">
+
+			    <!-- First Featurette -->
+			    <div class="featurette">
+					<h1>Add Node</h1>
+					<table>
+					 	<col width="40%">
+			  			<col width="20%">
+						<tr>
+							<form method="POST" action="/nodes/create">
+							<td>
+						     	<label for="hostname">Hostname</label>
+						     </td><td>&nbsp;</td><td>
+						    	<input type="text" size="47" id="hostname" name="hostname" value=""><br>
+					    	</td>
+						</tr><tr>				
+					    	<td>
+								&nbsp;
+							</td>
+							<td>
+								&nbsp;
+							</td>
+
+						</tr>
+						<tr>
+					    	<td>
+					    		<label for="dipaddr">Docker Address</label>
+					    	</td>
+					    	<td>
+					    		&nbsp;
+					    	</td>
+					    	<td>
+					    		<input type="text" size="47" id="dipaddr" name="dipaddr" value=""><br>
+					    	</td>
+					    </tr><tr>				
+					    	<td>
+								&nbsp;
+							</td>
+							<td>
+								&nbsp;
+							</td>
+
+						</tr><tr>
+					    	<td>
+					    		<label for="dport">Docker Port </label>
+					    	</td>
+					    	<td>
+					    		&nbsp;
+					    	</td>
+					    	<td>
+					    		<input type="text" size="47" id="dport" name="dport" value=""><br>
+					    	</td>
+
+					    </tr>
+					    <tr>				
+					    	<td>
+								&nbsp;
+							</td>
+							<td>
+								&nbsp;
+							</td>
+
+						</tr><tr>
+					    	<td>
+					    		<label for="pipaddr">Prometheus Address</label>
+					    	</td>
+					    	<td>
+					    		&nbsp;
+					    	</td>
+					    	<td>
+					    		<input type="text" size="47" id="pipaddr" name="pipaddr" value=""><br>
+					    	</td>
+
+					    </tr>
+					    <tr>				
+					    	<td>
+								&nbsp;
+							</td>
+							<td>
+								&nbsp;
+							</td>
+
+						</tr><tr>
+					    	<td>
+					    		<label for="pport">Prometheus Port</label>
+					    	</td>
+					    	<td>
+					    		&nbsp;
+					    	</td>
+					    	<td>
+					    		<input type="pport" size="47" id="pport" name="pport" value=""><br>
+					    	</td>
+					    </tr>
+					    <tr>				
+					    	<td>
+								&nbsp;
+							</td>
+							<td>
+								&nbsp;
+							</td>
+
+						</tr>
+						<tr>
+							<td>
+								&nbsp;
+							</td>
+							<td>
+								&nbsp;
+							</td>
+							<td>
+						    	<button type="submit" value="CreateNode">Add Node</button>
+						    	&Tab;&Tab;&Tab;
+						    	<a href="/nodes"> Cancel </a>
+						    </td>
+							</form>
+						</tr>
+					</table>
+				</div>
+			</div>
+		{{template "ui/footer"}}
+		</div>
+	</body>
+</html>

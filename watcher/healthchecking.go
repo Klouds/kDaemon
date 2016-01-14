@@ -62,7 +62,6 @@ func CheckNodes() ([]models.Node, error) {
 		conn.Close()
 
 	}
-
 	return nodes, nil
 
 }

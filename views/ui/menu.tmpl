@@ -1,0 +1,23 @@
+
+<nav class="navbar bg-color1 dark-bg" id="navbar">
+    <div class="container-fluid">
+        <a class="navbar-brand smooth" href="/"><!--<img src="/images/logo.png" height="25" alt="Your logo">--> kDaemon </a>  <a class="navbar-brand smooth" href="/nodes"> &ensp; || &ensp; Nodes </a> <a class="navbar-brand smooth" href="/applications"> &ensp; || &ensp; Applications </a> <a class="navbar-brand smooth" href="/containers">&ensp; || &ensp; Containers </a>
+        <button class="round-toggle navbar-toggle menu-collapse-btn collapsed" data-toggle="collapse"
+                data-target=".navMenuCollapse"><span class="icon-bar"></span> <span class="icon-bar"></span> <span
+                class="icon-bar"></span></button>
+        <div class="collapse navbar-collapse navMenuCollapse">
+        <!--
+            <div class="login-panel">
+                <a class="btn btn-success" href="/user/login"><i class="icon icon-user"></i> Login</a>
+                <a class="btn btn-primary" href="/user/register"><i class="icon icon-user-follow"></i> Register</a>
+            </div>
+        -->
+            <ul class="nav">
+                <li><a href="/">Home</a></li>
+                {{if .LoggedIn}}
+                    <li><a href="/">{{.CurrentUser.Username}}</a></li>
+                {{end}}
+            </ul>
+        </div>
+    </div>
+</nav>

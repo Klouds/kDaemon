@@ -39,5 +39,15 @@ func (r *UIRouting) Init() {
 	//Testing auto login with git push here
 	r.Mux.GET("/", uic.Index)
 
+	//Node routing
+	r.Mux.GET("/nodes", uic.NodeIndex)
+	r.Mux.GET("/nodes/create", uic.CreateNode)
+
+	//ApplicationRouting
+	r.Mux.GET("/applications", uic.AppIndex)
+
+	//Container Routing
+	r.Mux.GET("/containers", uic.ContainerIndex)
+
 	r.Mux.NotFound = http.FileServer(http.Dir("public"))
 }
