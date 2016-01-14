@@ -100,9 +100,9 @@ Full stack design can be read here
 
 ### UI -- bind_ip:ui_port
 
-![alt text](http://ozzadar.com/kdaemon/nodes.png?raw=true "Nodes")
-![alt text](http://ozzadar.com/kdaemon/apps.png?raw=true "Apps")
-![alt text](http://ozzadar.com/kdaemon/containers.png?raw=true "Containers")
+![alt text](http://ozzadar.com/kdaemon/nodes.png?raw=true width=400 "Nodes")
+![alt text](http://ozzadar.com/kdaemon/apps.png?raw=true width=400 "Apps")
+![alt text](http://ozzadar.com/kdaemon/containers.png?raw=true width=400 "Containers")
 
 #### Main Contributor [Ozzadar](https://github.com/Ozzadar)
 [Development Plan]: https://docs.google.com/document/d/1A4-0g1E52wdW9L-hoeAZzay5Uotv1GcBPtXLU1msw2w/edit?usp=sharing
