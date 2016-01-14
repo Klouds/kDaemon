@@ -3,7 +3,7 @@ RUN pacman --noconfirm -Sy archlinux-keyring
 RUN pacman-db-upgrade
 RUN pacman --noconfirm -Syy
 RUN pacman --noconfirm -Syu
-RUN pacman --noconfirm -S go base-devel
+RUN pacman --noconfirm -S go base-devel git
 RUN mkdir /go
 ENV GOPATH /go
 ADD . /go/src/kdaemon
