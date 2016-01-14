@@ -50,7 +50,7 @@ Full stack design can be read here
 ###Dependencies
 
 	* Your nodes need to be running the docker API
-	* You must have a mysql host
+	* You must have a mysql host with a database named **mysql_dbname**  (see Configuration)
 
 
 ###To build (linux):
