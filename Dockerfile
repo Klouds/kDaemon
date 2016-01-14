@@ -1,8 +1,8 @@
 FROM base/archlinux:latest
 RUN pacman --noconfirm -Sy archlinux-keyring
-RUN pacman -Syy
-RUN pacman -Syu
-RUN pacman -S go base-devel
+RUN pacman --noconfirm -Syy
+RUN pacman --noconfirm -Syu
+RUN pacman --noconfirm -S go base-devel
 RUN mkdir /go
 ENV GOPATH /go
 ADD . /go/src/kdaemon
