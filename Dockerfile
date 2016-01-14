@@ -1,5 +1,6 @@
 FROM base/archlinux:latest
 RUN pacman --noconfirm -Sy archlinux-keyring
+RUN pacman-db-upgrade
 RUN pacman --noconfirm -Syy
 RUN pacman --noconfirm -Syu
 RUN pacman --noconfirm -S go base-devel
