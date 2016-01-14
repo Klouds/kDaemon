@@ -32,22 +32,12 @@ Full stack design can be read here
 
 ```
 
-
-##HOW TO USE:
-
-For development, it is okay to publicly expose your docker endpoints with
-```
-	docker run -H 0.0.0.0:2375 -H unix:///var/run/docker.sock -d &
-```
-
-If attempting to deploy in production, you will want to point your docker hosts into a VPN and have kDaemon linked through this VPN. We suggest using [Weave][Weave]. Support for Docker authentication is in the pipeline though you should use VPNs regardless.
-
 ###Configuration -- config/app.conf
 
 ```
 	[default]
 	bind_ip = 0.0.0.0   			# IP to bind API to
-	bind_port = 1337				# Port to bind API to
+	api_port = 1337				    # Port to bind API to
 	ui_port = 13337					# Port to bind UI to
 	mysql_host = localhost 			# Address to mysql server
 	mysql_port = 3306				# port for mysql server
@@ -61,6 +51,7 @@ If attempting to deploy in production, you will want to point your docker hosts 
 
 	* Your nodes need to be running the docker API
 	* You must have a mysql host
+
 
 ###To build (linux):
 
@@ -78,6 +69,50 @@ If attempting to deploy in production, you will want to point your docker hosts 
 
 ```
 
+##HOW TO USE:
+
+For development, it is okay to publicly expose your docker endpoints with
+```
+	docker run -H 0.0.0.0:2375 -H unix:///var/run/docker.sock -d &
+```
+
+If attempting to deploy in production, you will want to point your docker hosts into a VPN and have kDaemon linked through this VPN. We suggest using [Weave][Weave]. Support for Docker authentication is in the pipeline though you should use VPNs regardless.
+
+####Adding a node
+
+To add a node, you can POST to bind_ip:api_port/%API_VERSION%/node/create
+```
+    {
+        "hostname":"Host1",
+        "d_ipaddr":"127.0.0.1",
+        "d_port": "2375",
+        "p_ipaddr":"127.0.0.1",
+        "p_port":"2376"
+    }
+```
+
+####Adding an application
+
+To add an application, you can POST to bind_ip:api_port/%API_VERSION%/application/create
+```
+    {
+        "name":"ghost-blog",
+        "exposed_ports":"2368",
+        "docker_image": "ghost",
+        "dependencies":"",
+        "isenabled":true
+    }
+```
+
+####Launching a container
+
+To launch a container on your most available node, you can POST to bind_ip:api_port/%API_VERSION%/container/create
+```
+    {
+        "name":"ghost-blog-ozzadar",
+        "application_id":1
+    }
+```
 
 ### ENDPOINTS [X] = Not implemented
 ```
