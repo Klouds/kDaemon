@@ -1,0 +1,85 @@
+prometheus:
+  image: prom/prometheus:latest
+  ports:
+    - "9090:9090"
+  links:
+    - "exporter:export"
+    - "cadvisor:cadvisor"
+  labels:
+         - "name=prometheus"
+         - "description=Core of Promethues"
+
+exporter:
+  image: "prom/container-exporter"
+  volumes:
+    - /sys/fs/cgroup:/cgroup
+    - /var/run/docker.sock:/var/run/docker.sock
+  ports:
+    - "9104:9104"
+  expose:
+    - "9104"
+  labels:
+    - "name=exporter"
+    - "description=Exports prom data"
+    - "version=latest"
+
+sqlite3:
+  image: "prom/promdash"
+  command:
+    - "./bin/rake db:migrate"
+  volumes:
+    - "/tmp/prom:/tmp/prom"
+  environment:
+    - "DATABASE_URL=sqlite3:/tmp/prom/file.sqlite3"
+
+promdash:
+  image: "prom/promdash"
+  ports:
+    - "3000:3000"
+  expose:
+    - "3000"
+  volumes:
+    - /tmp/prom:/tmp/prom
+  environment:
+    - "DATABASE_URL=sqlite3:/tmp/prom/file.sqlite3"
+  labels:
+    - "name=prom dashboard"
+    - "description=Dashboards for metrics"
+    - "version=latest"
+
+cadvisor:
+  image: "google/cadvisor"
+  volumes:
+    - "/:/rootfs:ro"
+    - "/var/run:/var/run:rw"
+    - "/sys:/sys:ro"
+    - "/var/lib/docker/:/var/lib/docker:ro"
+  ports:
+    - "8080:8080"
+  expose:
+    - "8080"
+  labels:
+    - "name=cAdvisor"
+    - "description=Google Container Advisor collects metrics from host and containers"
+    - "version=latest"
+
+mysql:
+  image: "mysql"
+  environment:
+    - "MYSQL_ROOT_PASSWORD=thesecretsauce"
+    - "MYSQL_DATABASE=kDaemon"
+    - "MYSQL_USER=root"
+  labels:
+    - "name=mysql"
+    - "version=latest"
+
+kdaemon:
+  image: "kDaemon"
+  links:
+    - "mysql:mysql"
+  expose:
+    - "1337"
+    - "13337"
+  ports:
+    - "1337:1337"
+    - "13337:13337"
