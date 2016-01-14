@@ -35,6 +35,14 @@ Full stack design can be read here
 
 ##HOW TO USE:
 
+	For development, it is okay to publicly expose your docker endpoints with
+		```
+			docker run -H 0.0.0.0:2375 -H unix:///var/run/docker.sock -d &
+
+		```
+
+	If attempting to deploy in production, you will want to point your docker hosts into a VPN and have kDaemon linked through this VPN.
+	We suggest using [Weave][Weave]
 ###Configuration -- config/app.conf
 
 ```
@@ -107,3 +115,4 @@ Full stack design can be read here
 #### Main Contributor [Ozzadar](https://github.com/Ozzadar)
 [Development Plan]: https://docs.google.com/document/d/1A4-0g1E52wdW9L-hoeAZzay5Uotv1GcBPtXLU1msw2w/edit?usp=sharing
 [Daemon Design]: https://docs.google.com/document/d/1EkI7uQzdt1xMwb1etcweYQFCLthK_l9aHZvHOunshzs/edit?usp=sharing
+[Weave]: http://www.weave.works/
