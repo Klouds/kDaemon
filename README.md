@@ -80,7 +80,7 @@ If attempting to deploy in production, you will want to point your docker hosts 
 
 ####Adding a node
 
-To add a node, you can POST to bind_ip:api_port/%API_VERSION%/node/create
+To add a node, you can POST to **bind_ip:api_port/%API_VERSION%/node/create**
 ```
     {
         "hostname":"Host1",
@@ -93,7 +93,7 @@ To add a node, you can POST to bind_ip:api_port/%API_VERSION%/node/create
 
 ####Adding an application
 
-To add an application, you can POST to bind_ip:api_port/%API_VERSION%/application/create
+To add an application, you can POST to **bind_ip:api_port/%API_VERSION%/application/create**
 ```
     {
         "name":"ghost-blog",
@@ -106,7 +106,7 @@ To add an application, you can POST to bind_ip:api_port/%API_VERSION%/applicatio
 
 ####Launching a container
 
-To launch a container on your most available node, you can POST to bind_ip:api_port/%API_VERSION%/container/create
+To launch a container on your most available node, you can POST to **bind_ip:api_port/%API_VERSION%/container/create**
 ```
     {
         "name":"ghost-blog-ozzadar",
