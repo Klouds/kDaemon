@@ -1,0 +1,5 @@
+#cloud-config
+rancher:
+  upgrade:
+    url: https://releases.rancher.com/os/releases.yml
+    image: rancher/os

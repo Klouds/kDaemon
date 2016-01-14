@@ -74,7 +74,7 @@ mysql:
     - "version=latest"
 
 kdaemon:
-  image: "kDaemon"
+  image: "kdaemon"
   links:
     - "mysql:mysql"
   expose:
