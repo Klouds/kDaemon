@@ -43,3 +43,22 @@ build:
         name: go test
         code: |
           go test ./...
+          
+    # copy build artifacts and source code
+    - script:
+        name: artifacts out
+        code: |
+          cp -R ./* "$WERCKER_OUTPUT_DIR"
+          
+deploy:
+    box: google/golang
+    steps:
+    # use the scratch step to build a container from scratch based on the files present
+    - internal/docker-scratch-push:
+        username: $QUAY_USERNAME
+        password: $QUAY_PASSWORD
+        cmd: ./kdaemon
+        tag: $WERCKER_GIT_COMMIT
+        ports: "1337, 13337"
+        repository: quay.io/faddat/kdaemon
+        registry: https://quay.io
