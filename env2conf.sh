@@ -1,4 +1,3 @@
-mkdir /kdaemon/config
 cd kdaemon
 echo "[default]" > /kdaemon/config/app.conf
 echo "bind_ip = $BIND_IP" >> /kdaemon/config/app.conf
