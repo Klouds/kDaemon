@@ -3,6 +3,7 @@ EXPOSE 1337 13337
 ADD kdaemon /kdaemon/kdaemon
 ADD views/ /kdaemon/views
 ADD public /kdaemon/public
+RUN mkdir /kdaemon/config
 ADD env2conf.sh /kdaemon/env2conf.sh
-ENTRYPOINT ["/bin/sh"]
+ENTRYPOINT ["/bin/ash"]
 CMD ["/kdaemon/env2conf.sh"]
