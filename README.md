@@ -43,14 +43,14 @@ Full stack design can be read here
 	mysql_port = 3306				# port for mysql server
 	mysql_user = root				# mysql username
 	mysql_password = thesecretsauce	# mysql password
-	mysql_dbname = kDaemon			# database name
+	mysql_dbname = kdaemon			# database name
 
 ```
 
 ###Dependencies
 
 + Your nodes need to be running the docker API
-+ You must have a mysql host with a database named **mysql_dbname**  (see Configuration)
++ You must have a mysql host with a database named **kdaemon**  (see Configuration)
 
 
 ###To build (linux):
