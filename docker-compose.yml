@@ -83,3 +83,11 @@ kdaemon:
   ports:
     - "1337:1337"
     - "13337:13337"
+  environment:
+    - BIND_IP=0.0.0.0
+    - API_PORT=1337
+    - UI_PORT=13337
+    - MYSQL_HOST=localhost
+    - MYSQL_USER=root
+    - MYSQL_PASSWORD=thesecretsauce
+    - MYSQL_DBNAME=kDaemon
