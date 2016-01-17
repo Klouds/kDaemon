@@ -1,3 +1,4 @@
-FROM scratch
+FROM alpine:3.1
 EXPOSE 1337 13337
-ENTRYPOINT ["env2conf.sh"]
+ENTRYPOINT ["/bin/sh"]
+CMD ["env2conf.sh"]
