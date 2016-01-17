@@ -8,4 +8,4 @@ echo "mysql_user = $MYSQL_USER" >> /kdaemon/config/app.conf
 echo "mysql_password = $MYSQL_PASSWORD" >> /kdaemon/config/app.conf
 echo "mysql_dbname = $MYSQL_DBNAME" >> /kdaemon/config/app.conf
 chmod a+x /kdaemon/kdaemon
-/kdaemon/kdaemon
+./kdaemon
