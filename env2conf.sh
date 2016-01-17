@@ -1,3 +1,4 @@
+mkdir /kdaemon/config
 echo "[default]" > config/app.conf
 echo "bind_ip = $BIND_IP" >> config/app.conf
 echo "api_port = $API_PORT" >> config/app.conf
