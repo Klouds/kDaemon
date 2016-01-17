@@ -6,3 +6,4 @@ echo "mysql_host = $MYSQL_HOST" >> $GOPATH/src/github.com/superordinate/kDaemon/
 echo "mysql_user = $MYSQL_USER" >> $GOPATH/src/github.com/superordinate/kDaemon/config/app.conf
 echo "mysql_password = $MYSQL_PASSWORD" >> $GOPATH/src/github.com/superordinate/kDaemon/config/app.conf
 echo "mysql_dbname = $MYSQL_DBNAME" >> $GOPATH/src/github.com/superordinate/kDaemon/config/app.conf
+$GOPATH/bin/kdaemon
