@@ -5,4 +5,4 @@ ADD views/ /kdaemon/views
 ADD public /kdaemon/public
 ADD env2conf.sh /kdaemon/env2conf.sh
 ENTRYPOINT ["/bin/sh"]
-CMD ["env2conf.sh"]
+CMD ["/kdaemon/env2conf.sh"]
