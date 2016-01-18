@@ -20,6 +20,8 @@ kdaemon:
   ports:
     - 0.0.0.0:1337:1337
     - 0.0.0.0:13337:13337
+  labels:
+    - io.rancher.os.after mariadb
 prometheus:
   image: prom/prometheus:latest
   ports:
