@@ -10,6 +10,13 @@
 A RESTful API framework for managing containers over a set of Docker Nodes running Prometheus as a monitoring solution.
 Will also run a watcher process that will monitor, fix and/or notify administration on the state of the cluster.
 
+
+##User Interface
+
+The user interface currently included has no functionality and is rather ugly. New UI is being built at
+
+[kDaemon_UI][kDaemon_UI]
+
 ###Features
 	* Make daemon aware of new docker/prometheus endpoints (adding nodes to the cluster)
 	* Launch containers on the cluster (use prometheus to loadbalance and schedule jobs)
@@ -150,3 +157,4 @@ To launch a container on your most available node, you can POST to **bind_ip:api
 [Development Plan]: https://docs.google.com/document/d/1A4-0g1E52wdW9L-hoeAZzay5Uotv1GcBPtXLU1msw2w/edit?usp=sharing
 [Daemon Design]: https://docs.google.com/document/d/1EkI7uQzdt1xMwb1etcweYQFCLthK_l9aHZvHOunshzs/edit?usp=sharing
 [Weave]: http://www.weave.works/
+[kDaemon_UI]:http://github.com/superordinate/kDaemon_ui
