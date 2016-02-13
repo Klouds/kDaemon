@@ -149,10 +149,6 @@ To launch a container on your most available node, you can POST to **bind_ip:api
  * GET /%API_VERSION%/users/:id  				-- Gets user information [X]
  ```
 
-![alt text](http://ozzadar.com/kdaemon/nodes.png?raw=true width=400 "Nodes")
-![alt text](http://ozzadar.com/kdaemon/apps.png?raw=true width=400 "Apps")
-![alt text](http://ozzadar.com/kdaemon/containers.png?raw=true width=400 "Containers")
-
 #### Main Contributor [Ozzadar](https://github.com/Ozzadar)
 [Development Plan]: https://docs.google.com/document/d/1A4-0g1E52wdW9L-hoeAZzay5Uotv1GcBPtXLU1msw2w/edit?usp=sharing
 [Daemon Design]: https://docs.google.com/document/d/1EkI7uQzdt1xMwb1etcweYQFCLthK_l9aHZvHOunshzs/edit?usp=sharing
