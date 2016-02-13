@@ -1,6 +1,7 @@
 package main
 
 import (
+	r "github.com/dancannon/gorethink"
 	"github.com/superordinate/kDaemon/config"
 	"github.com/superordinate/kDaemon/logging"
 	"github.com/superordinate/kDaemon/routers"
@@ -10,8 +11,28 @@ import (
 
 func main() {
 
+	session, err := r.Connect(r.ConnectOpts{
+		Address:  "localhost:28015",
+		Database: "kdaemon",
+	})
+
+	if err != nil {
+		//log.Panic(err.Error())
+	}
+
+	router := NewRouter(session)
+
+	router.Handle("nodes subscribe", subscribeNodes)
+	router.Handle("nodes unsubscribe", unsubscribeNodes)
+
+	router.Handle("applications subscribe", subscribeApplications)
+	router.Handle("applications unsubscribe", unsubscribeApplications)
+
+	router.Handle("containers subscribe", subscribeContainers)
+	router.Handle("containers unsubscribe", unsubscribeContainers)
+
 	//Load the config file.
-	err := config.LoadConfig()
+	err = config.LoadConfig()
 	if err != nil {
 		logging.Log("CONFIG FILE CANNOT BE LOADED")
 		return
@@ -30,28 +51,16 @@ func main() {
 		return
 	}
 
-	uiport, err := config.Config.GetString("default", "ui_port")
-	if err != nil {
-		logging.Log("Problem with config file! (ui_port)")
-		return
-	}
-
 	//Run the API
 	var api routers.APIRouting
 	api.Init()
 
-	//Run the UI
-	var ui routers.UIRouting
-	ui.Init()
-
 	//Starts the cluster watcher
 	go watcher.MainLoop()
 
+	http.Handle("/", api.Mux)
+	http.Handle("/ws", router)
 	//Hosts the api server
-	go http.ListenAndServe(host+":"+apiport, api.Mux)
-
-	//Hosts the ui server
-	logging.Log("hosting web server on port: " + uiport)
-	http.ListenAndServe(host+":"+uiport, ui.Mux)
+	http.ListenAndServe(host+":"+apiport, nil)
 
 }
