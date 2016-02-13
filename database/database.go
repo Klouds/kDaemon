@@ -1,6 +1,7 @@
 package database
 
 import (
+	r "github.com/dancannon/gorethink"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/superordinate/kDaemon/config"
@@ -9,7 +10,8 @@ import (
 )
 
 var (
-	db *gorm.DB
+	db      *gorm.DB
+	Session *r.Session
 )
 
 //Initializes supporting functions
@@ -20,6 +22,12 @@ func Init() {
 /* DATABASE FUNCTIONALITY */
 // connect to the db
 func InitDB() {
+	session, err := r.Connect(r.ConnectOpts{
+		Address:  "localhost:28015",
+		Database: "kdaemon",
+	})
+
+	Session = session
 
 	logging.Log("Initializing Database connection.")
 

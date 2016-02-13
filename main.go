@@ -1,7 +1,6 @@
 package main
 
 import (
-	r "github.com/dancannon/gorethink"
 	"github.com/superordinate/kDaemon/config"
 	"github.com/superordinate/kDaemon/logging"
 	"github.com/superordinate/kDaemon/routers"
@@ -11,28 +10,8 @@ import (
 
 func main() {
 
-	session, err := r.Connect(r.ConnectOpts{
-		Address:  "localhost:28015",
-		Database: "kdaemon",
-	})
-
-	if err != nil {
-		//log.Panic(err.Error())
-	}
-
-	router := NewRouter(session)
-
-	router.Handle("nodes subscribe", subscribeNodes)
-	router.Handle("nodes unsubscribe", unsubscribeNodes)
-
-	router.Handle("applications subscribe", subscribeApplications)
-	router.Handle("applications unsubscribe", unsubscribeApplications)
-
-	router.Handle("containers subscribe", subscribeContainers)
-	router.Handle("containers unsubscribe", unsubscribeContainers)
-
 	//Load the config file.
-	err = config.LoadConfig()
+	err := config.LoadConfig()
 	if err != nil {
 		logging.Log("CONFIG FILE CANNOT BE LOADED")
 		return
@@ -55,11 +34,14 @@ func main() {
 	var api routers.APIRouting
 	api.Init()
 
+	var ws routers.WebSocketRouter
+	ws.Init()
+
 	//Starts the cluster watcher
 	go watcher.MainLoop()
 
 	http.Handle("/", api.Mux)
-	http.Handle("/ws", router)
+	http.Handle("/ws", ws.Router)
 	//Hosts the api server
 	http.ListenAndServe(host+":"+apiport, nil)
 

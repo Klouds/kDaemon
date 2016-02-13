@@ -1,9 +1,10 @@
-package main
+package controllers
 
 import (
 	// "fmt"
 	r "github.com/dancannon/gorethink"
-	"github.com/superordinate/kDaemon_new/logging"
+	"github.com/superordinate/kDaemon/client"
+	"github.com/superordinate/kDaemon/models"
 	//"time"
 )
 
@@ -13,78 +14,70 @@ const (
 	ContainersStop
 )
 
-type Message struct {
-	Name string      `json:"name"`
-	Data interface{} `json:"data"`
-}
-
-func subscribeNodes(client *Client, data interface{}) {
-	logging.Log("nodes subscribed")
+func SubscribeNodes(client *client.Client, data interface{}) {
 	go func() {
 		stop := client.NewStopChannel(NodesStop)
 		cursor, err := r.Table("nodes").
 			Changes(r.ChangesOpts{IncludeInitial: true}).
-			Run(client.session)
+			Run(client.Session)
 
 		if err != nil {
-			client.send <- Message{"error", err.Error()}
+			client.Send <- models.Message{"error", err.Error()}
 			return
 		}
 
-		changeFeedHelper(cursor, "nodes", client.send, stop)
+		changeFeedHelper(cursor, "nodes", client.Send, stop)
 	}()
 }
 
-func unsubscribeNodes(client *Client, data interface{}) {
+func UnsubscribeNodes(client *client.Client, data interface{}) {
 	client.StopForKey(NodesStop)
 }
 
-func subscribeApplications(client *Client, data interface{}) {
-	logging.Log("applications subscribed")
+func SubscribeApplications(client *client.Client, data interface{}) {
 	go func() {
 		stop := client.NewStopChannel(ApplicationsStop)
 		cursor, err := r.Table("applications").
 			Changes(r.ChangesOpts{IncludeInitial: true}).
-			Run(client.session)
+			Run(client.Session)
 
 		if err != nil {
-			client.send <- Message{"error", err.Error()}
+			client.Send <- models.Message{"error", err.Error()}
 			return
 		}
 
-		changeFeedHelper(cursor, "applications", client.send, stop)
+		changeFeedHelper(cursor, "applications", client.Send, stop)
 	}()
 }
 
-func unsubscribeApplications(client *Client, data interface{}) {
+func UnsubscribeApplications(client *client.Client, data interface{}) {
 	client.StopForKey(ApplicationsStop)
 }
 
-func subscribeContainers(client *Client, data interface{}) {
-	logging.Log("containers subscribed")
+func SubscribeContainers(client *client.Client, data interface{}) {
 	go func() {
 		stop := client.NewStopChannel(ContainersStop)
 		cursor, err := r.Table("containers").
 			Changes(r.ChangesOpts{IncludeInitial: true}).
-			Run(client.session)
+			Run(client.Session)
 		if err != nil {
-			client.send <- Message{"error", err.Error()}
+			client.Send <- models.Message{"error", err.Error()}
 			return
 		}
-		changeFeedHelper(cursor, "containers", client.send, stop)
+		changeFeedHelper(cursor, "containers", client.Send, stop)
 	}()
 }
 
-func unsubscribeContainers(client *Client, data interface{}) {
+func UnsubscribeContainers(client *client.Client, data interface{}) {
 	client.StopForKey(ContainersStop)
 }
 
-func indexPage(client *Client, data interface{}) {
+func IndexPage(client *client.Client, data interface{}) {
 	client.StopForKey(ContainersStop)
 }
 
 func changeFeedHelper(cursor *r.Cursor, changeEventName string,
-	send chan<- Message, stop <-chan bool) {
+	send chan<- models.Message, stop <-chan bool) {
 	change := make(chan r.ChangeResponse)
 	cursor.Listen(change)
 	for {
@@ -105,7 +98,7 @@ func changeFeedHelper(cursor *r.Cursor, changeEventName string,
 				eventName = changeEventName + " edit"
 				data = val.NewValue
 			}
-			send <- Message{eventName, data}
+			send <- models.Message{eventName, data}
 		}
 	}
 }
