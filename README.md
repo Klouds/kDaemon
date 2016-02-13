@@ -11,11 +11,13 @@ A RESTful API framework for managing containers over a set of Docker Nodes runni
 Will also run a watcher process that will monitor, fix and/or notify administration on the state of the cluster.
 
 
-##User Interface
+##WEB UI -- MOVED to new REPO
 
 The user interface currently included has no functionality and is rather ugly. New UI is being built at
 
 [kDaemon_UI][kDaemon_UI]
+
+with the websocket being served at /ws
 
 ###Features
 	* Make daemon aware of new docker/prometheus endpoints (adding nodes to the cluster)
@@ -41,11 +43,11 @@ Full stack design can be read here
 
 ###Configuration -- config/app.conf
 
+
 ```
 	[default]
 	bind_ip = 0.0.0.0   			# IP to bind API to
 	api_port = 1337				    # Port to bind API to
-	ui_port = 13337					# Port to bind UI to
 	mysql_host = localhost 			# Address to mysql server
 	mysql_port = 3306				# port for mysql server
 	mysql_user = root				# mysql username
