@@ -7,7 +7,6 @@ import (
 	"github.com/superordinate/kDaemon/logging"
 	"github.com/superordinate/kDaemon/models"
 	"net"
-	"strconv"
 	"time"
 )
 
@@ -49,12 +48,12 @@ func CheckNodes() ([]models.Node, error) {
 		if err != nil {
 			nodes[index].IsEnabled = false
 			nodes[index].IsHealthy = false
-			logging.Log("HC > NODE | " + nodes[index].Hostname + " | IS CURRENTLY NOT ACCESSIBLE")
+			logging.Log("HC > NODE | " + nodes[index].Name + " | IS CURRENTLY NOT ACCESSIBLE")
 			database.UpdateNode(&nodes[index])
 			continue
 		}
 
-		logging.Log("HC > NODE WITH HOSTNAME | " + nodes[index].Hostname + " | IS HEALTHY")
+		logging.Log("HC > NODE WITH HOSTNAME | " + nodes[index].Name + " | IS HEALTHY")
 		nodes[index].IsHealthy = true
 		nodes[index].IsEnabled = true
 
@@ -146,11 +145,11 @@ func CountContainers(conts []models.Container, nodes []models.Node) error {
 
 	//Loop through containers and count the containers belonging to which nodes
 	for _, value := range conts {
-		nodeCounts[strconv.FormatInt(value.NodeID, 10)] = nodeCounts[strconv.FormatInt(value.NodeID, 10)] + 1
+		nodeCounts[value.NodeID] = nodeCounts[value.NodeID] + 1
 	}
 
 	for _, value := range nodes {
-		value.ContainerCount = nodeCounts[strconv.FormatInt(value.Id, 10)]
+		value.ContainerCount = nodeCounts[value.Id]
 		database.UpdateNode(&value)
 	}
 

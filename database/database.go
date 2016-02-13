@@ -22,15 +22,33 @@ func Init() {
 /* DATABASE FUNCTIONALITY */
 // connect to the db
 func InitDB() {
+
+	logging.Log("Initializing Database connection.")
+
+	rethinkdbhost, err := config.Config.GetString("default", "rethinkdb_host")
+	if err != nil {
+		logging.Log("Problem with config file! (rethinkdb_host)")
+	}
+
+	rethinkdbport, err := config.Config.GetString("default", "rethinkdb_port")
+	if err != nil {
+		logging.Log("Problem with config file! (rethinkdb_port)")
+	}
+
+	rethinkdbname, err := config.Config.GetString("default", "rethinkdb_dbname")
+
+	if err != nil {
+		logging.Log("Problem with config file! (rethinkdb_dbname)")
+	}
+
 	session, err := r.Connect(r.ConnectOpts{
-		Address:  "localhost:28015",
-		Database: "kdaemon",
+		Address:  rethinkdbhost + ":" + rethinkdbport,
+		Database: rethinkdbname,
 	})
 
 	Session = session
 
-	logging.Log("Initializing Database connection.")
-
+	/* WILL BECOME OBSOLETE SOON */
 	mysqlhost, err := config.Config.GetString("default", "mysql_host")
 	if err != nil {
 		logging.Log("Problem with config file! (mysql_host)")
@@ -81,17 +99,30 @@ func InitDB() {
 		dbm.CreateTable(&models.Container{})
 	}
 
+	/* END OF BEING OBSOLETE */
+
 }
 
 //Node database functions
 
 //Create a new node in the database
 func CreateNode(n *models.Node) (bool, error) {
-	logging.Log("Creating Node: " + n.Hostname)
+	logging.Log("Creating Node: " + n.Name)
 
-	//TODO: Check for auth
+	/*
+			//TODO: Check for auth
 
-	err := db.Create(&n).Error
+			err := db.Create(&n).Error
+			if err != nil {
+				return false, err
+			}
+
+		return true, err
+	*/
+
+	err := r.Table("nodes").
+		Insert(n).
+		Exec(Session)
 	if err != nil {
 		return false, err
 	}
@@ -100,21 +131,31 @@ func CreateNode(n *models.Node) (bool, error) {
 }
 
 //delete Node
-func DeleteNode(id int64) (bool, error) {
+func DeleteNode(id string) (bool, error) {
 	logging.Log("Deleting Node: ", id)
 
-	node := models.Node{}
+	/*
+		node := models.Node{}
 
-	err := db.Where(&models.Node{Id: id}).First(&node).Error
+		err := db.Where(&models.Node{Id: id}).First(&node).Error
 
-	if err != nil {
-		return false, err
-	}
-	//  TODO: Check for auth
-	//      Migrate all containers
+		if err != nil {
+			return false, err
+		}
+		//  TODO: Check for auth
+		//      Migrate all containers
 
-	//Delete node from database
-	err = db.Delete(&node).Error
+		//Delete node from database
+		err = db.Delete(&node).Error
+
+		if err != nil {
+			return false, err
+		}
+
+		return true, err
+	*/
+
+	err := r.Table("nodes").Get(id).Delete().Exec(Session)
 
 	if err != nil {
 		return false, err
@@ -125,12 +166,32 @@ func DeleteNode(id int64) (bool, error) {
 }
 
 //Get node information
-func GetNode(id int64) (*models.Node, error) {
-	node := &models.Node{}
+func GetNode(id string) (*models.Node, error) {
 
-	err := db.Where(&models.Node{Id: id}).First(&node).Error
+	/*
+		node := &models.Node{}
 
-	return node, err
+		err := db.Where(&models.Node{Id: id}).First(&node).Error
+
+		return node, err
+
+	*/
+
+	res, err := r.Table("nodes").Get(id).Run(Session)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var node models.Node
+
+	err = res.One(&node)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &node, err
 }
 
 func GetNodes() ([]models.Node, error) {
@@ -166,9 +227,19 @@ func UpdateNode(node *models.Node) (bool, error) {
 func CreateApplication(a *models.Application) (bool, error) {
 	logging.Log("Creating Application: " + a.Name)
 
-	//TODO: Check for auth
+	/*
+		//TODO: Check for auth
 
-	err := db.Create(&a).Error
+		err := db.Create(&a).Error
+		if err != nil {
+			return false, err
+		}
+
+		return true, err
+	*/
+	err := r.Table("applications").
+		Insert(a).
+		Exec(Session)
 	if err != nil {
 		return false, err
 	}
@@ -177,12 +248,30 @@ func CreateApplication(a *models.Application) (bool, error) {
 }
 
 //Get application information
-func GetApplication(id int64) (*models.Application, error) {
-	app := &models.Application{}
+func GetApplication(id string) (*models.Application, error) {
+	/*
+		app := &models.Application{}
 
-	err := db.Where(&models.Application{Id: id}).First(&app).Error
+		err := db.Where(&models.Application{Id: id}).First(&app).Error
 
-	return app, err
+		return app, err
+	*/
+
+	res, err := r.Table("applications").Get(id).Run(Session)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var app models.Application
+
+	err = res.One(&app)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &app, err
 }
 
 func GetApplications() ([]models.Application, error) {
@@ -195,21 +284,32 @@ func GetApplications() ([]models.Application, error) {
 }
 
 //delete application from database
-func DeleteApplication(id int64) (bool, error) {
+func DeleteApplication(id string) (bool, error) {
 	logging.Log("Deleting Application: ", id)
 
-	app := models.Application{}
+	/*
+		app := models.Application{}
 
-	err := db.Where(&models.Application{Id: id}).First(&app).Error
+		err := db.Where(&models.Application{Id: id}).First(&app).Error
 
-	if err != nil {
-		return false, err
-	}
-	//  TODO: Check for auth
-	//      Delete all containers
+		if err != nil {
+			return false, err
+		}
+		//  TODO: Check for auth
+		//      Delete all containers
 
-	//Delete application from database
-	err = db.Delete(&app).Error
+		//Delete application from database
+		err = db.Delete(&app).Error
+
+		if err != nil {
+			return false, err
+		}
+
+		return true, err
+
+	*/
+
+	err := r.Table("applications").Get(id).Delete().Exec(Session)
 
 	if err != nil {
 		return false, err
@@ -246,7 +346,18 @@ func CreateContainer(c *models.Container) (bool, error) {
 
 	//TODO: Check for auth
 
-	err := db.Create(&c).Error
+	/*
+		err := db.Create(&c).Error
+		if err != nil {
+			return false, err
+		}
+
+		return true, err
+	*/
+
+	err := r.Table("containers").
+		Insert(c).
+		Exec(Session)
 	if err != nil {
 		return false, err
 	}
@@ -273,12 +384,30 @@ func UpdateContainer(cont *models.Container) (bool, error) {
 }
 
 //Get container information
-func GetContainer(id int64) (*models.Container, error) {
-	cont := &models.Container{}
+func GetContainer(id string) (*models.Container, error) {
+	/*
+		cont := &models.Container{}
 
-	err := db.Where(&models.Container{Id: id}).First(&cont).Error
+		err := db.Where(&models.Container{Id: id}).First(&cont).Error
 
-	return cont, err
+		return cont, err
+	*/
+
+	res, err := r.Table("containers").Get(id).Run(Session)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var container models.Container
+
+	err = res.One(&container)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &container, err
 }
 
 func GetContainers() ([]models.Container, error) {
@@ -290,21 +419,27 @@ func GetContainers() ([]models.Container, error) {
 	return conts, err
 }
 
-func DeleteContainer(id int64) error {
+func DeleteContainer(id string) error {
 	logging.Log("Deleting Application: ", id)
 
-	cont := models.Container{}
+	/*
+		cont := models.Container{}
 
-	err := db.Where(&models.Container{Id: id}).First(&cont).Error
+		err := db.Where(&models.Container{Id: id}).First(&cont).Error
 
-	if err != nil {
+		if err != nil {
+			return err
+		}
+		//  TODO: Check for auth
+		//      Delete all containers
+
+		//Delete application from database
+		err = db.Delete(&cont).Error
+
 		return err
-	}
-	//  TODO: Check for auth
-	//      Delete all containers
+	*/
 
-	//Delete application from database
-	err = db.Delete(&cont).Error
+	err := r.Table("containers").Get(id).Delete().Exec(Session)
 
 	return err
 

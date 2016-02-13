@@ -8,7 +8,6 @@ import (
 	"github.com/superordinate/kDaemon/watcher"
 	"gopkg.in/unrolled/render.v1"
 	"net/http"
-	"strconv"
 )
 
 type ContainerController struct {
@@ -44,15 +43,10 @@ func (c *ContainerController) EditContainer(rw http.ResponseWriter, r *http.Requ
 
 func (c *ContainerController) ContainerInformation(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	//Gets the node id
-	cont_id, err := strconv.Atoi(p.ByName("id"))
-
-	if err != nil {
-		c.JSON(rw, http.StatusBadRequest, "invalid id")
-		return
-	}
+	cont_id := p.ByName("id")
 
 	//Attempts to retrieve the node from the database
-	cont, err := database.GetContainer(int64(cont_id))
+	cont, err := database.GetContainer(cont_id)
 
 	if err != nil {
 		c.JSON(rw, http.StatusNotFound, "Container doesn't exist")

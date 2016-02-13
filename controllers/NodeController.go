@@ -7,7 +7,6 @@ import (
 	"github.com/superordinate/kDaemon/models"
 	"gopkg.in/unrolled/render.v1"
 	"net/http"
-	"strconv"
 )
 
 type NodeController struct {
@@ -48,15 +47,10 @@ func (c *NodeController) CreateNode(rw http.ResponseWriter, r *http.Request, p h
 
 func (c *NodeController) DeleteNode(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	//Gets the node id
-	nodeid, err := strconv.Atoi(p.ByName("id"))
-
-	if err != nil {
-		c.JSON(rw, http.StatusBadRequest, "invalid id")
-		return
-	}
+	nodeid := p.ByName("id")
 
 	//Attempts to remove the node
-	success, _ := database.DeleteNode(int64(nodeid))
+	success, _ := database.DeleteNode(nodeid)
 
 	if !success {
 		c.JSON(rw, http.StatusNotFound, "Node doesn't exist")
@@ -98,15 +92,10 @@ func (c *NodeController) EditNode(rw http.ResponseWriter, r *http.Request, p htt
 func (c *NodeController) NodeInformation(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	//Gets the node id
-	nodeid, err := strconv.Atoi(p.ByName("id"))
-
-	if err != nil {
-		c.JSON(rw, http.StatusBadRequest, "invalid id")
-		return
-	}
+	nodeid := p.ByName("id")
 
 	//Attempts to retrieve the node from the database
-	node, err := database.GetNode(int64(nodeid))
+	node, err := database.GetNode(nodeid)
 
 	if err != nil {
 		c.JSON(rw, http.StatusNotFound, "Node doesn't exist")

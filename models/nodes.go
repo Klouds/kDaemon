@@ -6,16 +6,14 @@ import (
 )
 
 type Node struct {
-	Id             int64  `json:"id"`
-	UserID         int64  `sql:"not null;" json:"user_id"`
-	Hostname       string `sql:"size:255; not null; unique;" json:"hostname"`
-	DIPAddr        string `sql:"size:255; not null; unique;" json:"d_ipaddr"` //docker
-	DPort          string `sql:"size:30; not null;" json:"d_port"`
-	PIPAddr        string `sql:"size:30; not null; unique;" json:"p_ipaddr"` //prometheus
-	PPort          string `sql:"size:255; not null;" json:"p_port"`
-	ContainerCount int    `json:"container_count"`
-	IsHealthy      bool   `json:"is_healthy"`
-	IsEnabled      bool   `sql:"default:true" json:"is_enabled"`
+	Id             string `json:"id,omitempty" gorethink:"id,omitempty"`
+	UserID         string `json:"user_id" gorethink:"userid"`
+	Name           string `json:"name" gorethink:"name"`
+	DIPAddr        string `json:"d_ipaddr" gorethink:"d_ipaddr"` //docker
+	DPort          string `json:"d_port" gorethink:"d_port"`
+	ContainerCount int    `json:"container_count" gorethink:"container_count"`
+	IsHealthy      bool   `json:"is_healthy" gorethink:"is_healthy"`
+	IsEnabled      bool   `json:"is_enabled" gorethink:"is_enabled"`
 }
 
 //Interface function
@@ -31,8 +29,8 @@ func (n *Node) GetJSON() (string, error) {
 func (n *Node) Validate() bool {
 	valid := true
 
-	valid = ValidIP4(n.DIPAddr) && ValidIP4(n.PIPAddr) &&
-		ValidPort(n.DPort) && ValidPort(n.PPort)
+	valid = ValidIP4(n.DIPAddr) &&
+		ValidPort(n.DPort)
 
 	return valid
 }

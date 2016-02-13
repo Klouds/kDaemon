@@ -7,7 +7,6 @@ import (
 	"github.com/superordinate/kDaemon/models"
 	"gopkg.in/unrolled/render.v1"
 	"net/http"
-	"strconv"
 )
 
 type ApplicationController struct {
@@ -46,15 +45,10 @@ func (c *ApplicationController) CreateApplication(rw http.ResponseWriter, r *htt
 
 func (c *ApplicationController) DeleteApplication(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	//Gets the app id
-	appid, err := strconv.Atoi(p.ByName("id"))
-
-	if err != nil {
-		c.JSON(rw, http.StatusBadRequest, "invalid id")
-		return
-	}
+	appid := p.ByName("id")
 
 	//Attempts to remove the node
-	success, _ := database.DeleteApplication(int64(appid))
+	success, _ := database.DeleteApplication(appid)
 
 	if !success {
 		c.JSON(rw, http.StatusNotFound, "Application doesn't exist")
@@ -94,15 +88,10 @@ func (c *ApplicationController) EditApplication(rw http.ResponseWriter, r *http.
 
 func (c *ApplicationController) ApplicationInformation(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	//Gets the app id
-	appid, err := strconv.Atoi(p.ByName("id"))
-
-	if err != nil {
-		c.JSON(rw, http.StatusBadRequest, "invalid id")
-		return
-	}
+	appid := p.ByName("id")
 
 	//Attempts to retrieve the application from the database
-	app, err := database.GetApplication(int64(appid))
+	app, err := database.GetApplication(appid)
 
 	if err != nil {
 		c.JSON(rw, http.StatusNotFound, "Node doesn't exist")

@@ -1,28 +1,29 @@
 package models
 
 import (
-	"strings"
 	"encoding/json"
 	"github.com/superordinate/kDaemon/logging"
+	"strings"
 )
+
 type Application struct {
-	  Id       		int64 			`json:"id"`
-	  UserID    	int64			`sql:"not null;" json:"user_id"`
-	  Name	 		string			`sql:"size:255; not null; unique;" json:"name"`
-	  ExposedPorts	string			`json:"exposed_ports"` //docker
-	  DockerImage	string			`sql:"size:255; not null;" json:"docker_image"`
-	  Dependencies 	string 			`json:"dependencies"`  
-	  IsEnabled		bool 			`sql:"default:true" json:"is_enabled"`
+	Id           string `json:"id,omitempty" gorethink:"id,omitempty"`
+	UserID       string `json:"user_id" gorethink:"user_id"`
+	Name         string `json:"name" gorethink:"name"`
+	ExposedPorts string `json:"exposed_ports" gorethink:"exposed_ports"` //docker
+	DockerImage  string `json:"docker_image" gorethink:"docker_image"`
+	Dependencies string `json:"dependencies" gorethink:"dependencies"`
+	IsEnabled    bool   `json:"is_enabled" gorethink:"is_enabled"`
 }
 
 //Interface function
 func (a *Application) GetJSON() (string, error) {
 	b, err := json.Marshal(a)
-    if err != nil {
-        logging.Log(err)
-        return "",err;
-    }
-    return string(b),err;
+	if err != nil {
+		logging.Log(err)
+		return "", err
+	}
+	return string(b), err
 }
 
 func (n *Application) AddPort(text string) {
@@ -46,7 +47,7 @@ func (n *Application) Validate() bool {
 
 	s := n.GetPorts()
 
-	for _,value := range s {
+	for _, value := range s {
 		valid = valid && ValidPort(value)
 	}
 
@@ -57,7 +58,7 @@ func (n *Application) GetPorts() []string {
 
 	s := strings.Split(n.ExposedPorts, ",")
 
-	for _,value := range s {
+	for _, value := range s {
 		value = strings.TrimSpace(value)
 	}
 
