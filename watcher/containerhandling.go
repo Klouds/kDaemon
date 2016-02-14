@@ -46,10 +46,9 @@ func AddContainer(job *Job) {
 	//Launch the container on the given node
 
 	err = LaunchAppOnNode(app, node, &newcontainer)
-
 	if err != nil {
 		logging.Log(err)
-		job.Complete = false //Something went wrong, container name conflicts happen here
+		job.Complete = true //Something went wrong, container name conflicts happen here
 		job.InUse = false
 		return
 	}
@@ -83,29 +82,45 @@ func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Co
 	} else { //image doesnt exist
 		//pull image
 		if pullImage(app.DockerImage, client) == nil {
+
 			return errors.New("Pulling image")
+		} else {
+
 		}
 
 	}
 
 	//try to create container
-	if createContainer(cont.Name, app, client) == nil {
-		logging.Log("Created Container")
-		_, err := database.CreateContainer(cont)
+	existingContainer := database.GetContainerByName(cont.Name)
+
+	var useContainer *models.Container
+
+	if existingContainer != nil {
+		useContainer = existingContainer
+	} else {
+		useContainer, _, err = database.CreateContainer(cont)
+		logging.Log(useContainer.Status)
 		if err != nil {
 			logging.Log("LC > Could not create the container on the database.")
 		}
+	}
+
+	if useContainer.Status != "LAUNCHED" &&
+		createContainer(cont.Name, app, client) == nil {
+
+		logging.Log("Created Container")
+
 		//start container
 		if startContainer(cont.Name, client) == nil {
 			logging.Log("starting Container")
 			node.ContainerCount = node.ContainerCount + 1
-			cont.ContainerID = cont.Name
-			cont.NodeID = node.Id
-			cont.ApplicationID = app.Id
-			cont.IsEnabled = true
-			cont.Status = "LAUNCHED"
+			useContainer.ContainerID = cont.Name
+			useContainer.NodeID = node.Id
+			useContainer.ApplicationID = app.Id
+			useContainer.IsEnabled = true
+			useContainer.Status = "LAUNCHED"
 
-			_, err := database.UpdateContainer(cont)
+			_, err := database.UpdateContainer(useContainer)
 
 			if err != nil {
 				logging.Log("LC > Could not save the container to the database.")
@@ -118,7 +133,7 @@ func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Co
 			}
 
 		} else {
-			return errors.New("Tried to start container, but it failed.")
+			return errors.New("Tried to start container2, but it failed.")
 		}
 	} else {
 		return errors.New("Tried to create container, but it failed.")
@@ -141,9 +156,14 @@ func RemoveContainer(job *Job) {
 	}
 
 	node, err := database.GetNode(newcontainer.NodeID)
+	logging.Log("WHAT IS NODE ID", newcontainer.NodeID)
 
 	if err != nil {
 		logging.Log("RC > Node doesn't exist in Database")
+		database.DeleteContainer(newcontainer.Id)
+		job.Complete = true
+		job.InUse = false
+		return
 	}
 
 	if RemoveContainerFromNode(node, &newcontainer) == nil {
@@ -164,7 +184,7 @@ func RemoveContainer(job *Job) {
 func RemoveContainerFromNode(node *models.Node, cont *models.Container) error {
 
 	client, err := docker.NewClient(node.DIPAddr + ":" + node.DPort)
-
+	logging.Log("REMOVE:", node)
 	if err != nil {
 		logging.Log(node)
 		logging.Log("THE THING IS BROKEN")
@@ -253,11 +273,14 @@ func removeContainer(name string, client *docker.Client) error {
 }
 
 func pullImage(image string, client *docker.Client) error {
+	logging.Log("pulling image")
 
 	imageopts := docker.PullImageOptions{
 		Repository: image,
 	}
 
-	return client.PullImage(imageopts, docker.AuthConfiguration{})
+	err := client.PullImage(imageopts, docker.AuthConfiguration{})
+
+	return err
 
 }

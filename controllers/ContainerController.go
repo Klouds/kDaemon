@@ -33,7 +33,17 @@ func (c *ContainerController) CreateContainer(rw http.ResponseWriter, r *http.Re
 
 //This function must be passed as Jobs to the watcher, due to runtime container changes.
 func (c *ContainerController) DeleteContainer(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	rw.Write([]byte("Removing Container: " + p.ByName("id")))
+	contid := p.ByName("id")
+
+	oldcontainer, err := database.GetContainer(contid)
+
+	if err != nil {
+		c.JSON(rw, http.StatusNotFound, "Container doesn't exist")
+		return
+	}
+	watcher.AddJob("RC", oldcontainer)
+
+	c.JSON(rw, http.StatusOK, oldcontainer)
 }
 
 //This function must be passed as Jobs to the watcher, due to runtime container changes.

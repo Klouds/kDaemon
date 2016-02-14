@@ -215,17 +215,21 @@ func UpdateApplication(app *models.Application) (bool, error) {
 //Container database Functions
 
 //Create a new node in the database
-func CreateContainer(c *models.Container) (bool, error) {
+func CreateContainer(c *models.Container) (*models.Container, bool, error) {
 	//TODO: Check for auth
 
-	err := r.Table("containers").
+	resp, err := r.Table("containers").
 		Insert(c).
-		Exec(Session)
+		RunWrite(Session)
 	if err != nil {
-		return false, err
+		return nil, false, err
 	}
 
-	return true, err
+	if len(resp.GeneratedKeys) != 0 {
+		c.Id = resp.GeneratedKeys[0]
+	}
+
+	return c, true, err
 }
 
 func UpdateContainer(cont *models.Container) (bool, error) {
@@ -240,6 +244,27 @@ func UpdateContainer(cont *models.Container) (bool, error) {
 	}
 
 	return true, err
+}
+
+func GetContainerByName(name string) *models.Container {
+	logging.Log("Getting container by name: ", name)
+	//Look for a container with name
+	var newcontainer models.Container
+
+	resp, err := r.Table("containers").Filter(r.Row.Field("name").
+		Eq(name)).Run(Session)
+
+	if err != nil {
+		return nil
+	}
+
+	err = resp.One(&newcontainer)
+
+	if err != nil {
+		return nil
+	}
+
+	return &newcontainer
 }
 
 //Get container information

@@ -132,9 +132,10 @@ func CountContainers(conts []models.Container, nodes []models.Node) error {
 	if len(conts) <= 0 {
 
 		logging.Log("HC > RESETTING ALL COUNTS TO ZERO")
-		for i, value := range nodes {
+
+		for _, value := range nodes {
 			value.ContainerCount = 0
-			database.UpdateNode(&nodes[i])
+			database.UpdateNode(&value)
 		}
 		return errors.New("No Containers")
 	}
@@ -158,7 +159,8 @@ func CountContainers(conts []models.Container, nodes []models.Node) error {
 
 func MigrateContainer(container *models.Container) {
 	//loses data but maintains uptime at the moment
-
+	container.Status = "DOWN"
+	database.UpdateContainer(container)
 	AddJob("RC", container)
 	AddJob("LC", container)
 }
