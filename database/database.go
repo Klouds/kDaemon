@@ -8,7 +8,6 @@ import (
 )
 
 var (
-	db      *gorm.DB
 	Session *r.Session
 )
 
