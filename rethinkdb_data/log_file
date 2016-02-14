@@ -1,22 +1,53 @@
-2016-02-14T10:16:16.531245267 0.115073s notice: Recursively removing directory /home/ozzadar/.gvm/pkgsets/go1.5.3/global/src/github.com/superordinate/kDaemon/rethinkdb_data/tmp
-2016-02-14T10:16:16.646168603 0.229997s notice: Initializing directory /home/ozzadar/.gvm/pkgsets/go1.5.3/global/src/github.com/superordinate/kDaemon/rethinkdb_data
-2016-02-14T10:16:16.646285774 0.230112s info: Creating a default database for your convenience. (This is because you ran 'rethinkdb' without 'create', 'serve', or '--join', and the directory '/home/ozzadar/.gvm/pkgsets/go1.5.3/global/src/github.com/superordinate/kDaemon/rethinkdb_data' did not already exist or is empty.)
-2016-02-14T10:16:16.646331665 0.230158s notice: Running rethinkdb 2.2.4~0jessie (GCC 4.9.2)...
-2016-02-14T10:16:16.648662263 0.232490s notice: Running on Linux 3.16.0-4-amd64 x86_64
-2016-02-14T10:16:16.648789195 0.232615s notice: Loading data from directory /home/ozzadar/.gvm/pkgsets/go1.5.3/global/src/github.com/superordinate/kDaemon/rethinkdb_data
-2016-02-14T10:16:17.676923071 1.260751s info: Automatically using cache size of 10311 MB
-2016-02-14T10:16:17.704163206 1.287989s notice: Listening for intracluster connections on port 29015
-2016-02-14T10:16:17.718770732 1.302597s notice: Listening for client driver connections on port 28015
-2016-02-14T10:16:17.718919073 1.302745s notice: Listening for administrative HTTP connections on port 8080
-2016-02-14T10:16:17.718923363 1.302749s notice: Listening on addresses: 127.0.0.1, 127.0.1.1, ::1
-2016-02-14T10:16:17.718923919 1.302750s notice: To fully expose RethinkDB on the network, bind to all addresses by running rethinkdb with the `--bind all` command line option.
-2016-02-14T10:16:17.718925804 1.302752s notice: Server ready, "devbox_ruk" b4399d3b-488c-4ac3-9c57-de8f4c1bdd7d
-2016-02-14T10:17:30.892880449 74.476707s info: Table 0653f44c-dbf2-4914-9e67-4a1cfa734a34: Added replica on this server.
-2016-02-14T10:17:32.626468142 76.210295s info: Table 0653f44c-dbf2-4914-9e67-4a1cfa734a34: Starting a new Raft election for term 1.
-2016-02-14T10:17:32.758730923 76.342557s info: Table 0653f44c-dbf2-4914-9e67-4a1cfa734a34: This server is Raft leader for term 1. Latest log index is 0.
-2016-02-14T10:17:36.034861064 79.618687s info: Table 3665cd51-d3fc-401b-962b-054ace8915ad: Added replica on this server.
-2016-02-14T10:17:37.213599061 80.797425s info: Table 3665cd51-d3fc-401b-962b-054ace8915ad: Starting a new Raft election for term 1.
-2016-02-14T10:17:37.350227874 80.934054s info: Table 3665cd51-d3fc-401b-962b-054ace8915ad: This server is Raft leader for term 1. Latest log index is 0.
-2016-02-14T10:17:41.769011576 85.352838s info: Table 7cb66fe4-3fb7-46e0-8cf7-1bcfb2321ca4: Added replica on this server.
-2016-02-14T10:17:43.504849936 87.088676s info: Table 7cb66fe4-3fb7-46e0-8cf7-1bcfb2321ca4: Starting a new Raft election for term 1.
-2016-02-14T10:17:43.616320119 87.200147s info: Table 7cb66fe4-3fb7-46e0-8cf7-1bcfb2321ca4: This server is Raft leader for term 1. Latest log index is 0.
+2016-02-14T11:09:54.774162867 0.032027s notice: Recursively removing directory /home/ozzadar/.gvm/pkgsets/go1.5.3/global/src/github.com/superordinate/kDaemon/rethinkdb_data/tmp
+2016-02-14T11:09:54.792345831 0.050213s notice: Initializing directory /home/ozzadar/.gvm/pkgsets/go1.5.3/global/src/github.com/superordinate/kDaemon/rethinkdb_data
+2016-02-14T11:09:54.792434195 0.050298s info: Creating a default database for your convenience. (This is because you ran 'rethinkdb' without 'create', 'serve', or '--join', and the directory '/home/ozzadar/.gvm/pkgsets/go1.5.3/global/src/github.com/superordinate/kDaemon/rethinkdb_data' did not already exist or is empty.)
+2016-02-14T11:09:54.792462969 0.050326s notice: Running rethinkdb 2.2.4~0jessie (GCC 4.9.2)...
+2016-02-14T11:09:54.794309797 0.052175s notice: Running on Linux 3.16.0-4-amd64 x86_64
+2016-02-14T11:09:54.794373143 0.052237s notice: Loading data from directory /home/ozzadar/.gvm/pkgsets/go1.5.3/global/src/github.com/superordinate/kDaemon/rethinkdb_data
+2016-02-14T11:09:55.021790739 0.279656s info: Automatically using cache size of 9903 MB
+2016-02-14T11:09:55.022354857 0.280218s notice: Listening for intracluster connections on port 29015
+2016-02-14T11:09:55.023149213 0.281013s notice: Listening for client driver connections on port 28015
+2016-02-14T11:09:55.023312278 0.281176s notice: Listening for administrative HTTP connections on port 8080
+2016-02-14T11:09:55.023316821 0.281180s notice: Listening on addresses: 127.0.0.1, 127.0.1.1, ::1
+2016-02-14T11:09:55.023317329 0.281181s notice: To fully expose RethinkDB on the network, bind to all addresses by running rethinkdb with the `--bind all` command line option.
+2016-02-14T11:09:55.023319101 0.281182s notice: Server ready, "devbox_02g" 4ddee3fb-78d7-4ee2-8427-7d34b7a46693
+2016-02-14T11:10:14.958458354 20.216322s info: Table 1173fc85-4214-4cf5-a291-e185f4b7455a: Added replica on this server.
+2016-02-14T11:10:16.476198123 21.734062s info: Table 1173fc85-4214-4cf5-a291-e185f4b7455a: Starting a new Raft election for term 1.
+2016-02-14T11:10:16.520111980 21.777976s info: Table 1173fc85-4214-4cf5-a291-e185f4b7455a: This server is Raft leader for term 1. Latest log index is 0.
+2016-02-14T11:10:21.645385661 26.903249s notice: Removing file /home/ozzadar/.gvm/pkgsets/go1.5.3/global/src/github.com/superordinate/kDaemon/rethinkdb_data/1173fc85-4214-4cf5-a291-e185f4b7455a
+2016-02-14T11:10:21.645391458 26.903255s info: Table 1173fc85-4214-4cf5-a291-e185f4b7455a: Deleted the table.
+2016-02-14T11:10:24.764743981 30.022608s info: Table eeca286c-ce3b-4299-86a1-1e6f7a3650cf: Added replica on this server.
+2016-02-14T11:10:26.152565471 31.410429s info: Table eeca286c-ce3b-4299-86a1-1e6f7a3650cf: Starting a new Raft election for term 1.
+2016-02-14T11:10:26.219494184 31.477358s info: Table eeca286c-ce3b-4299-86a1-1e6f7a3650cf: This server is Raft leader for term 1. Latest log index is 0.
+2016-02-14T11:10:29.620669395 34.878533s info: Table 7f17e13e-0d94-4aa4-977a-65b411928b35: Added replica on this server.
+2016-02-14T11:10:30.889420340 36.147284s info: Table 7f17e13e-0d94-4aa4-977a-65b411928b35: Starting a new Raft election for term 1.
+2016-02-14T11:10:30.952664943 36.210533s info: Table 7f17e13e-0d94-4aa4-977a-65b411928b35: This server is Raft leader for term 1. Latest log index is 0.
+2016-02-14T11:10:36.525427814 41.783292s info: Table 37b07e20-904d-4604-9c32-f46057a82b08: Added replica on this server.
+2016-02-14T11:10:38.162177070 43.420041s info: Table 37b07e20-904d-4604-9c32-f46057a82b08: Starting a new Raft election for term 1.
+2016-02-14T11:10:38.202379369 43.460243s info: Table 37b07e20-904d-4604-9c32-f46057a82b08: This server is Raft leader for term 1. Latest log index is 0.
+2016-02-14T11:10:38.924311122 44.182175s notice: Server got SIGINT from pid 0, uid 0; shutting down...
+2016-02-14T11:10:38.924389676 44.182253s notice: Shutting down client connections...
+2016-02-14T11:10:38.924524412 44.182388s notice: All client connections closed.
+2016-02-14T11:10:38.924529239 44.182393s notice: Shutting down storage engine... (This may take a while if you had a lot of unflushed data in the writeback cache.)
+2016-02-14T11:10:38.929948212 44.187812s notice: Storage engine shut down.
+2016-02-14T11:10:39.577735705 0.020051s notice: Running rethinkdb 2.2.4~0jessie (GCC 4.9.2)...
+2016-02-14T11:10:39.580131730 0.022446s notice: Running on Linux 3.16.0-4-amd64 x86_64
+2016-02-14T11:10:39.580216731 0.022529s notice: Loading data from directory /home/ozzadar/.gvm/pkgsets/go1.5.3/global/src/github.com/superordinate/kDaemon/rethinkdb_data
+2016-02-14T11:10:39.639862624 0.082177s info: Automatically using cache size of 9901 MB
+2016-02-14T11:10:39.640420997 0.082734s notice: Listening for intracluster connections on port 29015
+2016-02-14T11:10:39.689108904 0.131422s notice: Listening for client driver connections on port 28015
+2016-02-14T11:10:39.689229873 0.131542s notice: Listening for administrative HTTP connections on port 8080
+2016-02-14T11:10:39.689230725 0.131543s notice: Listening on addresses: 127.0.0.1, 127.0.1.1, ::1
+2016-02-14T11:10:39.689230998 0.131543s notice: To fully expose RethinkDB on the network, bind to all addresses by running rethinkdb with the `--bind all` command line option.
+2016-02-14T11:10:39.689262796 0.131575s notice: Server ready, "devbox_02g" 4ddee3fb-78d7-4ee2-8427-7d34b7a46693
+2016-02-14T11:10:41.229191600 1.671504s info: Table eeca286c-ce3b-4299-86a1-1e6f7a3650cf: Starting a new Raft election for term 2.
+2016-02-14T11:10:41.285660413 1.727973s info: Table eeca286c-ce3b-4299-86a1-1e6f7a3650cf: This server is Raft leader for term 2. Latest log index is 2.
+2016-02-14T11:10:41.440378453 1.882691s info: Table 37b07e20-904d-4604-9c32-f46057a82b08: Starting a new Raft election for term 2.
+2016-02-14T11:10:41.485421696 1.927734s info: Table 37b07e20-904d-4604-9c32-f46057a82b08: This server is Raft leader for term 2. Latest log index is 2.
+2016-02-14T11:10:41.564855974 2.007169s info: Table 7f17e13e-0d94-4aa4-977a-65b411928b35: Starting a new Raft election for term 2.
+2016-02-14T11:10:41.654103555 2.096416s info: Table 7f17e13e-0d94-4aa4-977a-65b411928b35: This server is Raft leader for term 2. Latest log index is 2.
+2016-02-14T11:12:03.369718717 83.812032s notice: Server got SIGINT from pid 0, uid 0; shutting down...
+2016-02-14T11:12:03.369802257 83.812115s notice: Shutting down client connections...
+2016-02-14T11:12:03.369918392 83.812231s notice: All client connections closed.
+2016-02-14T11:12:03.369920620 83.812233s notice: Shutting down storage engine... (This may take a while if you had a lot of unflushed data in the writeback cache.)
+2016-02-14T11:12:03.376589882 83.818903s notice: Storage engine shut down.

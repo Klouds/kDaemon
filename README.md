@@ -98,8 +98,6 @@ To add a node, you can POST to **bind_ip:api_port/%API_VERSION%/node/create**
         "hostname":"Host1",
         "d_ipaddr":"127.0.0.1",
         "d_port": "2375",
-        "p_ipaddr":"127.0.0.1",
-        "p_port":"2376"
     }
 ```
 
