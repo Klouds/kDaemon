@@ -69,6 +69,7 @@ func (c *ApplicationController) EditApplication(rw http.ResponseWriter, r *http.
 		return
 	}
 
+	app.Id = p.ByName("id")
 	//Validates the Node passed in
 
 	if app.Validate() {

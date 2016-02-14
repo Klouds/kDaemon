@@ -1,0 +1,22 @@
+2016-02-14T10:16:16.531245267 0.115073s notice: Recursively removing directory /home/ozzadar/.gvm/pkgsets/go1.5.3/global/src/github.com/superordinate/kDaemon/rethinkdb_data/tmp
+2016-02-14T10:16:16.646168603 0.229997s notice: Initializing directory /home/ozzadar/.gvm/pkgsets/go1.5.3/global/src/github.com/superordinate/kDaemon/rethinkdb_data
+2016-02-14T10:16:16.646285774 0.230112s info: Creating a default database for your convenience. (This is because you ran 'rethinkdb' without 'create', 'serve', or '--join', and the directory '/home/ozzadar/.gvm/pkgsets/go1.5.3/global/src/github.com/superordinate/kDaemon/rethinkdb_data' did not already exist or is empty.)
+2016-02-14T10:16:16.646331665 0.230158s notice: Running rethinkdb 2.2.4~0jessie (GCC 4.9.2)...
+2016-02-14T10:16:16.648662263 0.232490s notice: Running on Linux 3.16.0-4-amd64 x86_64
+2016-02-14T10:16:16.648789195 0.232615s notice: Loading data from directory /home/ozzadar/.gvm/pkgsets/go1.5.3/global/src/github.com/superordinate/kDaemon/rethinkdb_data
+2016-02-14T10:16:17.676923071 1.260751s info: Automatically using cache size of 10311 MB
+2016-02-14T10:16:17.704163206 1.287989s notice: Listening for intracluster connections on port 29015
+2016-02-14T10:16:17.718770732 1.302597s notice: Listening for client driver connections on port 28015
+2016-02-14T10:16:17.718919073 1.302745s notice: Listening for administrative HTTP connections on port 8080
+2016-02-14T10:16:17.718923363 1.302749s notice: Listening on addresses: 127.0.0.1, 127.0.1.1, ::1
+2016-02-14T10:16:17.718923919 1.302750s notice: To fully expose RethinkDB on the network, bind to all addresses by running rethinkdb with the `--bind all` command line option.
+2016-02-14T10:16:17.718925804 1.302752s notice: Server ready, "devbox_ruk" b4399d3b-488c-4ac3-9c57-de8f4c1bdd7d
+2016-02-14T10:17:30.892880449 74.476707s info: Table 0653f44c-dbf2-4914-9e67-4a1cfa734a34: Added replica on this server.
+2016-02-14T10:17:32.626468142 76.210295s info: Table 0653f44c-dbf2-4914-9e67-4a1cfa734a34: Starting a new Raft election for term 1.
+2016-02-14T10:17:32.758730923 76.342557s info: Table 0653f44c-dbf2-4914-9e67-4a1cfa734a34: This server is Raft leader for term 1. Latest log index is 0.
+2016-02-14T10:17:36.034861064 79.618687s info: Table 3665cd51-d3fc-401b-962b-054ace8915ad: Added replica on this server.
+2016-02-14T10:17:37.213599061 80.797425s info: Table 3665cd51-d3fc-401b-962b-054ace8915ad: Starting a new Raft election for term 1.
+2016-02-14T10:17:37.350227874 80.934054s info: Table 3665cd51-d3fc-401b-962b-054ace8915ad: This server is Raft leader for term 1. Latest log index is 0.
+2016-02-14T10:17:41.769011576 85.352838s info: Table 7cb66fe4-3fb7-46e0-8cf7-1bcfb2321ca4: Added replica on this server.
+2016-02-14T10:17:43.504849936 87.088676s info: Table 7cb66fe4-3fb7-46e0-8cf7-1bcfb2321ca4: Starting a new Raft election for term 1.
+2016-02-14T10:17:43.616320119 87.200147s info: Table 7cb66fe4-3fb7-46e0-8cf7-1bcfb2321ca4: This server is Raft leader for term 1. Latest log index is 0.

@@ -48,18 +48,21 @@ Full stack design can be read here
 	[default]
 	bind_ip = 0.0.0.0   			# IP to bind API to
 	api_port = 1337				    # Port to bind API to
-	mysql_host = localhost 			# Address to mysql server
-	mysql_port = 3306				# port for mysql server
-	mysql_user = root				# mysql username
-	mysql_password = thesecretsauce	# mysql password
-	mysql_dbname = kdaemon			# database name
+	rethinkdb_host = 127.0.0.1		# RethinkDB Host
+	rethinkdb_port = 28015			# RethinkDB Port
+	rethinkdb_dbname = kdaemon      # RethinkDB database name
 
 ```
 
 ###Dependencies
 
 + Your nodes need to be running the docker API
-+ You must have a mysql host with a database named **kdaemon**  (see Configuration)
++ Rethinkdb with database name of rethinkdb_dbname and tables
+	- containers
+	- nodes
+	- applications
+
+	(will be creating tables if they don't exist in the future, not implemented at the moment though)
 
 
 ###To build (linux):

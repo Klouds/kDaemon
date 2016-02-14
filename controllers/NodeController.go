@@ -72,6 +72,7 @@ func (c *NodeController) EditNode(rw http.ResponseWriter, r *http.Request, p htt
 		return
 	}
 
+	newnode.Id = p.ByName("id")
 	//Validates the Node passed in
 
 	if newnode.Validate() {
