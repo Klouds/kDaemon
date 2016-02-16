@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"github.com/superordinate/kDaemon/database"
+	"github.com/superordinate/kDaemon/logging"
 	"github.com/superordinate/kDaemon/models"
 	"gopkg.in/unrolled/render.v1"
 	"net/http"
@@ -15,7 +16,6 @@ type NodeController struct {
 }
 
 func (c *NodeController) CreateNode(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-
 	//creates a new node object populated with JSON from data
 	newnode := models.Node{}
 	decoder := json.NewDecoder(r.Body)
@@ -62,6 +62,7 @@ func (c *NodeController) DeleteNode(rw http.ResponseWriter, r *http.Request, p h
 }
 
 func (c *NodeController) EditNode(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
 	//creates a new node object populated with JSON from data
 	newnode := models.Node{}
 	decoder := json.NewDecoder(r.Body)
@@ -72,12 +73,16 @@ func (c *NodeController) EditNode(rw http.ResponseWriter, r *http.Request, p htt
 		return
 	}
 
-	newnode.Id = p.ByName("id")
 	//Validates the Node passed in
 
-	if newnode.Validate() {
+	mergedNode, _ := database.GetNode(p.ByName("id"))
+
+	mergedNode = mergedNode.MergeChanges(&newnode)
+
+	logging.Log(mergedNode)
+	if mergedNode.Validate() {
 		//Adds the node to the database
-		success, _ := database.UpdateNode(&newnode)
+		success, _ := database.UpdateNode(mergedNode)
 
 		if success == false {
 			c.JSON(rw, http.StatusNotFound, "Node doesn't exist")

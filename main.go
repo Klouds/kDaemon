@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/rs/cors"
 	"github.com/superordinate/kDaemon/config"
 	"github.com/superordinate/kDaemon/logging"
 	"github.com/superordinate/kDaemon/routers"
@@ -40,8 +41,17 @@ func main() {
 	//Starts the cluster watcher
 	go watcher.MainLoop()
 
-	http.Handle("/", api.Mux)
-	http.Handle("/ws", ws.Router)
+	c := cors.New(cors.Options{
+		AllowCredentials: true,
+		AllowedOrigins:   []string{"http://localhost:8081", "*"},
+		AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE"},
+	})
+
+	apihandler := c.Handler(api.Mux)
+	wshandler := c.Handler(ws.Router)
+
+	http.Handle("/", apihandler)
+	http.Handle("/ws", wshandler)
 	//Hosts the api server
 	http.ListenAndServe(host+":"+apiport, nil)
 

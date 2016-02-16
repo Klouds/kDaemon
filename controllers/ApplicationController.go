@@ -69,19 +69,20 @@ func (c *ApplicationController) EditApplication(rw http.ResponseWriter, r *http.
 		return
 	}
 
-	app.Id = p.ByName("id")
+	newapp, _ := database.GetApplication(p.ByName("id"))
+	newapp = newapp.MergeChanges(&app)
 	//Validates the Node passed in
 
-	if app.Validate() {
+	if newapp.Validate() {
 		//Adds the node to the database
-		success, _ := database.UpdateApplication(&app)
+		success, _ := database.UpdateApplication(newapp)
 
 		if success == false {
 			c.JSON(rw, http.StatusNotFound, "Application doesn't exist")
 			return
 		}
 		//return success message with new node information
-		c.JSON(rw, http.StatusCreated, app)
+		c.JSON(rw, http.StatusCreated, newapp)
 	} else {
 		c.JSON(rw, http.StatusBadRequest, "Invalid format")
 	}

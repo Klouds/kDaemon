@@ -38,3 +38,31 @@ func (n *Node) Validate() bool {
 func (n *Node) AddContainer() {
 	n.ContainerCount = n.ContainerCount + 1
 }
+
+func (n *Node) MergeChanges(newNode *Node) *Node {
+
+	newnode := Node{}
+
+	newnode = *n
+	newnode.Id = n.Id
+
+	if n.UserID != newNode.UserID && newNode.UserID != "" {
+		newnode.UserID = newNode.UserID
+	}
+
+	if n.Name != newNode.Name && newNode.Name != "" {
+		newnode.Name = newNode.Name
+	}
+	if n.DIPAddr != newNode.DIPAddr && newNode.DIPAddr != "" {
+		newnode.DIPAddr = newNode.DIPAddr
+	}
+	if n.DPort != newNode.DPort && newNode.DPort != "" {
+		newnode.DPort = newNode.DPort
+	}
+
+	if n.DPort != newNode.DPort && newNode.DPort != "" {
+		newnode.DPort = newNode.DPort
+	}
+
+	return &newnode
+}

@@ -64,3 +64,31 @@ func (n *Application) GetPorts() []string {
 
 	return s
 }
+
+func (n *Application) MergeChanges(newApp *Application) *Application {
+
+	newapp := Application{}
+
+	newapp = *n
+	newapp.Id = n.Id
+
+	if n.UserID != newApp.UserID && newApp.UserID != "" {
+		newapp.UserID = newApp.UserID
+	}
+
+	if n.Name != newApp.Name && newApp.Name != "" {
+		newapp.Name = newApp.Name
+	}
+	if n.ExposedPorts != newApp.ExposedPorts && newApp.ExposedPorts != "" {
+		newapp.ExposedPorts = newApp.ExposedPorts
+	}
+	if n.DockerImage != newApp.DockerImage && newApp.DockerImage != "" {
+		newapp.DockerImage = newApp.DockerImage
+	}
+
+	if n.Dependencies != newApp.Dependencies && newApp.Dependencies != "" {
+		newapp.Dependencies = newApp.Dependencies
+	}
+
+	return &newapp
+}
