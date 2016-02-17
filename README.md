@@ -127,13 +127,13 @@ To launch a container on your most available node, you can POST to **bind_ip:api
 ### ENDPOINTS [X] = Not implemented
 ```
  * POST /%API_VERSION%/nodes/create  			-- Creates a node
- * PATCH /%API_VERSION%/nodes/update 			 	-- Edits a node
+ * PATCH /%API_VERSION%/nodes/update 			-- Edits a node
  * DELETE /%API_VERSION%/nodes/delete  			-- Deletes a node
  * GET /%API_VERSION%/nodes/:id  				-- Gets node information
  * GET /%API_VERSION%/nodes  					-- Gets all nodes
  
- * POST /%API_VERSION%/applications/create  		-- Creates an application in the database
- * PATCH /%API_VERSION%/applications/update  		-- Edits an application
+ * POST /%API_VERSION%/applications/create  	-- Creates an application in the database
+ * PATCH /%API_VERSION%/applications/update  	-- Edits an application
  * DELETE /%API_VERSION%/applications/delete  	-- Deletes an application
  * GET /%API_VERSION%/applications/:id  		-- Gets application information
  * GET /%API_VERSION%/applications  			-- Gets all applications
