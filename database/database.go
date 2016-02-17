@@ -2,9 +2,9 @@ package database
 
 import (
 	r "github.com/dancannon/gorethink"
-	"github.com/superordinate/kDaemon/config"
-	"github.com/superordinate/kDaemon/logging"
-	"github.com/superordinate/kDaemon/models"
+	"github.com/klouds/kDaemon/config"
+	"github.com/klouds/kDaemon/logging"
+	"github.com/klouds/kDaemon/models"
 )
 
 var (

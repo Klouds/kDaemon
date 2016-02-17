@@ -3,8 +3,8 @@ package controllers
 import (
 	// "fmt"
 	r "github.com/dancannon/gorethink"
-	"github.com/superordinate/kDaemon/client"
-	"github.com/superordinate/kDaemon/models"
+	"github.com/klouds/kDaemon/client"
+	"github.com/klouds/kDaemon/models"
 	//"time"
 )
 

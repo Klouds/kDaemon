@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/klouds/kDaemon/config"
+	"github.com/klouds/kDaemon/logging"
+	"github.com/klouds/kDaemon/routers"
+	"github.com/klouds/kDaemon/watcher"
 	"github.com/rs/cors"
-	"github.com/superordinate/kDaemon/config"
-	"github.com/superordinate/kDaemon/logging"
-	"github.com/superordinate/kDaemon/routers"
-	"github.com/superordinate/kDaemon/watcher"
 	"net/http"
 )
 

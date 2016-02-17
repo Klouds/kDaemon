@@ -2,9 +2,9 @@ package routers
 
 import (
 	"github.com/julienschmidt/httprouter"
-	"github.com/superordinate/kDaemon/controllers"
-	"github.com/superordinate/kDaemon/database"
-	"github.com/superordinate/kDaemon/logging"
+	"github.com/klouds/kDaemon/controllers"
+	"github.com/klouds/kDaemon/database"
+	"github.com/klouds/kDaemon/logging"
 	"gopkg.in/unrolled/render.v1"
 	"html/template"
 )

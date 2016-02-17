@@ -3,9 +3,9 @@ package watcher
 import (
 	"errors"
 	docker "github.com/fsouza/go-dockerclient"
-	"github.com/superordinate/kDaemon/database"
-	"github.com/superordinate/kDaemon/logging"
-	"github.com/superordinate/kDaemon/models"
+	"github.com/klouds/kDaemon/database"
+	"github.com/klouds/kDaemon/logging"
+	"github.com/klouds/kDaemon/models"
 	"net"
 	"time"
 )

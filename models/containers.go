@@ -2,7 +2,7 @@ package models
 
 import (
 	"encoding/json"
-	"github.com/superordinate/kDaemon/logging"
+	"github.com/klouds/kDaemon/logging"
 )
 
 type Container struct {

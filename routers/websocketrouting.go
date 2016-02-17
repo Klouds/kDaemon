@@ -4,9 +4,9 @@ import (
 	"fmt"
 	r "github.com/dancannon/gorethink"
 	"github.com/gorilla/websocket"
-	"github.com/superordinate/kDaemon/client"
-	"github.com/superordinate/kDaemon/controllers"
-	"github.com/superordinate/kDaemon/database"
+	"github.com/klouds/kDaemon/client"
+	"github.com/klouds/kDaemon/controllers"
+	"github.com/klouds/kDaemon/database"
 	"net/http"
 )
 

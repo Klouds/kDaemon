@@ -126,26 +126,26 @@ To launch a container on your most available node, you can POST to **bind_ip:api
 
 ### ENDPOINTS [X] = Not implemented
 ```
- * POST /%API_VERSION%/node/create  			-- Creates a node
- * PUT /%API_VERSION%/nodes/update 			 	-- Edits a node
+ * POST /%API_VERSION%/nodes/create  			-- Creates a node
+ * PATCH /%API_VERSION%/nodes/update 			 	-- Edits a node
  * DELETE /%API_VERSION%/nodes/delete  			-- Deletes a node
  * GET /%API_VERSION%/nodes/:id  				-- Gets node information
  * GET /%API_VERSION%/nodes  					-- Gets all nodes
  
- * POST /%API_VERSION%/application/create  		-- Creates an application in the database
- * PUT /%API_VERSION%/applications/update  		-- Edits an application
+ * POST /%API_VERSION%/applications/create  		-- Creates an application in the database
+ * PATCH /%API_VERSION%/applications/update  		-- Edits an application
  * DELETE /%API_VERSION%/applications/delete  	-- Deletes an application
  * GET /%API_VERSION%/applications/:id  		-- Gets application information
  * GET /%API_VERSION%/applications  			-- Gets all applications
 
- * POST /%API_VERSION%/container/create  		-- Creates a container on the cluster
- * PUT /%API_VERSION%/containers/update  		-- Edits a container [X]
+ * POST /%API_VERSION%/containers/create  		-- Creates a container on the cluster
+ * PATCH /%API_VERSION%/containers/update  		-- Edits a container [X]
  * DELETE /%API_VERSION%/containers/delete  	-- Deletes a container [X]
  * GET /%API_VERSION%/containers/:id  			-- Gets container information
  * GET /%API_VERSION%/containers  				-- Gets all containers
 
- * POST /%API_VERSION%/user/create  			-- Creates a user [X]
- * PUT /%API_VERSION%/users/update  			-- Edits a users [X]
+ * POST /%API_VERSION%/users/create  			-- Creates a user [X]
+ * PATCH /%API_VERSION%/users/update  			-- Edits a users [X]
  * DELETE /%API_VERSION%/users/delete  			-- Deletes a user [X]
  * GET /%API_VERSION%/users/:id  				-- Gets user information [X]
  ```

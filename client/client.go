@@ -3,7 +3,7 @@ package client
 import (
 	r "github.com/dancannon/gorethink"
 	"github.com/gorilla/websocket"
-	"github.com/superordinate/kDaemon/models"
+	"github.com/klouds/kDaemon/models"
 )
 
 type Handler func(*Client, interface{})
