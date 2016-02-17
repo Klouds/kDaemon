@@ -4,7 +4,8 @@ import (
 	"github.com/klouds/kDaemon/config"
 	"github.com/klouds/kDaemon/logging"
 	"github.com/klouds/kDaemon/routers"
-	"github.com/klouds/kDaemon/watcher"
+	//"github.com/klouds/kDaemon/watcher"
+	"github.com/klouds/kDaemon/watcher2"
 	"github.com/rs/cors"
 	"net/http"
 )
@@ -39,13 +40,20 @@ func main() {
 	ws.Init()
 
 	//Starts the cluster watcher
-	go watcher.MainLoop()
+	//go watcher.MainLoop()
 
 	c := cors.New(cors.Options{
 		AllowCredentials: true,
 		AllowedOrigins:   []string{"http://localhost:8081", "*"},
 		AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE"},
 	})
+
+	watcher_new := watcher2.Watcher{}
+	watcher_new.Init()
+
+	stop := make(chan bool)
+
+	go watcher_new.Run(stop)
 
 	apihandler := c.Handler(api.Mux)
 	wshandler := c.Handler(ws.Router)

@@ -12,8 +12,7 @@ type Node struct {
 	DIPAddr        string `json:"d_ipaddr" gorethink:"d_ipaddr"` //docker
 	DPort          string `json:"d_port" gorethink:"d_port"`
 	ContainerCount int    `json:"container_count" gorethink:"container_count"`
-	IsHealthy      bool   `json:"is_healthy" gorethink:"is_healthy"`
-	IsEnabled      bool   `json:"is_enabled" gorethink:"is_enabled"`
+	State          string `json:"state" gorethink:"state"`
 }
 
 //Interface function
@@ -62,6 +61,10 @@ func (n *Node) MergeChanges(newNode *Node) *Node {
 
 	if n.DPort != newNode.DPort && newNode.DPort != "" {
 		newnode.DPort = newNode.DPort
+	}
+
+	if n.State != newNode.State && newNode.State != "" {
+		newnode.State = newNode.State
 	}
 
 	return &newnode

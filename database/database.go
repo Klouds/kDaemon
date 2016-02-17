@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	r "github.com/dancannon/gorethink"
 	"github.com/klouds/kDaemon/config"
 	"github.com/klouds/kDaemon/logging"
@@ -111,6 +112,10 @@ func GetNodes() ([]models.Node, error) {
 		return nil, err
 	}
 
+	if len(nodes) <= 0 {
+		return nil, errors.New("NO NODES")
+	}
+
 	return nodes, err
 }
 
@@ -179,6 +184,10 @@ func GetApplications() ([]models.Application, error) {
 
 	if err != nil {
 		return nil, err
+	}
+
+	if len(applications) <= 0 {
+		return nil, errors.New("NO APPLICATIONS")
 	}
 
 	return applications, err
@@ -302,6 +311,10 @@ func GetContainers() ([]models.Container, error) {
 
 	if err != nil {
 		return nil, err
+	}
+
+	if len(containers) <= 0 {
+		return nil, errors.New("NO CONTAINERS")
 	}
 
 	return containers, err

@@ -23,20 +23,20 @@ func DetermineBestNodeForLaunch() (*models.Node, error) {
 		idealnode := nodes[0]
 
 		for i := 1; i < len(nodes); i++ {
-			if idealnode.IsHealthy == false && nodes[i].IsHealthy == true {
+			if idealnode.State == "DOWN" && nodes[i].State == "UP" {
 				idealnode = nodes[i]
 				continue
 			}
 
 			if idealnode.ContainerCount > nodes[i].ContainerCount {
-				if nodes[i].IsHealthy == true {
+				if nodes[i].State == "UP" {
 					idealnode = nodes[i]
 				}
 			}
 		}
 		//On launch load balancing goes here
 
-		if idealnode.IsHealthy == false {
+		if idealnode.State == "DOWN" {
 			return &idealnode, errors.New("ERROR")
 		}
 

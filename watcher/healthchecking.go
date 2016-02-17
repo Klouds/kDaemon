@@ -46,16 +46,14 @@ func CheckNodes() ([]models.Node, error) {
 		//Check Node for basic ping
 		conn, err := net.DialTimeout("tcp", nodes[index].DIPAddr+":"+nodes[index].DPort, timeout)
 		if err != nil {
-			nodes[index].IsEnabled = false
-			nodes[index].IsHealthy = false
+			nodes[index].State = "DOWN"
 			logging.Log("HC > NODE | " + nodes[index].Name + " | IS CURRENTLY NOT ACCESSIBLE")
 			database.UpdateNode(&nodes[index])
 			continue
 		}
 
 		logging.Log("HC > NODE WITH HOSTNAME | " + nodes[index].Name + " | IS HEALTHY")
-		nodes[index].IsHealthy = true
-		nodes[index].IsEnabled = true
+		nodes[index].State = "DOWN"
 
 		database.UpdateNode(&nodes[index])
 		conn.Close()
@@ -78,7 +76,7 @@ func CheckContainers() ([]models.Container, error) {
 
 		node, err := database.GetNode(value.NodeID)
 
-		if err != nil || node.IsHealthy == false {
+		if err != nil || node.State == "DOWN" {
 			logging.Log("HC > NODE ISNT HEALTHY, MIGRATING NODES")
 
 			MigrateContainer(&containers[index])
