@@ -79,7 +79,8 @@ func (c *NodeController) EditNode(rw http.ResponseWriter, r *http.Request, p htt
 
 	mergedNode = mergedNode.MergeChanges(&newnode)
 
-	logging.Log(mergedNode)
+	logging.Log(newnode.ContainerCount)
+
 	if mergedNode.Validate() {
 		//Adds the node to the database
 		success, _ := database.UpdateNode(mergedNode)

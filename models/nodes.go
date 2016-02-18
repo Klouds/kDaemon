@@ -11,7 +11,7 @@ type Node struct {
 	Name           string `json:"name" gorethink:"name"`
 	DIPAddr        string `json:"d_ipaddr" gorethink:"d_ipaddr"` //docker
 	DPort          string `json:"d_port" gorethink:"d_port"`
-	ContainerCount int    `json:"container_count" gorethink:"container_count"`
+	ContainerCount string `json:"container_count" gorethink:"container_count"`
 	State          string `json:"state" gorethink:"state"`
 }
 
@@ -32,10 +32,6 @@ func (n *Node) Validate() bool {
 		ValidPort(n.DPort)
 
 	return valid
-}
-
-func (n *Node) AddContainer() {
-	n.ContainerCount = n.ContainerCount + 1
 }
 
 func (n *Node) MergeChanges(newNode *Node) *Node {
@@ -67,5 +63,8 @@ func (n *Node) MergeChanges(newNode *Node) *Node {
 		newnode.State = newNode.State
 	}
 
+	if n.ContainerCount != newNode.ContainerCount && newNode.ContainerCount != "" {
+		newnode.ContainerCount = newNode.ContainerCount
+	}
 	return &newnode
 }

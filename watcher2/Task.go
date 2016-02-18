@@ -3,11 +3,12 @@ package watcher2
 import ()
 
 const (
-	Launch = "LAUNCH"
-	Stop   = "STOP"
-	Delete = "DELETE"
-	Down   = "DOWN"
-	Check  = "CHECK"
+	Launch  = "LAUNCH"
+	Stop    = "STOP"
+	Delete  = "DELETE"
+	Down    = "DOWN"
+	Check   = "CHECK"
+	AddNode = "ADDNODE"
 )
 
 type Task struct {

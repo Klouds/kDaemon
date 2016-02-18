@@ -53,7 +53,7 @@ func CheckNodes() ([]models.Node, error) {
 		}
 
 		logging.Log("HC > NODE WITH HOSTNAME | " + nodes[index].Name + " | IS HEALTHY")
-		nodes[index].State = "DOWN"
+		nodes[index].State = "UP"
 
 		database.UpdateNode(&nodes[index])
 		conn.Close()
@@ -132,25 +132,25 @@ func CountContainers(conts []models.Container, nodes []models.Node) error {
 		logging.Log("HC > RESETTING ALL COUNTS TO ZERO")
 
 		for _, value := range nodes {
-			value.ContainerCount = 0
+			value.ContainerCount = "0"
 			database.UpdateNode(&value)
 		}
 		return errors.New("No Containers")
 	}
 
-	nodeCounts := make(map[string]int)
+	// nodeCounts := make(map[string]string)
 
 	logging.Log("HC > COUNTING CONTAINERS")
 
 	//Loop through containers and count the containers belonging to which nodes
-	for _, value := range conts {
-		nodeCounts[value.NodeID] = nodeCounts[value.NodeID] + 1
-	}
+	// for _, value := range conts {
+	// 	nodeCounts[value.NodeID] = nodeCounts[value.NodeID] + 1
+	// }
 
-	for _, value := range nodes {
-		value.ContainerCount = nodeCounts[value.Id]
-		database.UpdateNode(&value)
-	}
+	// for _, value := range nodes {
+	// 	value.ContainerCount = nodeCounts[value.Id]
+	// 	database.UpdateNode(&value)
+	// }
 
 	return nil
 }

@@ -1,9 +1,12 @@
 package watcher2
 
 import (
-	//"github.com/klouds/kDaemon/database"
+	"github.com/klouds/kDaemon/database"
 	"github.com/klouds/kDaemon/logging"
+	"github.com/klouds/kDaemon/models"
+	// "errors"
 	"github.com/twinj/uuid"
+	"strconv"
 )
 
 var (
@@ -11,7 +14,7 @@ var (
 )
 
 type taskManager struct {
-	node_managers []NodeManager
+	node_managers map[string]NodeManager
 	tasks         []Task
 	jobchan       chan bool
 	stopChannels  map[string]chan bool
@@ -21,7 +24,7 @@ func (th *taskManager) Init() {
 	logging.Log("TaskHandler Init")
 	if TaskHandler == nil {
 		TaskHandler = &taskManager{
-			node_managers: make([]NodeManager, 0),
+			node_managers: make(map[string]NodeManager),
 			tasks:         make([]Task, 0),
 			jobchan:       make(chan bool),
 			stopChannels:  make(map[string]chan bool),
@@ -50,16 +53,25 @@ func (th *taskManager) Listen(stop chan bool) {
 func (th *taskManager) Dispatch(task Task) {
 	defer th.deleteYourself(task)
 
-	logging.Log("# OF TASKS: ", len(th.tasks))
+	switch task.Name {
 
-	//select node to run on
+	case Launch:
+		_, err := th.determineBestNodeForLaunch()
+		if err != nil {
+			logging.Log("There was a problem: ", err)
+		}
+	case Stop:
 
-	//This is where the job runs
+	case Delete:
+	case Down:
+	case Check:
+	case AddNode:
+
+	}
 }
 
 //Runs given job
 func (th *taskManager) deleteYourself(task Task) {
-	logging.Log("Delete yourself: ", task.JobID)
 	for index, smalltask := range th.tasks {
 		if task.JobID == smalltask.JobID && len(th.tasks) > 1 {
 
@@ -77,22 +89,66 @@ func (th *taskManager) AddJob(name string, imageid string, containerid string) {
 	newjob.ImageID = imageid
 	newjob.ContainerID = containerid
 
-	if name == Launch {
+	switch name {
+
+	case Launch:
 		//Add launch command to back of queue
 		th.tasks = append(th.tasks, newjob)
-	} else if name == Stop {
+	case Stop:
 		//Add stop command to back of queue
 		th.tasks = append(th.tasks, newjob)
-	} else if name == Delete {
+	case Delete:
 		//Add delete command to back of queue
 		th.tasks = append(th.tasks, newjob)
-	} else if name == Down {
+	case Down:
 		//Add down command to front of queue
 		th.tasks = append([]Task{newjob}, th.tasks...)
-	} else if name == Check {
+	case Check:
 		//add check command to front of queue
 		th.tasks = append([]Task{newjob}, th.tasks...)
-	}
+	case AddNode:
+		//add check command to front of queue
+		th.tasks = append([]Task{newjob}, th.tasks...)
 
+	}
 	th.jobchan <- true
+}
+
+func (th *taskManager) determineBestNodeForLaunch() (string, error) {
+
+	nodes, err := database.GetNodes()
+
+	if err != nil {
+		logging.Log(err)
+		return "", err
+	}
+	idealnode := models.Node{}
+
+	for _, value := range nodes {
+		if value.State == "UP" {
+			if idealnode.Id == "" {
+				idealnode = value
+				continue
+			}
+			idealcount, err := strconv.Atoi(idealnode.ContainerCount)
+			if err != nil {
+				logging.Log("Not a real value")
+				continue
+			}
+			nodecount, err := strconv.Atoi(value.ContainerCount)
+			if err != nil {
+				logging.Log("Not a real value")
+				continue
+			}
+
+			if idealcount > nodecount {
+				idealnode = value
+				continue
+			}
+
+		}
+
+	}
+	return "", err
+
 }

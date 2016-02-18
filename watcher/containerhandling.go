@@ -113,7 +113,7 @@ func LaunchAppOnNode(app *models.Application, node *models.Node, cont *models.Co
 		//start container
 		if startContainer(cont.Name, client) == nil {
 			logging.Log("starting Container")
-			node.ContainerCount = node.ContainerCount + 1
+			//node.ContainerCount = node.ContainerCount + 1
 			useContainer.ContainerID = cont.Name
 			useContainer.NodeID = node.Id
 			useContainer.ApplicationID = app.Id
@@ -169,7 +169,7 @@ func RemoveContainer(job *Job) {
 	if RemoveContainerFromNode(node, &newcontainer) == nil {
 		//if successful
 
-		node.ContainerCount = node.ContainerCount - 1
+		//node.ContainerCount = node.ContainerCount - 1
 		database.UpdateNode(node)
 
 		logging.Log("RC > Container Removed from node successfully")

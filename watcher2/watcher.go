@@ -120,7 +120,7 @@ type Watcher struct {
 }
 
 func (w *Watcher) Init() {
-	w.HealthCheckInterval = time.Duration(1 * time.Second)
+	w.HealthCheckInterval = time.Duration(10 * time.Second)
 	w.lastHealthCheck = time.Now()
 	TaskHandler.Init()
 
