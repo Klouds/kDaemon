@@ -4,34 +4,21 @@ import (
 	"github.com/klouds/kDaemon/database"
 	"github.com/klouds/kDaemon/logging"
 	"github.com/klouds/kDaemon/models"
-	"github.com/twinj/uuid"
+
+	//"github.com/twinj/uuid"
 )
 
 //Node Task Types
-const (
-	Launch = "LAUNCH"
-	Stop   = "STOP"
-	Delete = "DELETE"
-	Down   = "DOWN"
-	Check  = "CHECK"
-)
-
-type NodeJob struct {
-	JobID       string
-	Name        string
-	ContainerID string
-	ImageID     string
-	Stop        chan<- bool
-}
 
 type NodeManager struct {
-	jobs         []NodeJob
+	tasks        []Task
 	node         *models.Node
 	stopChannels map[string]chan bool
+	jobchan      chan bool
 }
 
 //initializes the manager.
-func NewNodeManager(id string) *NodeManager {
+func New(id string) *NodeManager {
 	newnode, err := database.GetNode(id)
 
 	if err != nil {
@@ -41,40 +28,52 @@ func NewNodeManager(id string) *NodeManager {
 	return &NodeManager{
 		stopChannels: make(map[string]chan bool),
 		node:         newnode,
-		jobs:         make([]NodeJob, 0),
+		tasks:        make([]Task, 0),
+		jobchan:      make(chan bool),
 	}
 }
 
 //Adds jobs to the queue
-func (nm *NodeManager) AddJob(name string, containerid string,
-	imageid string, stop chan<- bool) {
+func (nm *NodeManager) AddJob(task *Task) {
 
-	newjob := NodeJob{}
-	newjob.JobID = uuid.NewV4().String()
-	newjob.Name = name
-	newjob.ImageID = imageid
-	newjob.ContainerID = containerid
-	nm.newStopChannel(newjob.JobID)
-	newjob.Stop = stop
+	stop := nm.newStopChannel(task.JobID)
+	task.Stop = stop
 
-	if name == Launch {
+	if task.Name == Launch {
 		//Add launch command to back of queue
-		nm.jobs = append(nm.jobs, newjob)
-	} else if name == Stop {
+		nm.tasks = append(nm.tasks, *task)
+	} else if task.Name == Stop {
 		//Add stop command to back of queue
-		nm.jobs = append(nm.jobs, newjob)
-	} else if name == Delete {
+		nm.tasks = append(nm.tasks, *task)
+	} else if task.Name == Delete {
 		//Add delete command to back of queue
-		nm.jobs = append(nm.jobs, newjob)
-	} else if name == Down {
+		nm.tasks = append(nm.tasks, *task)
+	} else if task.Name == Down {
 		//Add down command to front of queue
-		nm.jobs = append([]NodeJob{newjob}, nm.jobs...)
-	} else if name == Check {
+		nm.tasks = append([]Task{*task}, nm.tasks...)
+	} else if task.Name == Check {
 		//add check command to front of queue
-		nm.jobs = append([]NodeJob{newjob}, nm.jobs...)
+		nm.tasks = append([]Task{*task}, nm.tasks...)
 	}
 
-	logging.Log(nm.jobs)
+	nm.jobchan <- true
+}
+
+//Listens for new jobs
+func (nm *NodeManager) Listen() {
+	for {
+		select {
+		case <-nm.jobchan:
+			logging.Log("received Node job")
+			nm.Dispatch()
+		}
+	}
+}
+
+//Runs given job
+func (nm *NodeManager) Dispatch() {
+	logging.Log("Dispatched Node job")
+	//This is where the job runs
 }
 
 func (nm *NodeManager) newStopChannel(stopKey string) chan bool {

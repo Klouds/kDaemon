@@ -120,8 +120,20 @@ type Watcher struct {
 }
 
 func (w *Watcher) Init() {
-	w.HealthCheckInterval = time.Duration(10 * time.Second)
+	w.HealthCheckInterval = time.Duration(1 * time.Second)
 	w.lastHealthCheck = time.Now()
+	TaskHandler.Init()
+
+	thStop := make(chan bool)
+	go TaskHandler.Listen(thStop)
+	go func() {
+		count := 0
+
+		for {
+			TaskHandler.AddJob(Launch, "fake_image", "container_id")
+			count = count + 1
+		}
+	}()
 }
 
 func (w *Watcher) Run(stop <-chan bool) {
@@ -138,6 +150,7 @@ func (w *Watcher) Run(stop <-chan bool) {
 			return
 		case <-runHealthCheck:
 			runHealthChecks()
+
 		}
 
 		//check elapsed time
@@ -155,6 +168,7 @@ func (w *Watcher) healthCheckTimer(runHealthCheck chan<- bool) {
 		}
 	}
 }
+
 func runHealthChecks() {
 	logging.Log("Run HealthCheck")
 
