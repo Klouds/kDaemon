@@ -30,7 +30,7 @@ Full stack design can be read here
 	 [Daemon Design] [Daemon Design]
 
 
-##THE STACK
+###THE STACK
 
 ```
 	docker-prometheus --\    /---> consul ---> haproxy-consul  <--\
