@@ -14,7 +14,7 @@ var (
 )
 
 type taskManager struct {
-	node_managers map[string]NodeManager
+	node_managers map[string]*NodeManager
 	tasks         []Task
 	jobchan       chan bool
 	stopChannels  map[string]chan bool
@@ -22,18 +22,24 @@ type taskManager struct {
 
 func (th *taskManager) Init() {
 	logging.Log("TaskHandler Init")
+
 	if TaskHandler == nil {
 		TaskHandler = &taskManager{
-			node_managers: make(map[string]NodeManager),
+			node_managers: make(map[string]*NodeManager),
 			tasks:         make([]Task, 0),
 			jobchan:       make(chan bool),
 			stopChannels:  make(map[string]chan bool),
 		}
 	}
+
 }
 
 //Listens for new jobs
 func (th *taskManager) Listen(stop chan bool) {
+	//init node list
+	th.initializeNodes()
+	th.listenOnAllNodes()
+
 	for {
 		select {
 		case <-stop:
@@ -56,10 +62,13 @@ func (th *taskManager) Dispatch(task Task) {
 	switch task.Name {
 
 	case Launch:
-		_, err := th.determineBestNodeForLaunch()
+		node, err := th.determineBestNodeForLaunch()
 		if err != nil {
 			logging.Log("There was a problem: ", err)
 		}
+
+		th.node_managers[node].AddJob(&task)
+
 	case Stop:
 
 	case Delete:
@@ -70,7 +79,39 @@ func (th *taskManager) Dispatch(task Task) {
 	}
 }
 
-//Runs given job
+func (th *taskManager) initializeNodes() error {
+	//get the nodes currently in the database
+	nodes, err := database.GetNodes()
+
+	if err != nil {
+		logging.Log("error getting nodes: ", err)
+		return err
+	}
+
+	for _, node := range nodes {
+		manager := NodeManager{}
+		manager.Init(node.Id)
+
+		th.node_managers[node.Id] = &manager
+		th.nodeAddedToCluster(node.Id)
+	}
+
+	return nil
+}
+
+//
+func (th *taskManager) listenOnAllNodes() {
+}
+
+func (th *taskManager) nodeAddedToCluster(id string) {
+
+	manager := th.node_managers[id]
+	stop := make(chan bool)
+	th.stopChannels[id] = stop
+	go manager.Listen(th.stopChannels[id])
+}
+
+//deletes the job
 func (th *taskManager) deleteYourself(task Task) {
 	for index, smalltask := range th.tasks {
 		if task.JobID == smalltask.JobID && len(th.tasks) > 1 {
@@ -111,6 +152,7 @@ func (th *taskManager) AddJob(name string, imageid string, containerid string) {
 		th.tasks = append([]Task{newjob}, th.tasks...)
 
 	}
+	logging.Log("NODE LENGTH: ", len(th.tasks))
 	th.jobchan <- true
 }
 
@@ -122,6 +164,7 @@ func (th *taskManager) determineBestNodeForLaunch() (string, error) {
 		logging.Log(err)
 		return "", err
 	}
+
 	idealnode := models.Node{}
 
 	for _, value := range nodes {
@@ -149,6 +192,6 @@ func (th *taskManager) determineBestNodeForLaunch() (string, error) {
 		}
 
 	}
-	return "", err
+	return idealnode.Id, err
 
 }

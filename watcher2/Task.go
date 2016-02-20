@@ -16,5 +16,6 @@ type Task struct {
 	Name        string
 	ContainerID string
 	ImageID     string
+	NodeID      string
 	Stop        chan<- bool
 }
