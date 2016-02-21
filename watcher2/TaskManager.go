@@ -15,7 +15,7 @@ var (
 
 type taskManager struct {
 	node_managers map[string]*NodeManager
-	tasks         []Task
+	tasks         map[string]*Task
 	jobchan       chan bool
 	stopChannels  map[string]chan bool
 }
@@ -26,7 +26,7 @@ func (th *taskManager) Init() {
 	if TaskHandler == nil {
 		TaskHandler = &taskManager{
 			node_managers: make(map[string]*NodeManager),
-			tasks:         make([]Task, 0),
+			tasks:         make(map[string]*Task),
 			jobchan:       make(chan bool),
 			stopChannels:  make(map[string]chan bool),
 		}
@@ -47,9 +47,11 @@ func (th *taskManager) Listen(stop chan bool) {
 			return
 		case <-th.jobchan:
 			//Grab first task
-			task := th.tasks[0]
-			//run the task
-			th.Dispatch(task)
+			for _, job := range th.tasks {
+				if job.Dispatched == false {
+					th.Dispatch(*job)
+				}
+			}
 
 		}
 	}
@@ -58,6 +60,8 @@ func (th *taskManager) Listen(stop chan bool) {
 //Runs given job
 func (th *taskManager) Dispatch(task Task) {
 	defer th.deleteYourself(task)
+	logging.Log("LENGTH OF TM: ", len(th.tasks))
+	task.Dispatched = true
 
 	switch task.Name {
 
@@ -67,16 +71,42 @@ func (th *taskManager) Dispatch(task Task) {
 			logging.Log("There was a problem: ", err)
 		}
 
-		th.node_managers[node].AddJob(&task)
+		th.node_managers[node].AddJob(task)
 
 	case Stop:
+		if task.NodeID != "" {
+			th.node_managers[task.NodeID].AddJob(task)
+		}
 
+	//CASE DELETE WILL REMOVE ANY DATA FOR GOOD. USE AT OWN PERIL!
 	case Delete:
+		//if container is running
+		if task.NodeID != "" {
+			stopTask := task
+			stopTask.Name = Stop
+			th.node_managers[task.NodeID].AddJob(stopTask)
+		}
+
+		//DELETE ALL THE DATA
+		go th.deleteContainerData(task.ContainerID)
+
 	case Down:
+		if task.NodeID != "" {
+			th.node_managers[task.NodeID].AddJob(task)
+		}
+
 	case Check:
 	case AddNode:
 
 	}
+}
+
+func (th *taskManager) deleteContainerData(containerid string) {
+	//DELETES ALL CONTAINER DATA
+	//FOR HARD REMOVAL OF DATA, SHOULD BARELY EVER BE USED
+	//ALL WARNINGS GO HERE.
+	//
+	logging.Log("Deleting all container data for id: ", containerid)
 }
 
 func (th *taskManager) initializeNodes() error {
@@ -113,46 +143,26 @@ func (th *taskManager) nodeAddedToCluster(id string) {
 
 //deletes the job
 func (th *taskManager) deleteYourself(task Task) {
-	for index, smalltask := range th.tasks {
-		if task.JobID == smalltask.JobID && len(th.tasks) > 1 {
-
-			th.tasks = append(th.tasks[:index], th.tasks[index+1:]...)
+	for _, job := range th.tasks {
+		if job.JobID == task.JobID {
+			delete(th.tasks, task.JobID)
 		}
 	}
 }
 
 //Adds jobs to the queue
-func (th *taskManager) AddJob(name string, imageid string, containerid string) {
+func (th *taskManager) AddJob(name string, imageid string, containerid string, nodeid string) {
 
 	newjob := Task{}
 	newjob.JobID = uuid.NewV4().String()
 	newjob.Name = name
 	newjob.ImageID = imageid
 	newjob.ContainerID = containerid
+	newjob.NodeID = nodeid
 
-	switch name {
+	jobid := newjob.JobID
+	th.tasks[jobid] = &newjob
 
-	case Launch:
-		//Add launch command to back of queue
-		th.tasks = append(th.tasks, newjob)
-	case Stop:
-		//Add stop command to back of queue
-		th.tasks = append(th.tasks, newjob)
-	case Delete:
-		//Add delete command to back of queue
-		th.tasks = append(th.tasks, newjob)
-	case Down:
-		//Add down command to front of queue
-		th.tasks = append([]Task{newjob}, th.tasks...)
-	case Check:
-		//add check command to front of queue
-		th.tasks = append([]Task{newjob}, th.tasks...)
-	case AddNode:
-		//add check command to front of queue
-		th.tasks = append([]Task{newjob}, th.tasks...)
-
-	}
-	logging.Log("NODE LENGTH: ", len(th.tasks))
 	th.jobchan <- true
 }
 

@@ -130,7 +130,7 @@ func (w *Watcher) Init() {
 		count := 0
 
 		for {
-			TaskHandler.AddJob(Launch, "fake_image", "container_id")
+			TaskHandler.AddJob(Launch, "fake_image", "container_id", "")
 			count = count + 1
 		}
 	}()

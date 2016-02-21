@@ -12,6 +12,7 @@ const (
 )
 
 type Task struct {
+	Dispatched  bool
 	JobID       string
 	Name        string
 	ContainerID string

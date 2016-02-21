@@ -4,14 +4,14 @@ import (
 	"github.com/klouds/kDaemon/database"
 	"github.com/klouds/kDaemon/logging"
 	"github.com/klouds/kDaemon/models"
-
+	cmap "github.com/streamrail/concurrent-map"
 	//"github.com/twinj/uuid"
 )
 
 //Node Task Types
 
 type NodeManager struct {
-	tasks        []Task
+	tasks        cmap.ConcurrentMap
 	Node         *models.Node
 	stopChannels map[string]chan bool
 	jobchan      chan bool
@@ -28,40 +28,16 @@ func (nm *NodeManager) Init(id string) {
 	maps := make(map[string]chan bool)
 	nm.stopChannels = maps
 	nm.Node = newnode
-	nm.tasks = make([]Task, 0)
+	nm.tasks = cmap.New()
 	nm.jobchan = make(chan bool)
 
 }
 
 //Adds jobs to the queue
-func (nm *NodeManager) AddJob(task *Task) {
-	stop := nm.newStopChannel(task.JobID)
+func (nm *NodeManager) AddJob(task Task) {
 
-	task.Stop = stop
-	switch task.Name {
+	nm.tasks.Set(task.JobID, task)
 
-	case Launch:
-		//Add launch command to back of queue
-		nm.tasks = append(nm.tasks, *task)
-	case Stop:
-		//Add stop command to back of queue
-		nm.tasks = append(nm.tasks, *task)
-	case Delete:
-		//Add delete command to back of queue
-		nm.tasks = append(nm.tasks, *task)
-	case Down:
-		//Add down command to front of queue
-		nm.tasks = append([]Task{*task}, nm.tasks...)
-	case Check:
-		//add check command to front of queue
-		nm.tasks = append([]Task{*task}, nm.tasks...)
-	case AddNode:
-		//add check command to front of queue
-		nm.tasks = append([]Task{*task}, nm.tasks...)
-
-	}
-
-	logging.Log("LENGTH : ", len(nm.tasks))
 	nm.jobchan <- true
 }
 
@@ -74,10 +50,10 @@ func (nm *NodeManager) Listen(stop chan bool) {
 			stop <- true
 			return
 		case <-nm.jobchan:
-			//Grab first task
-			nm.dispatch(nm.tasks[0])
-			//run the task
 
+			for job := range nm.tasks.Iter() {
+				nm.dispatch(job.Val.(Task))
+			}
 		}
 	}
 }
@@ -90,28 +66,25 @@ func (nm *NodeManager) dispatch(task Task) {
 
 	case Launch:
 		//Launch a thing
+		logging.Log("Launching container on: ", nm.Node.Id)
 
 	case Stop:
-
-	case Delete:
+		logging.Log("Dispatched Stop job on node: ", nm.Node.Id)
 	case Down:
+		logging.Log("NODE IS DOWN! : ", nm.Node.Id)
 	case Check:
 	case AddNode:
 
 	}
 
-	logging.Log("Dispatched Node job")
 	//This is where the job runs
 }
 
 //deletes the job
 func (nm *NodeManager) deleteYourself(task Task) {
-	for index, smalltask := range nm.tasks {
-		if task.JobID == smalltask.JobID && len(nm.tasks) > 1 {
 
-			nm.tasks = append(nm.tasks[:index], nm.tasks[index+1:]...)
-		}
-	}
+	nm.tasks.Remove(task.JobID)
+
 }
 
 func (nm *NodeManager) newStopChannel(stopKey string) chan bool {
