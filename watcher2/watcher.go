@@ -129,12 +129,12 @@ func (w *Watcher) Init() {
 	w.stopChannel = thStop
 	go TaskHandler.Listen(w.stopChannel)
 	go func() {
-		count := 0
+		// count := 0
 
-		for {
-			TaskHandler.AddJob(Launch, "fake_image", "container_id", "")
-			count = count + 1
-		}
+		// for {
+		// 	TaskHandler.AddJob(Launch, "fake_image", "container_id", "")
+		// 	count = count + 1
+		// }
 	}()
 }
 
@@ -149,6 +149,7 @@ func (w *Watcher) Run(stop <-chan bool) {
 		select {
 		case <-stop:
 			logging.Log("ROUTINE STOPPED")
+
 			w.stopChannel <- true
 			return
 		case <-runHealthCheck:

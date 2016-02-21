@@ -8,8 +8,6 @@ import (
 	//"github.com/twinj/uuid"
 )
 
-//Node Task Types
-
 type NodeManager struct {
 	tasks        cmap.ConcurrentMap
 	Node         *models.Node

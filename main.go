@@ -8,7 +8,7 @@ import (
 	"github.com/klouds/kDaemon/watcher2"
 	"github.com/rs/cors"
 	"net/http"
-	"time"
+	// "time"
 )
 
 func main() {
@@ -63,8 +63,8 @@ func main() {
 	http.Handle("/ws", wshandler)
 	//Hosts the api server
 
-	time.Sleep(10 * time.Second)
-	stop <- true
+	// time.Sleep(10 * time.Second)
+	// stop <- true
 
 	http.ListenAndServe(host+":"+apiport, nil)
 
