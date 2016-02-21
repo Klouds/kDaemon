@@ -47,10 +47,10 @@ func (nm *NodeManager) Listen(stop chan bool) {
 	for {
 		select {
 		case <-stop:
+			logging.Log("NM Shutting down")
 			stop <- true
 			return
 		case <-nm.jobchan:
-
 			for job := range nm.tasks.Iter() {
 				nm.dispatch(job.Val.(Task))
 			}
@@ -61,19 +61,19 @@ func (nm *NodeManager) Listen(stop chan bool) {
 //Runs given job
 func (nm *NodeManager) dispatch(task Task) {
 	defer nm.deleteYourself(task)
+	logging.Log("LENGTH OF NM: ", nm.tasks.Count())
 
 	switch task.Name {
 
 	case Launch:
 		//Launch a thing
 		logging.Log("Launching container on: ", nm.Node.Id)
-
 	case Stop:
 		logging.Log("Dispatched Stop job on node: ", nm.Node.Id)
 	case Down:
 		logging.Log("NODE IS DOWN! : ", nm.Node.Id)
 	case Check:
-	case AddNode:
+		logging.Log("NODE IS DOWN! : ", nm.Node.Id)
 
 	}
 

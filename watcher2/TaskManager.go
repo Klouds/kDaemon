@@ -38,12 +38,12 @@ func (th *taskManager) Init() {
 func (th *taskManager) Listen(stop chan bool) {
 	//init node list
 	th.initializeNodes()
-	th.listenOnAllNodes()
 
 	for {
 		select {
 		case <-stop:
-			stop <- true
+			//stop <- true
+			th.Shutdown()
 			return
 		case <-th.jobchan:
 			//Grab first task
@@ -60,7 +60,6 @@ func (th *taskManager) Listen(stop chan bool) {
 //Runs given job
 func (th *taskManager) Dispatch(task Task) {
 	defer th.deleteYourself(task)
-	logging.Log("LENGTH OF TM: ", len(th.tasks))
 	task.Dispatched = true
 
 	switch task.Name {
@@ -129,15 +128,12 @@ func (th *taskManager) initializeNodes() error {
 	return nil
 }
 
-//
-func (th *taskManager) listenOnAllNodes() {
-}
-
 func (th *taskManager) nodeAddedToCluster(id string) {
 
 	manager := th.node_managers[id]
 	stop := make(chan bool)
 	th.stopChannels[id] = stop
+
 	go manager.Listen(th.stopChannels[id])
 }
 
@@ -204,4 +200,14 @@ func (th *taskManager) determineBestNodeForLaunch() (string, error) {
 	}
 	return idealnode.Id, err
 
+}
+
+func (th *taskManager) Shutdown() {
+	logging.Log("Shutting down")
+	//Shuts down all listeners
+	for key, _ := range th.node_managers {
+		th.stopChannels[key] <- true
+	}
+
+	th.node_managers = make(map[string]*NodeManager)
 }

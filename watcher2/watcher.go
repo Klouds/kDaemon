@@ -117,6 +117,7 @@ import (
 type Watcher struct {
 	HealthCheckInterval time.Duration
 	lastHealthCheck     time.Time
+	stopChannel         chan bool
 }
 
 func (w *Watcher) Init() {
@@ -125,7 +126,8 @@ func (w *Watcher) Init() {
 	TaskHandler.Init()
 
 	thStop := make(chan bool)
-	go TaskHandler.Listen(thStop)
+	w.stopChannel = thStop
+	go TaskHandler.Listen(w.stopChannel)
 	go func() {
 		count := 0
 
@@ -147,6 +149,7 @@ func (w *Watcher) Run(stop <-chan bool) {
 		select {
 		case <-stop:
 			logging.Log("ROUTINE STOPPED")
+			w.stopChannel <- true
 			return
 		case <-runHealthCheck:
 			runHealthChecks()
@@ -165,6 +168,7 @@ func (w *Watcher) healthCheckTimer(runHealthCheck chan<- bool) {
 		if elapsed >= w.HealthCheckInterval {
 			runHealthCheck <- true
 			w.lastHealthCheck = time.Now()
+
 		}
 	}
 }
