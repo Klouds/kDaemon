@@ -87,7 +87,7 @@ func (th *taskManager) Dispatch(task Task) {
 		}
 
 		//DELETE ALL THE DATA
-		go th.deleteContainerData(task.ContainerID)
+		th.deleteContainerData(task.ContainerID)
 
 	case Down:
 		if task.NodeID != "" {
@@ -95,8 +95,14 @@ func (th *taskManager) Dispatch(task Task) {
 		}
 
 	case Check:
+		if task.NodeID != "" {
+			th.node_managers[task.NodeID].AddJob(task)
+		}
 	case AddNode:
-
+		if task.NodeID != "" {
+			//Add new node
+			th.nodeAddedToCluster(task.NodeID)
+		}
 	}
 }
 
@@ -142,6 +148,7 @@ func (th *taskManager) deleteYourself(task Task) {
 	for _, job := range th.tasks {
 		if job.JobID == task.JobID {
 			delete(th.tasks, task.JobID)
+			task = Task{}
 		}
 	}
 }
@@ -150,13 +157,13 @@ func (th *taskManager) deleteYourself(task Task) {
 func (th *taskManager) AddJob(name string, imageid string, containerid string, nodeid string) {
 
 	newjob := Task{}
-	newjob.JobID = uuid.NewV4().String()
+	jobid := uuid.NewV4().String()
+	newjob.JobID = jobid
 	newjob.Name = name
 	newjob.ImageID = imageid
 	newjob.ContainerID = containerid
 	newjob.NodeID = nodeid
 
-	jobid := newjob.JobID
 	th.tasks[jobid] = &newjob
 
 	th.jobchan <- true

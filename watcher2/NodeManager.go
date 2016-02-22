@@ -37,6 +37,8 @@ func (nm *NodeManager) AddJob(task Task) {
 	nm.tasks.Set(task.JobID, task)
 
 	nm.jobchan <- true
+
+	return
 }
 
 //Listens for new jobs
@@ -49,8 +51,10 @@ func (nm *NodeManager) Listen(stop chan bool) {
 			stop <- true
 			return
 		case <-nm.jobchan:
-			for job := range nm.tasks.Iter() {
-				nm.dispatch(job.Val.(Task))
+			iter := nm.tasks.Iter()
+			for job := range iter {
+				go nm.dispatch(job.Val.(Task))
+				//iter = nm.tasks.Iter()
 			}
 		}
 	}
@@ -58,8 +62,8 @@ func (nm *NodeManager) Listen(stop chan bool) {
 
 //Runs given job
 func (nm *NodeManager) dispatch(task Task) {
-	defer nm.deleteYourself(task)
-	logging.Log("LENGTH OF NM: ", nm.tasks.Count())
+	defer nm.deleteYourself(&task)
+	//logging.Log("LENGTH OF NM: ", nm.tasks.Count())
 
 	switch task.Name {
 
@@ -67,21 +71,24 @@ func (nm *NodeManager) dispatch(task Task) {
 		//Launch a thing
 		logging.Log("Launching container on: ", nm.Node.Id)
 	case Stop:
-		logging.Log("Dispatched Stop job on node: ", nm.Node.Id)
+		//logging.Log("Dispatched Stop job on node: ", nm.Node.Id)
 	case Down:
 		logging.Log("NODE IS DOWN! : ", nm.Node.Id)
 	case Check:
-		logging.Log("NODE IS DOWN! : ", nm.Node.Id)
-
+		logging.Log("Checking Container! : ", nm.Node.Id)
+	default:
+		logging.Log("Something else")
 	}
 
+	return
 	//This is where the job runs
 }
 
 //deletes the job
-func (nm *NodeManager) deleteYourself(task Task) {
+func (nm *NodeManager) deleteYourself(task *Task) {
 
 	nm.tasks.Remove(task.JobID)
+	task = &Task{}
 
 }
 

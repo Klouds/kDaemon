@@ -128,17 +128,18 @@ func (w *Watcher) Init() {
 	thStop := make(chan bool)
 	w.stopChannel = thStop
 	go TaskHandler.Listen(w.stopChannel)
-	go func() {
-		// count := 0
 
-		// for {
-		// 	TaskHandler.AddJob(Launch, "fake_image", "container_id", "")
-		// 	count = count + 1
-		// }
-	}()
 }
 
 func (w *Watcher) Run(stop <-chan bool) {
+	logging.Log("Running a billion at \n TIMESTAMP: ", time.Now())
+	for i := 0; i < 1000000000; i++ {
+		TaskHandler.AddJob(Stop, "fake_image", "container_id", "e0f01ae1-9c99-4dc1-bf8b-8e921e092f45")
+
+	}
+
+	logging.Log("TIMESTAMP: ", time.Now())
+
 	for {
 		runHealthCheck := make(chan bool)
 
