@@ -63,7 +63,7 @@ func (th *taskManager) Dispatch(task Task) {
 	defer th.deleteYourself(task)
 	task.Dispatched = true
 
-	time.Sleep(50 * time.Microsecond)
+	time.Sleep(100 * time.Microsecond)
 	if len(th.node_managers) <= 0 {
 		time.Sleep(500 * time.Microsecond)
 		return
