@@ -7,6 +7,7 @@ import (
 	// "errors"
 	"github.com/twinj/uuid"
 	"strconv"
+	"time"
 )
 
 var (
@@ -62,6 +63,11 @@ func (th *taskManager) Dispatch(task Task) {
 	defer th.deleteYourself(task)
 	task.Dispatched = true
 
+	time.Sleep(50 * time.Microsecond)
+	if len(th.node_managers) <= 0 {
+		time.Sleep(500 * time.Microsecond)
+		return
+	}
 	switch task.Name {
 
 	case Launch:

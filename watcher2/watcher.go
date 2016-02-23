@@ -133,9 +133,9 @@ func (w *Watcher) Init() {
 
 func (w *Watcher) Run(stop <-chan bool) {
 	logging.Log("Running a billion at \n TIMESTAMP: ", time.Now())
-	for i := 0; i < 1000000000; i++ {
-		TaskHandler.AddJob(Stop, "fake_image", "container_id", "e0f01ae1-9c99-4dc1-bf8b-8e921e092f45")
-
+	for i := 0; i < 100000; i++ {
+		TaskHandler.AddJob(Stop, "fake_image", "container_id", "54d6dc2f-33de-49bb-b5fd-c2a9e58edab1")
+		logging.Log(i)
 	}
 
 	logging.Log("TIMESTAMP: ", time.Now())
