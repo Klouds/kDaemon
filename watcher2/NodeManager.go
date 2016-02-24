@@ -6,6 +6,7 @@ import (
 	"github.com/klouds/kDaemon/models"
 	cmap "github.com/streamrail/concurrent-map"
 	//"github.com/twinj/uuid"
+	// "time"
 )
 
 type NodeManager struct {
@@ -43,7 +44,7 @@ func (nm *NodeManager) AddJob(task Task) {
 
 //Listens for new jobs
 func (nm *NodeManager) Listen(stop chan bool) {
-	logging.Log("I am listening ")
+	count := 0
 	for {
 		select {
 		case <-stop:
@@ -51,9 +52,12 @@ func (nm *NodeManager) Listen(stop chan bool) {
 			stop <- true
 			return
 		case <-nm.jobchan:
-			iter := nm.tasks.Iter()
+			iter := nm.tasks.IterBuffered()
 			for job := range iter {
-				go nm.dispatch(job.Val.(Task))
+				//logging.Log("dispatch")
+				count++
+				//time.Sleep(5 * time.Microsecond)
+				nm.dispatch(job.Val.(Task), count)
 				//iter = nm.tasks.Iter()
 			}
 		}
@@ -61,7 +65,7 @@ func (nm *NodeManager) Listen(stop chan bool) {
 }
 
 //Runs given job
-func (nm *NodeManager) dispatch(task Task) {
+func (nm *NodeManager) dispatch(task Task, count int) {
 	defer nm.deleteYourself(&task)
 	//logging.Log("LENGTH OF NM: ", nm.tasks.Count())
 
@@ -69,15 +73,15 @@ func (nm *NodeManager) dispatch(task Task) {
 
 	case Launch:
 		//Launch a thing
-		logging.Log("Launching container on: ", nm.Node.Id)
+		// logging.Log("Launching container ", count)
 	case Stop:
-		//logging.Log("Dispatched Stop job on node: ", nm.Node.Id)
+		// logging.Log("Stopping container ", count)
 	case Down:
-		logging.Log("NODE IS DOWN! : ", nm.Node.Id)
+		// logging.Log("Downing container ", count)
 	case Check:
-		logging.Log("Checking Container! : ", nm.Node.Id)
+		// logging.Log("Check container ", count)
 	default:
-		logging.Log("Something else")
+		// logging.Log("Something else")
 	}
 
 	return

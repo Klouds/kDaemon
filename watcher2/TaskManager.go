@@ -4,10 +4,11 @@ import (
 	"github.com/klouds/kDaemon/database"
 	"github.com/klouds/kDaemon/logging"
 	"github.com/klouds/kDaemon/models"
+	cmap "github.com/streamrail/concurrent-map"
 	// "errors"
 	"github.com/twinj/uuid"
 	"strconv"
-	"time"
+	// "time"
 )
 
 var (
@@ -16,18 +17,18 @@ var (
 
 type taskManager struct {
 	node_managers map[string]*NodeManager
-	tasks         map[string]*Task
+	tasks         *cmap.ConcurrentMap
 	jobchan       chan bool
 	stopChannels  map[string]chan bool
 }
 
 func (th *taskManager) Init() {
 	logging.Log("TaskHandler Init")
-
+	tasks := cmap.New()
 	if TaskHandler == nil {
 		TaskHandler = &taskManager{
 			node_managers: make(map[string]*NodeManager),
-			tasks:         make(map[string]*Task),
+			tasks:         &tasks,
 			jobchan:       make(chan bool),
 			stopChannels:  make(map[string]chan bool),
 		}
@@ -48,10 +49,12 @@ func (th *taskManager) Listen(stop chan bool) {
 			return
 		case <-th.jobchan:
 			//Grab first task
-			for _, job := range th.tasks {
-				if job.Dispatched == false {
-					th.Dispatch(*job)
-				}
+			for job := range th.tasks.IterBuffered() {
+
+				//time.Sleep(5 * time.Microsecond)
+				task := job.Val.(Task)
+				th.Dispatch(task)
+
 			}
 
 		}
@@ -60,12 +63,10 @@ func (th *taskManager) Listen(stop chan bool) {
 
 //Runs given job
 func (th *taskManager) Dispatch(task Task) {
-	defer th.deleteYourself(task)
-	task.Dispatched = true
+	defer th.deleteYourself(&task)
 
-	time.Sleep(100 * time.Microsecond)
 	if len(th.node_managers) <= 0 {
-		time.Sleep(500 * time.Microsecond)
+		//time.Sleep(500 * time.Microsecond)
 		return
 	}
 	switch task.Name {
@@ -110,6 +111,8 @@ func (th *taskManager) Dispatch(task Task) {
 			th.nodeAddedToCluster(task.NodeID)
 		}
 	}
+
+	return
 }
 
 func (th *taskManager) deleteContainerData(containerid string) {
@@ -117,7 +120,7 @@ func (th *taskManager) deleteContainerData(containerid string) {
 	//FOR HARD REMOVAL OF DATA, SHOULD BARELY EVER BE USED
 	//ALL WARNINGS GO HERE.
 	//
-	logging.Log("Deleting all container data for id: ", containerid)
+	//logging.Log("Deleting all container data for id: ", containerid)
 }
 
 func (th *taskManager) initializeNodes() error {
@@ -150,19 +153,18 @@ func (th *taskManager) nodeAddedToCluster(id string) {
 }
 
 //deletes the job
-func (th *taskManager) deleteYourself(task Task) {
-	for _, job := range th.tasks {
-		if job.JobID == task.JobID {
-			delete(th.tasks, task.JobID)
-			task = Task{}
-		}
-	}
+func (th *taskManager) deleteYourself(task *Task) {
+
+	th.tasks.Remove(task.JobID)
+	task = &Task{}
+	return
+
 }
 
 //Adds jobs to the queue
 func (th *taskManager) AddJob(name string, imageid string, containerid string, nodeid string) {
 
-	newjob := Task{}
+	newjob := &Task{}
 	jobid := uuid.NewV4().String()
 	newjob.JobID = jobid
 	newjob.Name = name
@@ -170,7 +172,7 @@ func (th *taskManager) AddJob(name string, imageid string, containerid string, n
 	newjob.ContainerID = containerid
 	newjob.NodeID = nodeid
 
-	th.tasks[jobid] = &newjob
+	th.tasks.Set(jobid, *newjob)
 
 	th.jobchan <- true
 }
