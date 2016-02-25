@@ -125,6 +125,8 @@ To launch a container on your most available node, you can POST to **bind_ip:api
 ```
 
 ### ENDPOINTS [X] = Not implemented
+UPDATED (Feb 25 2016) -- adding a start container command to the list. Separating container creation/launch from each other because what was I thinking?
+
 ```
  * POST /%API_VERSION%/nodes/create  			-- Creates a node
  * PATCH /%API_VERSION%/nodes/update 			-- Edits a node
@@ -138,7 +140,8 @@ To launch a container on your most available node, you can POST to **bind_ip:api
  * GET /%API_VERSION%/applications/:id  		-- Gets application information
  * GET /%API_VERSION%/applications  			-- Gets all applications
 
- * POST /%API_VERSION%/containers/create  		-- Creates a container on the cluster
+ * POST /%API_VERSION%/containers/create        -- Creates a container on the cluster
+ * POST /%API_VERSION%/containers/launch  		-- Launches a container on the cluster
  * PATCH /%API_VERSION%/containers/update  		-- Edits a container [X]
  * DELETE /%API_VERSION%/containers/delete  	-- Deletes a container [X]
  * GET /%API_VERSION%/containers/:id  			-- Gets container information
@@ -154,4 +157,4 @@ To launch a container on your most available node, you can POST to **bind_ip:api
 [Development Plan]: https://docs.google.com/document/d/1A4-0g1E52wdW9L-hoeAZzay5Uotv1GcBPtXLU1msw2w/edit?usp=sharing
 [Daemon Design]: https://docs.google.com/document/d/1EkI7uQzdt1xMwb1etcweYQFCLthK_l9aHZvHOunshzs/edit?usp=sharing
 [Weave]: http://www.weave.works/
-[kDaemon_UI]:http://github.com/superordinate/kDaemon_ui
+[kDaemon_UI]:http://github.com/klouds/kDaemon_ui

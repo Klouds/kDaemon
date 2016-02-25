@@ -41,7 +41,6 @@ func CheckNodes() ([]models.Node, error) {
 
 	}
 	return nodes, nil
-
 }
 
 func CheckContainers() error {
