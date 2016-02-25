@@ -51,16 +51,26 @@ func InitDB() {
 //Node database functions
 
 //Create a new node in the database
-func CreateNode(n *models.Node) (bool, error) {
+func CreateNode(n *models.Node) (string, error) {
 
-	err := r.Table("nodes").
+	res, err := r.Table("nodes").
 		Insert(n).
-		Exec(Session)
+		RunWrite(Session)
+
 	if err != nil {
-		return false, err
+		return "", err
 	}
 
-	return true, err
+	containerid := ""
+
+	keys := res.GeneratedKeys
+	if len(keys) > 0 {
+		containerid = keys[0]
+	}
+
+	logging.Log("FIND ID ", containerid)
+
+	return containerid, nil
 }
 
 //delete Node

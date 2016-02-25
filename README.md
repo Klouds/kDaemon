@@ -92,7 +92,7 @@ If attempting to deploy in production, you will want to point your docker hosts 
 
 ####Adding a node
 
-To add a node, you can POST to **bind_ip:api_port/%API_VERSION%/node/create**
+To add a node, you can POST to **bind_ip:api_port/%API_VERSION%/nodes/create**
 ```
     {
         "hostname":"Host1",
@@ -114,9 +114,9 @@ To add an application, you can POST to **bind_ip:api_port/%API_VERSION%/applicat
     }
 ```
 
-####Launching a container
+####Create a container
 
-To launch a container on your most available node, you can POST to **bind_ip:api_port/%API_VERSION%/container/create**
+To create a container on your most available node, you can POST to **bind_ip:api_port/%API_VERSION%/container/create**
 ```
     {
         "name":"ghost-blog-ozzadar",
@@ -124,33 +124,36 @@ To launch a container on your most available node, you can POST to **bind_ip:api
     }
 ```
 
-### ENDPOINTS [X] = Not implemented
-UPDATED (Feb 25 2016) -- adding a start container command to the list. Separating container creation/launch from each other because what was I thinking?
+####Launch a container
+
+**POST** to bind_ip:api_port/%API_VERSION%/container/launch/%CONTAINER_ID%
+
+## API Reference
+UPDATED (Feb 25 2016) -- 
+    1) adding a start container command to the list. Separating container creation/launch from each other because what was I thinking?
+    2) moved endpoints to /action/id to get rid of annoying pathing errors.
+
 
 ```
  * POST /%API_VERSION%/nodes/create  			-- Creates a node
- * PATCH /%API_VERSION%/nodes/update 			-- Edits a node
- * DELETE /%API_VERSION%/nodes/delete  			-- Deletes a node
- * GET /%API_VERSION%/nodes/:id  				-- Gets node information
+ * PATCH /%API_VERSION%/nodes/update/id 		-- Edits a node
+ * DELETE /%API_VERSION%/nodes/delete/id  		-- Deletes a node
+ * GET /%API_VERSION%/nodes/id  				-- Gets node information
  * GET /%API_VERSION%/nodes  					-- Gets all nodes
  
  * POST /%API_VERSION%/applications/create  	-- Creates an application in the database
- * PATCH /%API_VERSION%/applications/update  	-- Edits an application
- * DELETE /%API_VERSION%/applications/delete  	-- Deletes an application
- * GET /%API_VERSION%/applications/:id  		-- Gets application information
+ * PATCH /%API_VERSION%/applications/update/id  -- Edits an application
+ * DELETE /%API_VERSION%/applications/delete/id -- Deletes an application
+ * GET /%API_VERSION%/applications/id  		-- Gets application information
  * GET /%API_VERSION%/applications  			-- Gets all applications
 
  * POST /%API_VERSION%/containers/create        -- Creates a container on the cluster
- * POST /%API_VERSION%/containers/launch  		-- Launches a container on the cluster
- * PATCH /%API_VERSION%/containers/update  		-- Edits a container [X]
- * DELETE /%API_VERSION%/containers/delete  	-- Deletes a container [X]
- * GET /%API_VERSION%/containers/:id  			-- Gets container information
+ * POST /%API_VERSION%/containers/launch/id  	-- Launches a container on the cluster
+ * PATCH /%API_VERSION%/containers/update/id  	-- Edits a container 
+ * DELETE /%API_VERSION%/containers/delete/id  	-- Deletes a container 
+ * GET /%API_VERSION%/containers/id  			-- Gets container information
  * GET /%API_VERSION%/containers  				-- Gets all containers
 
- * POST /%API_VERSION%/users/create  			-- Creates a user [X]
- * PATCH /%API_VERSION%/users/update  			-- Edits a users [X]
- * DELETE /%API_VERSION%/users/delete  			-- Deletes a user [X]
- * GET /%API_VERSION%/users/:id  				-- Gets user information [X]
  ```
 
 #### Main Contributor [Ozzadar](https://github.com/Ozzadar)

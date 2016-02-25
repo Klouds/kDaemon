@@ -24,6 +24,7 @@ func (nm *NodeManager) Init(id string) {
 		return
 	}
 
+	logging.Log(newnode)
 	maps := make(map[string]chan bool)
 	nm.stopChannels = maps
 	nm.Node = newnode

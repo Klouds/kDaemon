@@ -133,10 +133,7 @@ func (th *taskManager) initializeNodes() error {
 	}
 
 	for _, node := range nodes {
-		manager := NodeManager{}
-		manager.Init(node.Id)
 
-		th.node_managers[node.Id] = &manager
 		th.nodeAddedToCluster(node.Id)
 	}
 
@@ -144,11 +141,15 @@ func (th *taskManager) initializeNodes() error {
 }
 
 func (th *taskManager) nodeAddedToCluster(id string) {
+	manager := NodeManager{}
 
-	manager := th.node_managers[id]
+	th.node_managers[id] = &manager
+
+	logging.Log("Node added to cluster")
+
 	stop := make(chan bool)
 	th.stopChannels[id] = stop
-
+	manager.Init(id)
 	go manager.Listen(th.stopChannels[id])
 }
 
@@ -162,13 +163,14 @@ func (th *taskManager) deleteYourself(task *Task) {
 }
 
 //Adds jobs to the queue
-func (th *taskManager) AddJob(name string, imageid string, containerid string, nodeid string) {
+func (th *taskManager) AddJob(name string, applicationid string, containerid string, nodeid string) {
 
 	newjob := &Task{}
 	jobid := uuid.NewV4().String()
 	newjob.JobID = jobid
 	newjob.Name = name
-	newjob.ImageID = imageid
+
+	newjob.ApplicationID = applicationid
 	newjob.ContainerID = containerid
 	newjob.NodeID = nodeid
 

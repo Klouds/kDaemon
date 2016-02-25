@@ -26,3 +26,25 @@ func (c Container) GetJSON() (string, error) {
 	}
 	return string(b), err
 }
+
+func (c *Container) MergeChanges(container *Container) *Container {
+
+	newcontainer := Container{}
+
+	newcontainer = *c
+	newcontainer.Id = c.Id
+
+	if c.ApplicationID != container.ApplicationID && container.ApplicationID != "" {
+		newcontainer.ApplicationID = container.ApplicationID
+	}
+
+	if c.Name != container.Name && container.Name != "" {
+		newcontainer.Name = container.Name
+	}
+
+	if c.Status != container.Status && container.Status != "" {
+		newcontainer.Status = container.Status
+	}
+
+	return &newcontainer
+}

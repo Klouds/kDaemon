@@ -5,7 +5,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/klouds/kDaemon/database"
 	"github.com/klouds/kDaemon/models"
-	"github.com/klouds/kDaemon/watcher"
+	"github.com/klouds/kDaemon/watcher2"
 	"gopkg.in/unrolled/render.v1"
 	"net/http"
 )
@@ -26,29 +26,95 @@ func (c *ContainerController) CreateContainer(rw http.ResponseWriter, r *http.Re
 		return
 	}
 
-	watcher.AddJob("LC", newcontainer)
+	//Removed the launcher call because
+	//we are separating creation and launching.
+	//we'll just add the container to the database
 
+	database.CreateContainer(&newcontainer)
 	c.JSON(rw, http.StatusOK, newcontainer)
+}
+
+//This function must be passed as Jobs to the watcher, due to runtime container changes.
+func (c *ContainerController) LaunchContainer(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	contid := p.ByName("id")
+
+	container, err := database.GetContainer(contid)
+
+	if err != nil {
+		c.JSON(rw, http.StatusNotFound, "Container doesn't exist")
+		return
+	}
+
+	//this is where we would tell the server to launch the container
+	//we would want to flag the container as 'launching'
+	//and check whether it's launching before attempting another launch
+	//
+	//
+
+	//Alright it's flagged as launching
+	//now let's tell it to launch...
+	//wait, reverse that order
+
+	watcher2.TaskHandler.AddJob(watcher2.Launch,
+		container.ApplicationID,
+		container.Id,
+		"")
+
+	//this is where we would tell the server to launch the container
+	container.Status = "LAUNCHING"
+
+	database.UpdateContainer(container)
+
+	//I think that's all we need to launch the container
+	//let's put that into our UI. and then get the backend cooperating
+
+	//Actually... I think I'll add the launch button to the UI later.
+	c.JSON(rw, http.StatusOK, container)
+
 }
 
 //This function must be passed as Jobs to the watcher, due to runtime container changes.
 func (c *ContainerController) DeleteContainer(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	contid := p.ByName("id")
 
-	oldcontainer, err := database.GetContainer(contid)
+	err := database.DeleteContainer(contid)
 
 	if err != nil {
 		c.JSON(rw, http.StatusNotFound, "Container doesn't exist")
 		return
 	}
-	watcher.AddJob("RC", oldcontainer)
 
-	c.JSON(rw, http.StatusOK, oldcontainer)
+	c.JSON(rw, http.StatusOK, nil)
 }
 
 //This function must be passed as Jobs to the watcher, due to runtime container changes.
 func (c *ContainerController) EditContainer(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	rw.Write([]byte("Editting Container: " + p.ByName("id")))
+	//creates a new node object populated with JSON from data
+	newcontainer := models.Container{}
+	decoder := json.NewDecoder(r.Body)
+
+	err := decoder.Decode(&newcontainer)
+	if err != nil {
+		panic(err)
+		return
+	}
+
+	//Validates the Node passed in
+
+	mergedcontainer, _ := database.GetContainer(p.ByName("id"))
+
+	mergedcontainer = mergedcontainer.MergeChanges(&newcontainer)
+
+	//Adds the node to the database
+	success, _ := database.UpdateContainer(mergedcontainer)
+
+	if success == false {
+		c.JSON(rw, http.StatusNotFound, "Container doesn't exist")
+		return
+	}
+	//return success message with new node information
+	c.JSON(rw, http.StatusCreated, newcontainer)
+
 }
 
 func (c *ContainerController) ContainerInformation(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {

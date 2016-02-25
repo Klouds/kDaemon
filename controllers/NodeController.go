@@ -6,6 +6,7 @@ import (
 	"github.com/klouds/kDaemon/database"
 	"github.com/klouds/kDaemon/logging"
 	"github.com/klouds/kDaemon/models"
+	"github.com/klouds/kDaemon/watcher2"
 	"gopkg.in/unrolled/render.v1"
 	"net/http"
 )
@@ -29,12 +30,16 @@ func (c *NodeController) CreateNode(rw http.ResponseWriter, r *http.Request, p h
 
 	if newnode.Validate() {
 		//Adds the node to the database
-		success, _ := database.CreateNode(&newnode)
+		nodeid, err := database.CreateNode(&newnode)
 
-		if success == false {
+		if err != nil {
 			c.JSON(rw, http.StatusConflict, "Node conflicts with existing node. Make sure your node is unique.")
 			return
 		}
+
+		//We're going to add a "add node" job to the new watcher
+
+		watcher2.TaskHandler.AddJob(watcher2.AddNode, "", "", nodeid)
 		//return success message with new node information
 		c.JSON(rw, http.StatusCreated, newnode)
 	} else {

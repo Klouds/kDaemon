@@ -12,11 +12,11 @@ const (
 )
 
 type Task struct {
-	Dispatched  bool
-	JobID       string
-	Name        string
-	ContainerID string
-	ImageID     string
-	NodeID      string
-	Stop        chan<- bool
+	Dispatched    bool
+	JobID         string
+	Name          string
+	ContainerID   string
+	ApplicationID string
+	NodeID        string
+	Stop          chan<- bool
 }
