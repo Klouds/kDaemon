@@ -126,7 +126,7 @@ To create a container on your most available node, you can POST to **bind_ip:api
 
 ####Launch a container
 
-**POST** to bind_ip:api_port/%API_VERSION%/container/launch/%CONTAINER_ID%
+**POST** to **bind_ip:api_port/%API_VERSION%/container/launch/%CONTAINER_ID%**
 
 ## API Reference
 UPDATED (Feb 25 2016) -- 
