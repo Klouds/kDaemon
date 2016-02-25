@@ -67,9 +67,6 @@ func CreateNode(n *models.Node) (string, error) {
 	if len(keys) > 0 {
 		containerid = keys[0]
 	}
-
-	logging.Log("FIND ID ", containerid)
-
 	return containerid, nil
 }
 

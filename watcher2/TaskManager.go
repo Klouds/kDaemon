@@ -77,7 +77,9 @@ func (th *taskManager) Dispatch(task Task) {
 			logging.Log("There was a problem: ", err)
 		}
 
-		th.node_managers[node].AddJob(task)
+		nm := th.node_managers[node]
+
+		nm.AddJob(task)
 
 	case Stop:
 		if task.NodeID != "" {
@@ -146,10 +148,10 @@ func (th *taskManager) nodeAddedToCluster(id string) {
 	th.node_managers[id] = &manager
 
 	logging.Log("Node added to cluster")
-
+	manager.Init(id)
 	stop := make(chan bool)
 	th.stopChannels[id] = stop
-	manager.Init(id)
+
 	go manager.Listen(th.stopChannels[id])
 }
 

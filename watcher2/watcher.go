@@ -132,19 +132,6 @@ func (w *Watcher) Init() {
 }
 
 func (w *Watcher) Run(stop <-chan bool) {
-	// logging.Log("Running a billion at \n TIMESTAMP: ", time.Now())
-	// for i := 0; i < 100000000; i++ {
-	// 	if i%2 == 0 {
-	// 		TaskHandler.AddJob(Delete, "fake_image", "container_id", "54d6dc2f-33de-49bb-b5fd-c2a9e58edab1")
-	// 	} else if i%3 == 0 {
-	// 		TaskHandler.AddJob(Stop, "fake_image", "container_id", "54d6dc2f-33de-49bb-b5fd-c2a9e58edab1")
-	// 	} else if i%5 == 0 {
-	// 		TaskHandler.AddJob(Check, "fake_image", "container_id", "54d6dc2f-33de-49bb-b5fd-c2a9e58edab1")
-	// 	}
-
-	// }
-
-	// logging.Log("TIMESTAMP: ", time.Now())
 
 	for {
 		runHealthCheck := make(chan bool)

@@ -14,6 +14,7 @@ type NodeManager struct {
 	Node         *models.Node
 	stopChannels map[string]chan bool
 	jobchan      chan bool
+	dh           *dockerHandler
 }
 
 //initializes the manager.
@@ -24,18 +25,26 @@ func (nm *NodeManager) Init(id string) {
 		return
 	}
 
-	logging.Log(newnode)
 	maps := make(map[string]chan bool)
 	nm.stopChannels = maps
 	nm.Node = newnode
 	nm.tasks = cmap.New()
 	nm.jobchan = make(chan bool)
 
+	//make a connection to the docker handler
+	nm.dh, err = NewDockerHandler("192.168.100.25", "2375")
+
+	if err != nil {
+		logging.Log("Failed to connect to docker endpoint")
+		nm.dh = nil
+	}
+
 }
 
 //Adds jobs to the queue
 func (nm *NodeManager) AddJob(task Task) {
 
+	logging.Log("Task ::", nm)
 	nm.tasks.Set(task.JobID, task)
 
 	nm.jobchan <- true
@@ -74,7 +83,7 @@ func (nm *NodeManager) dispatch(task Task, count int) {
 
 	case Launch:
 		//Launch a thing
-		// logging.Log("Launching container ", count)
+		logging.Log("Launching container ", count)
 	case Stop:
 		// logging.Log("Stopping container ", count)
 	case Down:
