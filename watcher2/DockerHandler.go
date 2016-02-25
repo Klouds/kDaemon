@@ -69,7 +69,7 @@ func (dh *dockerHandler) PullImage(imagename string) bool {
 func (dh *dockerHandler) DoesContainerExist(containerid string) bool {
 	cont, _ := dh.client.InspectContainer(containerid)
 
-	if cont != nil {
+	if cont == nil {
 		return false
 	}
 
@@ -83,7 +83,8 @@ func (dh *dockerHandler) DoesContainerExist(containerid string) bool {
 // let's go check.
 //
 //Okay I think I can do this almost as it was before, but changing the returns
-func (dh *dockerHandler) createContainer(containerid string, app *models.Application) bool {
+func (dh *dockerHandler) CreateContainer(containerid string, app *models.Application) bool {
+	logging.Log("Whats up")
 	ports := app.GetPorts()
 
 	port := ports[0] + "/tcp"
@@ -117,7 +118,7 @@ func (dh *dockerHandler) createContainer(containerid string, app *models.Applica
 
 //Now that the image has been pulled, and the container has been created,
 //let's start the bitch up!
-func (dh *dockerHandler) startContainer(containerid string) bool {
+func (dh *dockerHandler) StartContainer(containerid string) bool {
 	err := dh.client.StartContainer(containerid, nil)
 
 	if err != nil {

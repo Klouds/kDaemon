@@ -32,8 +32,8 @@ func (nm *NodeManager) Init(id string) {
 	nm.jobchan = make(chan bool)
 
 	//make a connection to the docker handler
-	nm.dh, err = NewDockerHandler("192.168.100.25", "2375")
-
+	nm.dh, err = NewDockerHandler(newnode.DIPAddr, newnode.DPort)
+	logging.Log("NEW HANDLER ON: ", newnode.DIPAddr, newnode.DPort)
 	if err != nil {
 		logging.Log("Failed to connect to docker endpoint")
 		nm.dh = nil
@@ -44,7 +44,6 @@ func (nm *NodeManager) Init(id string) {
 //Adds jobs to the queue
 func (nm *NodeManager) AddJob(task Task) {
 
-	logging.Log("Task ::", nm)
 	nm.tasks.Set(task.JobID, task)
 
 	nm.jobchan <- true
@@ -82,8 +81,8 @@ func (nm *NodeManager) dispatch(task Task, count int) {
 	switch task.Name {
 
 	case Launch:
-		//Launch a thing
-		logging.Log("Launching container ", count)
+
+		nm.launchContainer(task)
 	case Stop:
 		// logging.Log("Stopping container ", count)
 	case Down:
@@ -96,6 +95,57 @@ func (nm *NodeManager) dispatch(task Task, count int) {
 
 	return
 	//This is where the job runs
+}
+
+func (nm *NodeManager) launchContainer(task Task) {
+	//Launch a thing
+	application, err := database.GetApplication(task.ApplicationID)
+	if err != nil {
+		logging.Log("Application doesn't exist")
+		return
+	}
+	container, err := database.GetContainer(task.ContainerID)
+
+	if err != nil {
+		logging.Log("Container doesn't exist")
+		return
+	}
+
+	ok := nm.dh.IsImagePresent(application.DockerImage)
+
+	if !ok {
+		pullimage := nm.dh.PullImage(application.DockerImage)
+
+		if !pullimage {
+			logging.Log("cant pull image")
+			return
+		} else {
+			logging.Log("pulling image")
+			return
+		}
+	}
+
+	containerexists := nm.dh.DoesContainerExist(container.Name)
+
+	if !containerexists {
+		containercreated := nm.dh.CreateContainer(container.Name, application)
+
+		if !containercreated {
+			logging.Log("Cant launch uncreated, non-existant container")
+			return
+		}
+	}
+
+	containerstarted := nm.dh.StartContainer(container.Name)
+
+	if containerstarted {
+		logging.Log("Successfully launched container.")
+	} else {
+		logging.Log("Couldn't launch the container, already started?")
+	}
+
+	container.Status = "UP"
+	database.UpdateContainer(container)
 }
 
 //deletes the job
