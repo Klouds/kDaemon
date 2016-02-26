@@ -1,6 +1,7 @@
 package watcher2
 
 import (
+	docker "github.com/fsouza/go-dockerclient"
 	"github.com/klouds/kDaemon/database"
 	"github.com/klouds/kDaemon/logging"
 	"github.com/klouds/kDaemon/models"
@@ -34,6 +35,7 @@ func (nm *NodeManager) Init(id string) {
 	nm.jobchan = make(chan bool)
 	nm.isDown = false
 
+	nm.connectToDocker()
 }
 
 //make a connection to the docker handler
@@ -184,12 +186,14 @@ func (nm *NodeManager) stopContainer(task Task) {
 
 		if err != nil {
 			logging.Log("Not a valid container count")
+			return
 		}
 
 		nm.Node.ContainerCount = strconv.Itoa(origcount - 1)
 		logging.Log("SAVING NODE")
 		database.UpdateNode(nm.Node)
 	}
+
 	container, err := database.GetContainer(task.ContainerID)
 
 	if err != nil {
@@ -197,16 +201,17 @@ func (nm *NodeManager) stopContainer(task Task) {
 	}
 	container.Status = "DOWN"
 	container.NodeID = ""
+	container.AccessLink = ""
 
-	logging.Log("SAVING CONTAINER")
 	database.UpdateContainer(container)
 	return
 }
 
 func (nm *NodeManager) launchContainer(task Task) {
 	//Launch a thing
+	logging.Log(task.ApplicationID)
 	application, err := database.GetApplication(task.ApplicationID)
-	logging.Log(err)
+
 	if err != nil {
 		logging.Log("Application doesn't exist")
 		return
@@ -254,6 +259,7 @@ func (nm *NodeManager) launchContainer(task Task) {
 		if err != nil {
 			logging.Log("Not a valid container count")
 		}
+
 		nm.Node.ContainerCount = strconv.Itoa(origcount + 1)
 		database.UpdateNode(nm.Node)
 	} else {
@@ -261,6 +267,23 @@ func (nm *NodeManager) launchContainer(task Task) {
 
 	}
 
+	//inspect the container
+	cont := nm.dh.InspectContainer(container.Name)
+
+	if cont == nil {
+		logging.Log("Container inspection failed. Node must be down")
+	}
+
+	ports := cont.NetworkSettings.Ports
+	portbindings := []docker.PortBinding{}
+
+	for _, value := range ports {
+		portbindings = append(value, portbindings...)
+	}
+
+	if len(portbindings) > 0 {
+		container.AccessLink = "http://" + nm.Node.DIPAddr + ":" + portbindings[0].HostPort
+	}
 	container.Status = "UP"
 	container.NodeID = nm.Node.Id
 

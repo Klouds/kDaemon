@@ -101,7 +101,7 @@ func (dh *dockerHandler) CreateContainer(containerid string, app *models.Applica
 			Image:        app.DockerImage,
 		},
 		HostConfig: &docker.HostConfig{
-			PublishAllPorts: true,
+			PublishAllPorts: false,
 			PortBindings:    portbindings,
 			Privileged:      false,
 		},
@@ -149,3 +149,16 @@ func (dh *dockerHandler) StopContainer(containerid string) bool {
 //Hey look, I did it!
 //wait, now im done.
 //lets go back and call this beauty :P
+
+//We need a function to get an exposed port of a container id
+func (dh *dockerHandler) InspectContainer(containerid string) *docker.Container {
+
+	cont, err := dh.client.InspectContainer(containerid)
+
+	if err != nil {
+		logging.Log("Unable to inspect container. Doesn't exist?")
+		return nil
+	}
+
+	return cont
+}

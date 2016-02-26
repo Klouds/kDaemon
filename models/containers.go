@@ -14,7 +14,7 @@ type Container struct {
 	ContainerID   string  `json:"container_id" gorethink:"container_id"`
 	Balance       float64 `json:"balance" gorethink:"balance"`
 	Status        string  `json:"status" gorethink:"status"`
-	IsEnabled     bool    `json:"is_enabled" gorethink:"is_enabled"`
+	AccessLink    string  `json:"access_link" gorethink:"access_link"`
 }
 
 //Interface function
