@@ -7,6 +7,7 @@ import (
 	cmap "github.com/streamrail/concurrent-map"
 	//"github.com/twinj/uuid"
 	// "time"
+	"strconv"
 )
 
 type NodeManager struct {
@@ -15,6 +16,7 @@ type NodeManager struct {
 	stopChannels map[string]chan bool
 	jobchan      chan bool
 	dh           *dockerHandler
+	isDown       bool
 }
 
 //initializes the manager.
@@ -30,10 +32,15 @@ func (nm *NodeManager) Init(id string) {
 	nm.Node = newnode
 	nm.tasks = cmap.New()
 	nm.jobchan = make(chan bool)
+	nm.isDown = false
 
-	//make a connection to the docker handler
-	nm.dh, err = NewDockerHandler(newnode.DIPAddr, newnode.DPort)
-	logging.Log("NEW HANDLER ON: ", newnode.DIPAddr, newnode.DPort)
+}
+
+//make a connection to the docker handler
+func (nm *NodeManager) connectToDocker() {
+	dh, err := NewDockerHandler(nm.Node.DIPAddr, nm.Node.DPort)
+
+	nm.dh = dh
 	if err != nil {
 		logging.Log("Failed to connect to docker endpoint")
 		nm.dh = nil
@@ -66,7 +73,7 @@ func (nm *NodeManager) Listen(stop chan bool) {
 				//logging.Log("dispatch")
 				count++
 				//time.Sleep(5 * time.Microsecond)
-				nm.dispatch(job.Val.(Task), count)
+				go nm.dispatch(job.Val.(Task), count)
 				//iter = nm.tasks.Iter()
 			}
 		}
@@ -82,11 +89,47 @@ func (nm *NodeManager) dispatch(task Task, count int) {
 
 	case Launch:
 
-		nm.launchContainer(task)
+		if !nm.isDown {
+			nm.launchContainer(task)
+		}
 	case Stop:
-		// logging.Log("Stopping container ", count)
-	case Down:
-		// logging.Log("Downing container ", count)
+		//Stop job...
+		//
+		// I think this a good point to add a stop container task to
+		// our docker handler
+		if !nm.isDown {
+			nm.stopContainer(task)
+		}
+	case NodeDown:
+		//This will flag the node as down, all subsequent tasks
+		//fail and are returned to the task manager
+
+		node, err := database.GetNode(nm.Node.Id)
+		if err != nil {
+			logging.Log("there was an error")
+			return
+		}
+		nm.Node = node
+		nm.isDown = true
+		node.State = "DOWN"
+		node.ContainerCount = "0"
+		database.UpdateNode(node)
+		nm.requeuejobs()
+	case NodeUp:
+		nm.isDown = false
+
+		nm.connectToDocker()
+
+		node, err := database.GetNode(nm.Node.Id)
+		if err != nil {
+			logging.Log("there was an error")
+			return
+		}
+		nm.Node = node
+
+		node.State = "UP"
+		database.UpdateNode(node)
+
 	case Check:
 		// logging.Log("Check container ", count)
 	default:
@@ -97,9 +140,73 @@ func (nm *NodeManager) dispatch(task Task, count int) {
 	//This is where the job runs
 }
 
+//the node has been flagged as down and jobs will no longer complete.
+//reschedule and delete please
+func (nm *NodeManager) requeuejobs() {
+	defer nm.deleteAllTasks()
+
+	iter := nm.tasks.IterBuffered()
+	for job := range iter {
+		task := job.Val.(Task)
+		switch task.Name {
+		case Launch:
+			TaskHandler.AddJob(task.Name,
+				task.ApplicationID,
+				task.ContainerID,
+				task.NewName,
+				"")
+			continue
+		default:
+
+		}
+
+	}
+}
+
+func (nm *NodeManager) deleteAllTasks() {
+	//delete all the tasks in the queue
+	iter := nm.tasks.IterBuffered()
+	for job := range iter {
+		task := job.Val.(Task)
+		nm.tasks.Remove(task.JobID)
+		task = Task{}
+	}
+
+	logging.Log("TASKS DELETED: ", nm.tasks.Count())
+}
+
+func (nm *NodeManager) stopContainer(task Task) {
+	ok := nm.dh.StopContainer(task.NewName)
+
+	if ok {
+
+		origcount, err := strconv.Atoi(nm.Node.ContainerCount)
+
+		if err != nil {
+			logging.Log("Not a valid container count")
+		}
+
+		nm.Node.ContainerCount = strconv.Itoa(origcount - 1)
+		logging.Log("SAVING NODE")
+		database.UpdateNode(nm.Node)
+	}
+	container, err := database.GetContainer(task.ContainerID)
+
+	if err != nil {
+		logging.Log("CONTAINER DOESNT EXIST")
+	}
+	container.Status = "DOWN"
+	container.NodeID = ""
+
+	logging.Log("SAVING CONTAINER")
+	database.UpdateContainer(container)
+	return
+}
+
 func (nm *NodeManager) launchContainer(task Task) {
 	//Launch a thing
 	application, err := database.GetApplication(task.ApplicationID)
+	logging.Log(err)
 	if err != nil {
 		logging.Log("Application doesn't exist")
 		return
@@ -128,7 +235,8 @@ func (nm *NodeManager) launchContainer(task Task) {
 	containerexists := nm.dh.DoesContainerExist(container.Name)
 
 	if !containerexists {
-		containercreated := nm.dh.CreateContainer(container.Name, application)
+		containercreated := nm.dh.CreateContainer(container.Name,
+			application)
 
 		if !containercreated {
 			logging.Log("Cant launch uncreated, non-existant container")
@@ -140,19 +248,32 @@ func (nm *NodeManager) launchContainer(task Task) {
 
 	if containerstarted {
 		logging.Log("Successfully launched container.")
+
+		origcount, err := strconv.Atoi(nm.Node.ContainerCount)
+
+		if err != nil {
+			logging.Log("Not a valid container count")
+		}
+		nm.Node.ContainerCount = strconv.Itoa(origcount + 1)
+		database.UpdateNode(nm.Node)
 	} else {
 		logging.Log("Couldn't launch the container, already started?")
+
 	}
 
 	container.Status = "UP"
+	container.NodeID = nm.Node.Id
+
 	database.UpdateContainer(container)
 }
 
 //deletes the job
 func (nm *NodeManager) deleteYourself(task *Task) {
 
-	nm.tasks.Remove(task.JobID)
-	task = &Task{}
+	if !nm.isDown {
+		nm.tasks.Remove(task.JobID)
+		task = &Task{}
+	}
 
 }
 

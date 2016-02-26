@@ -79,32 +79,43 @@ func (th *taskManager) Dispatch(task Task) {
 
 		nm := th.node_managers[node]
 
-		nm.AddJob(task)
+		if nm != nil {
+			nm.AddJob(task)
+		}
 
 	case Stop:
-		if task.NodeID != "" {
-			th.node_managers[task.NodeID].AddJob(task)
+		nm := th.node_managers[task.NodeID]
+		if task.NodeID != "" && nm != nil {
+			nm.AddJob(task)
 		}
 
 	//CASE DELETE WILL REMOVE ANY DATA FOR GOOD. USE AT OWN PERIL!
 	case Delete:
+		nm := th.node_managers[task.NodeID]
 		//if container is running
-		if task.NodeID != "" {
+		if task.NodeID != "" && nm != nil {
 			stopTask := task
 			stopTask.Name = Stop
-			th.node_managers[task.NodeID].AddJob(stopTask)
+			nm.AddJob(stopTask)
 		}
 
 		//DELETE ALL THE DATA
 		th.deleteContainerData(task.ContainerID)
 
-	case Down:
-		if task.NodeID != "" {
+	case NodeDown:
+		nm := th.node_managers[task.NodeID]
+		if task.NodeID != "" && nm != nil {
+			th.node_managers[task.NodeID].AddJob(task)
+		}
+	case NodeUp:
+		nm := th.node_managers[task.NodeID]
+		if task.NodeID != "" && nm != nil {
 			th.node_managers[task.NodeID].AddJob(task)
 		}
 
 	case Check:
-		if task.NodeID != "" {
+		nm := th.node_managers[task.NodeID]
+		if task.NodeID != "" && nm != nil {
 			th.node_managers[task.NodeID].AddJob(task)
 		}
 	case AddNode:
@@ -165,7 +176,8 @@ func (th *taskManager) deleteYourself(task *Task) {
 }
 
 //Adds jobs to the queue
-func (th *taskManager) AddJob(name string, applicationid string, containerid string, nodeid string) {
+func (th *taskManager) AddJob(name string, applicationid string,
+	containerid string, newname string, nodeid string) {
 
 	newjob := &Task{}
 	jobid := uuid.NewV4().String()
@@ -174,6 +186,7 @@ func (th *taskManager) AddJob(name string, applicationid string, containerid str
 
 	newjob.ApplicationID = applicationid
 	newjob.ContainerID = containerid
+	newjob.NewName = newname
 	newjob.NodeID = nodeid
 
 	th.tasks.Set(jobid, *newjob)

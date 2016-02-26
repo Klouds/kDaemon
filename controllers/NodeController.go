@@ -39,7 +39,7 @@ func (c *NodeController) CreateNode(rw http.ResponseWriter, r *http.Request, p h
 
 		//We're going to add a "add node" job to the new watcher
 
-		watcher2.TaskHandler.AddJob(watcher2.AddNode, "", "", nodeid)
+		watcher2.TaskHandler.AddJob(watcher2.AddNode, "", "", "", nodeid)
 		//return success message with new node information
 		c.JSON(rw, http.StatusCreated, newnode)
 	} else {

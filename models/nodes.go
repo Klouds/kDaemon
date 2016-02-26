@@ -31,6 +31,9 @@ func (n *Node) Validate() bool {
 	valid = ValidIP4(n.DIPAddr) &&
 		ValidPort(n.DPort)
 
+	if n.ContainerCount == "" {
+		n.ContainerCount = "0"
+	}
 	return valid
 }
 

@@ -134,3 +134,18 @@ func (dh *dockerHandler) StartContainer(containerid string) bool {
 //Let's wire up a container launch command, as we're going
 //to separate the container creation and launching/stopping.
 //
+//Lets add a stop container command to the handler
+//
+func (dh *dockerHandler) StopContainer(containerid string) bool {
+	err := dh.client.StopContainer(containerid, 1)
+
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
+//Hey look, I did it!
+//wait, now im done.
+//lets go back and call this beauty :P

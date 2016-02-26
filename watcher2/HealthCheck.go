@@ -23,20 +23,14 @@ func CheckNodes() ([]models.Node, error) {
 		conn, err := net.DialTimeout("tcp", nodes[index].DIPAddr+":"+nodes[index].DPort, timeout)
 		if err != nil {
 			logging.Log("HC > NODE | " + nodes[index].Name + " | IS CURRENTLY NOT ACCESSIBLE, FLAG AS DOWN")
-
+			TaskHandler.AddJob(NodeDown, "", "", "", nodes[index].Id)
 			continue
 		}
 
 		logging.Log("HC > NODE WITH HOSTNAME | " + nodes[index].Name + " | IS HEALTHY, FLAG AS UP")
 
-		//TODO:
-		//
-		//
-		//
-		//Send up task to node
-		//
-		//
-		//
+		TaskHandler.AddJob(NodeUp, "", "", "", nodes[index].Id)
+
 		conn.Close()
 
 	}

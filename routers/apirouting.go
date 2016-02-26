@@ -55,6 +55,7 @@ func (r *APIRouting) Init() {
 	//Container Management
 	r.Mux.POST("/"+APIVERSION+"/containers/create", cc.CreateContainer)
 	r.Mux.POST("/"+APIVERSION+"/containers/launch/:id", cc.LaunchContainer)
+	r.Mux.POST("/"+APIVERSION+"/containers/stop/:id", cc.StopContainer)
 	r.Mux.DELETE("/"+APIVERSION+"/containers/delete/:id", cc.DeleteContainer)
 	r.Mux.PATCH("/"+APIVERSION+"/containers/update/:id", cc.EditContainer)
 	r.Mux.GET("/"+APIVERSION+"/containers/:id", cc.ContainerInformation)

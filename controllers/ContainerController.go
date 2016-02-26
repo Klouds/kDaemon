@@ -58,6 +58,7 @@ func (c *ContainerController) LaunchContainer(rw http.ResponseWriter, r *http.Re
 	watcher2.TaskHandler.AddJob(watcher2.Launch,
 		container.ApplicationID,
 		container.Id,
+		container.Name,
 		"")
 
 	//this is where we would tell the server to launch the container
@@ -115,6 +116,38 @@ func (c *ContainerController) EditContainer(rw http.ResponseWriter, r *http.Requ
 	//return success message with new node information
 	c.JSON(rw, http.StatusCreated, newcontainer)
 
+}
+
+func (c *ContainerController) StopContainer(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	contid := p.ByName("id")
+
+	container, err := database.GetContainer(contid)
+
+	if err != nil {
+		c.JSON(rw, http.StatusNotFound, "Container doesn't exist")
+		return
+	}
+
+	//this is where we would tell the server to launch the container
+	//we would want to flag the container as 'launching'
+	//and check whether it's launching before attempting another launch
+	//
+	//
+
+	//Alright it's flagged as launching
+	//now let's tell it to launch...
+	//wait, reverse that order
+
+	watcher2.TaskHandler.AddJob(watcher2.Stop,
+		"",
+		container.Id,
+		container.Name,
+		container.NodeID)
+
+	//this is where we would tell the server to launch the container
+	container.Status = "DOWN"
+
+	database.UpdateContainer(container)
 }
 
 func (c *ContainerController) ContainerInformation(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
