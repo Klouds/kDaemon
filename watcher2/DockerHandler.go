@@ -101,7 +101,7 @@ func (dh *dockerHandler) CreateContainer(containerid string, app *models.Applica
 			Image:        app.DockerImage,
 		},
 		HostConfig: &docker.HostConfig{
-			PublishAllPorts: false,
+			PublishAllPorts: true,
 			PortBindings:    portbindings,
 			Privileged:      false,
 		},
