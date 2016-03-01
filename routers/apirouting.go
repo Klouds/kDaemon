@@ -2,6 +2,7 @@ package routers
 
 import (
 	"github.com/julienschmidt/httprouter"
+	"github.com/klouds/kDaemon/config"
 	"github.com/klouds/kDaemon/controllers"
 	"github.com/klouds/kDaemon/database"
 	"github.com/klouds/kDaemon/logging"
@@ -36,7 +37,10 @@ func (r *APIRouting) Init() {
 	})
 	r.Mux = httprouter.New()
 
-	APIVERSION := "0.0"
+	APIVERSION, err := config.Config.GetString("default", "api_version")
+	if err != nil {
+		logging.Log("Problem with config file! (api_version)")
+	}
 	/*Basics of controller*/
 	ac := &controllers.ApplicationController{Render: r.Render}
 	cc := &controllers.ContainerController{Render: r.Render}

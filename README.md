@@ -75,6 +75,7 @@ sudo docker -H 0.0.0.0:2375 -H unix:///var/run/docker.sock -d
     rethinkdb_host = 127.0.0.1      # RethinkDB Host
     rethinkdb_port = 28015          # RethinkDB Port
     rethinkdb_dbname = kdaemon      # RethinkDB database name
+    api_version = 0.0               # Current API version. (You probably shouldnt change this)
 
 ```
 
