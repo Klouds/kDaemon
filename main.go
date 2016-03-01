@@ -4,8 +4,7 @@ import (
 	"github.com/klouds/kDaemon/config"
 	"github.com/klouds/kDaemon/logging"
 	"github.com/klouds/kDaemon/routers"
-	//"github.com/klouds/kDaemon/watcher"
-	"github.com/klouds/kDaemon/watcher2"
+	"github.com/klouds/kDaemon/watcher"
 	"github.com/rs/cors"
 	"net/http"
 	// "time"
@@ -40,16 +39,13 @@ func main() {
 	var ws routers.WebSocketRouter
 	ws.Init()
 
-	//Starts the cluster watcher
-	//go watcher.MainLoop()
-
 	c := cors.New(cors.Options{
 		AllowCredentials: true,
 		AllowedOrigins:   []string{"http://localhost:8081", "*"},
 		AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE"},
 	})
 
-	watcher_new := watcher2.Watcher{}
+	watcher_new := watcher.Watcher{}
 	watcher_new.Init()
 
 	stop := make(chan bool)

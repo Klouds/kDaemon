@@ -5,7 +5,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/klouds/kDaemon/database"
 	"github.com/klouds/kDaemon/models"
-	"github.com/klouds/kDaemon/watcher2"
+	"github.com/klouds/kDaemon/watcher"
 	"gopkg.in/unrolled/render.v1"
 	"net/http"
 )
@@ -55,7 +55,7 @@ func (c *ContainerController) LaunchContainer(rw http.ResponseWriter, r *http.Re
 	//now let's tell it to launch...
 	//wait, reverse that order
 
-	watcher2.TaskHandler.AddJob(watcher2.Launch,
+	watcher.TaskHandler.AddJob(watcher.Launch,
 		container.ApplicationID,
 		container.Id,
 		container.Name,
@@ -138,7 +138,7 @@ func (c *ContainerController) StopContainer(rw http.ResponseWriter, r *http.Requ
 	//now let's tell it to launch...
 	//wait, reverse that order
 
-	watcher2.TaskHandler.AddJob(watcher2.Stop,
+	watcher.TaskHandler.AddJob(watcher.Stop,
 		"",
 		container.Id,
 		container.Name,

@@ -1,152 +1,180 @@
-/*					kDaemon Watcher
-Author: 	Paul Mauviel (http://github.com/ozzadar)
-
-This package watches the cluster state and maintains container state across the cluster.
-
-Runs as a separate goroutine =)
-
-Responsibilities:
-	- Poll for monitoring data
-	- Migrate containers to ideal location
-	- Launch and Destroy containers
-	- Update Consul status for forwarding
-
-*/
-
 package watcher
 
 import (
+	//"github.com/klouds/kDaemon/database"
 	"github.com/klouds/kDaemon/logging"
-	"github.com/klouds/kDaemon/models"
-	"strconv"
 	"time"
 )
 
-const HC_INTERVAL = time.Duration(30) * time.Second
+/*
+	Cluster Watcher Package
 
-/* Job Commands. For queueing up actions on the cluster.*/
-var commands = [...]string{
+	This package is the meat and potatoes of kDaemon.
+	It is designed to handle Container management and
+	Health Checking to allow for 100% uptime and full
+	cluster consistency.
 
-	"SC", //Shutdown Container
-	"HC", //Performs a global health check
-	"RC", //Removes a container from a node
-	"LC", //Launch Container on a node
+	The watcher will be composed of several Components:
 
-	"NAC", //Not a command
+	< Task Manager >
+
+	Handles incoming container task requests.
+
+	TASKS:
+	 	- SelectNode 		> This selects the node to run
+	 						the task on.
+
+	 	- LaunchOnNode 		> This launches the container
+	 						on the given node.
+
+	 	- StopContainer 	> This stops the container on
+	 						the node it's running on.
+
+	 	- DeleteContainer 	> This deletes the container and
+	 						its data from the cluster.
+
+	 	- FlagNodeDown		> Passes a 'DOWN' command to the
+	 						appropriate Node Manager.
+	 						This task is put at the beginning
+	 						of the queue and should run before
+	 						all other tasks.
+
+	 	- CheckContainer 	> Passes a 'CHECK' command to the
+	 						appropriate Node Manager.
+	 						This task is put at the beginning
+	 						of the queue and should run before
+	 						all other tasks.
+
+
+
+	< Node Manager >
+
+	Handles tasks given to it from the Task Manager. A separate
+	Node Manager is created for each Node in the system.
+
+	TASKS:
+		- LaunchContainer	> This launches the container on the
+							node.
+							If it fails, it returns the
+							task to the Task Manager.
+							On success, flags container as 'UP'
+							and deletes the task.
+
+		- StopContainer		> This stops the container on the node.
+							If it fails, it returns the task to
+							the Task Manager.
+							On success, flags container as 'STOPPED'
+							and deletes the task.
+
+		- DeleteContainer	> This stops the container and then
+							deletes it's container data from the
+							Node.
+							If it fails, it returns the task to
+							the Task Manager.
+							On success, it removes the container
+							the database.
+
+		- FlagAsDown		> This task flags the node as 'DOWN'.
+							When in the 'DOWN' state, all tasks
+							automatically fail and get returned
+							to the Task Manager for Node Reselection.
+							This task is put at the beginning
+	 						of the queue and should run before
+	 						all other tasks.
+
+	 	- CheckContainer	> This task checks the health of
+	 						the given container on the Node.
+	 						If the container is down and not in
+	 						the queue it is marked as 'DOWN' and
+	 						the task returns FALSE.
+	 						If the container is up, it is marked
+	 						as such and the task returns TRUE.
+
+
+	 < Health Checker >
+
+	 Handles healthchecking.
+
+	 TASKS:
+
+	 	- CheckNodes		> Does a simple connection test to the
+	 						Docker API on each Node.
+	 						If a connection cannot be established, it
+	 						gives the Task Manager a 'FlagAsDown'
+	 						command.
+	 						Keeps track of all nodes that are 'downed'
+
+		- CheckContainers	> Sends a 'CheckContainer' command to the
+							Task Manager and waits for it to complete.
+							If the task fails, the container has been
+							marked as 'DOWN', therefore it sends a
+							'SelectNode' command, waits for it to
+							return, and then sends a 'LaunchOnNode'
+							command.
+
+*/
+
+type Watcher struct {
+	HealthCheckInterval time.Duration
+	lastHealthCheck     time.Time
+	stopChannel         chan bool
 }
 
-type Job struct {
-	Type     string
-	Body     string
-	InUse    bool
-	Complete bool //when complete, remove job from queue
+func (w *Watcher) Init() {
+	w.HealthCheckInterval = time.Duration(10 * time.Second)
+	w.lastHealthCheck = time.Now()
+	TaskHandler.Init()
+
+	thStop := make(chan bool)
+	w.stopChannel = thStop
+	go TaskHandler.Listen(w.stopChannel)
+
 }
 
-//The job queue
-var queue []*Job
-
-func MainLoop() {
-
-	//Starts the watcher loop.
-	logging.Log("Watcher started")
-
-	//perform a healthcheck on launch and then schedule a new healthcheck every HC_INTERVAL
-	newjob := &Job{
-		Type:     "HC",
-		Body:     "{}",
-		InUse:    false,
-		Complete: false,
-	}
-
-	queue = append(queue, newjob)
-	go ScheduleHealthCheck(HC_INTERVAL)
+func (w *Watcher) Run(stop <-chan bool) {
 
 	for {
-		RunQueue()
-	}
+		runHealthCheck := make(chan bool)
 
-}
+		//Go function that will run and flag a healthcheck
+		//is needed every HealthCheckInterval
+		go w.healthCheckTimer(runHealthCheck)
 
-//Add to queue
-func AddJob(command string, object models.JSONObject) {
+		select {
+		case <-stop:
+			logging.Log("ROUTINE STOPPED")
 
-	for _, element := range commands {
-		if element == command {
-			//Valid command
-			body, err := object.GetJSON()
+			w.stopChannel <- true
+			return
+		case <-runHealthCheck:
+			runHealthChecks()
 
-			if err != nil {
-				logging.Log(err)
-				return
-			}
-
-			newjob := Job{Type: command,
-				Body:     body,
-				InUse:    false,
-				Complete: false}
-			queue = append(queue, &newjob)
-			break
 		}
+
+		//check elapsed time
+
 	}
 }
 
-//Job Queue
-func RunQueue() {
-	currentTime := time.Now().Local()
-	for index, job := range queue {
-		if job.Complete == true {
-			job.InUse = true
-			DeleteJob(index)
-			continue
-		}
+func (w *Watcher) healthCheckTimer(runHealthCheck chan<- bool) {
+	for {
+		time.Sleep(10 * time.Microsecond)
+		elapsed := time.Since(w.lastHealthCheck)
 
-		if job.Type == "LC" {
-			if job.InUse == false {
-				job.InUse = true
-				logging.Log("LC > LAUNCHING CONTAINER ON NODE: " + currentTime.String())
-				go AddContainer(job)
-			}
-		}
+		if elapsed >= w.HealthCheckInterval {
+			runHealthCheck <- true
+			w.lastHealthCheck = time.Now()
 
-		if job.Type == "HC" {
-			if job.InUse == false {
-
-				job.InUse = true
-				logging.Log("HC > PERFORMING HEALTH CHECK AT " + currentTime.String())
-				go PerformHealthCheck(job)
-			}
-		}
-
-		if job.Type == "RC" {
-			if job.InUse == false {
-				currentTime := time.Now().Local()
-				job.InUse = true
-				logging.Log("RC > REMOVING CONTAINER AT " + currentTime.String())
-				go RemoveContainer(job)
-			}
 		}
 	}
 }
 
-func DeleteJob(i int) {
-	index := strconv.Itoa(i)
-	logging.Log("Deleting job: " + queue[i].Type + " at index " + index)
+func runHealthChecks() {
+	logging.Log("Run HealthCheck")
 
-	queue = append(queue[:i], queue[i+1:]...)
-}
+	//Check Nodes
+	CheckNodes()
 
-func ScheduleHealthCheck(interval time.Duration) {
-	for _ = range time.Tick(interval) {
-		//Tick
-
-		newjob := &Job{
-			Type:     "HC",
-			Body:     "{}",
-			InUse:    false,
-			Complete: false,
-		}
-
-		queue = append(queue, newjob)
-
-	}
+	//Check Containers
+	CheckContainers()
 }

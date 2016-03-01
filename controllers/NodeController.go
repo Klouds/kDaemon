@@ -6,7 +6,7 @@ import (
 	"github.com/klouds/kDaemon/database"
 	"github.com/klouds/kDaemon/logging"
 	"github.com/klouds/kDaemon/models"
-	"github.com/klouds/kDaemon/watcher2"
+	"github.com/klouds/kDaemon/watcher"
 	"gopkg.in/unrolled/render.v1"
 	"net/http"
 )
@@ -39,7 +39,7 @@ func (c *NodeController) CreateNode(rw http.ResponseWriter, r *http.Request, p h
 
 		//We're going to add a "add node" job to the new watcher
 
-		watcher2.TaskHandler.AddJob(watcher2.AddNode, "", "", "", nodeid)
+		watcher.TaskHandler.AddJob(watcher.AddNode, "", "", "", nodeid)
 		//return success message with new node information
 		c.JSON(rw, http.StatusCreated, newnode)
 	} else {
