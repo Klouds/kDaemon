@@ -25,11 +25,9 @@ Click here for quickstart guide
 
 ## WEB UI
 
-The user interface currently included has no functionality and is rather ugly. New UI is being built at
-
+Web UI for interacting with kDaemon:
 [kDaemon_UI][kDaemon_UI]
 
-with the websocket being served at /ws
 
 
 
