@@ -126,6 +126,26 @@ func GetNodes() ([]models.Node, error) {
 	return nodes, err
 }
 
+func GetNodesByState(state string) ([]models.Node, error) {
+	var nodes []models.Node
+
+	resp, err := r.Table("nodes").
+		Filter(r.Row.Field("state").
+			Eq(state)).Run(Session)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = resp.All(&nodes)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return nodes, nil
+}
+
 //Update node
 func UpdateNode(node *models.Node) (bool, error) {
 
@@ -281,6 +301,27 @@ func GetContainerByName(name string) *models.Container {
 	}
 
 	return &newcontainer
+}
+
+//This function will return all containers on a given node.
+func GetContainersOnNode(nodeid string) ([]models.Container, error) {
+	var containers []models.Container
+
+	resp, err := r.Table("containers").
+		Filter(r.Row.Field("node_id").
+			Eq(nodeid)).Run(Session)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = resp.All(&containers)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return containers, nil
 }
 
 //Get container information

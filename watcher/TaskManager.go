@@ -22,6 +22,10 @@ type taskManager struct {
 	stopChannels  map[string]chan bool
 }
 
+func (th *taskManager) CheckContainer(nodeid string, containername string) bool {
+	return th.node_managers[nodeid].CheckContainer(containername)
+}
+
 func (th *taskManager) Init() {
 	logging.Log("TaskHandler Init")
 	tasks := cmap.New()
@@ -158,7 +162,6 @@ func (th *taskManager) nodeAddedToCluster(id string) {
 
 	th.node_managers[id] = &manager
 
-	logging.Log("Node added to cluster")
 	manager.Init(id)
 	stop := make(chan bool)
 	th.stopChannels[id] = stop

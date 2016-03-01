@@ -170,11 +170,16 @@ func (w *Watcher) healthCheckTimer(runHealthCheck chan<- bool) {
 }
 
 func runHealthChecks() {
-	logging.Log("Run HealthCheck")
-
+	logging.Log("HC > STARTING CONTAINER CHECK")
 	//Check Nodes
 	CheckNodes()
 
 	//Check Containers
 	CheckContainers()
+
+	//Rebalance
+	Rebalance()
+
+	//Recount containers
+	RecountContainers()
 }

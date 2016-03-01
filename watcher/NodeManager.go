@@ -173,8 +173,6 @@ func (nm *NodeManager) deleteAllTasks() {
 		nm.tasks.Remove(task.JobID)
 		task = Task{}
 	}
-
-	logging.Log("TASKS DELETED: ", nm.tasks.Count())
 }
 
 func (nm *NodeManager) stopContainer(task Task) {
@@ -190,7 +188,6 @@ func (nm *NodeManager) stopContainer(task Task) {
 		}
 
 		nm.Node.ContainerCount = strconv.Itoa(origcount - 1)
-		logging.Log("SAVING NODE")
 		database.UpdateNode(nm.Node)
 	}
 
@@ -200,8 +197,6 @@ func (nm *NodeManager) stopContainer(task Task) {
 		logging.Log("CONTAINER DOESNT EXIST")
 	}
 	container.Status = "DOWN"
-	container.NodeID = ""
-	container.AccessLink = ""
 
 	database.UpdateContainer(container)
 	return
@@ -209,7 +204,6 @@ func (nm *NodeManager) stopContainer(task Task) {
 
 func (nm *NodeManager) launchContainer(task Task) {
 	//Launch a thing
-	logging.Log(task.ApplicationID)
 	application, err := database.GetApplication(task.ApplicationID)
 
 	if err != nil {
@@ -252,7 +246,6 @@ func (nm *NodeManager) launchContainer(task Task) {
 	containerstarted := nm.dh.StartContainer(container.Name)
 
 	if containerstarted {
-		logging.Log("Successfully launched container.")
 
 		origcount, err := strconv.Atoi(nm.Node.ContainerCount)
 
@@ -263,7 +256,6 @@ func (nm *NodeManager) launchContainer(task Task) {
 		nm.Node.ContainerCount = strconv.Itoa(origcount + 1)
 		database.UpdateNode(nm.Node)
 	} else {
-		logging.Log("Couldn't launch the container, already started?")
 
 	}
 
@@ -315,4 +307,8 @@ func (nm *NodeManager) stopForKey(key string) {
 		ch <- true
 		delete(nm.stopChannels, key)
 	}
+}
+
+func (nm *NodeManager) CheckContainer(containername string) bool {
+	return nm.dh.CheckContainerIsRunning(containername)
 }

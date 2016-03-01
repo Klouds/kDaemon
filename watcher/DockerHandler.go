@@ -162,3 +162,24 @@ func (dh *dockerHandler) InspectContainer(containerid string) *docker.Container 
 
 	return cont
 }
+
+//Let's add a function that will check whether a container is accessible.
+//return true if container is accessible
+func (dh *dockerHandler) CheckContainerIsRunning(containername string) bool {
+
+	cont := dh.InspectContainer(containername)
+
+	if cont == nil {
+		logging.Log("Container doesn't exist.")
+		return false
+	}
+
+	//Check if container is already running
+	if cont.State.Running == false {
+
+		return false
+
+	} else {
+		return true
+	}
+}
