@@ -40,15 +40,55 @@ func InitDB() {
 	}
 
 	session, err := r.Connect(r.ConnectOpts{
+		Address: rethinkdbhost + ":" + rethinkdbport,
+	})
+
+	if err != nil {
+
+	}
+
+	session, err = r.Connect(r.ConnectOpts{
+		Address: rethinkdbhost + ":" + rethinkdbport,
+	})
+
+	if err != nil {
+		logging.Log("rethinkdb not found at given address: ", rethinkdbhost, ":", rethinkdbport)
+		return
+	}
+
+	_, err = r.DBCreate(rethinkdbname).RunWrite(session)
+
+	if err != nil {
+		logging.Log("Unable to create DB, probably already exists.")
+
+	}
+
+	_, err = r.DB(rethinkdbname).TableCreate("containers").RunWrite(session)
+
+	if err != nil {
+		logging.Log("Failed in creating containers table")
+
+	}
+
+	_, err = r.DB(rethinkdbname).TableCreate("nodes").RunWrite(session)
+
+	if err != nil {
+		logging.Log("Failed in nodes table")
+
+	}
+
+	_, err = r.DB(rethinkdbname).TableCreate("applications").RunWrite(session)
+
+	if err != nil {
+		logging.Log("Failed in creating applications table")
+
+	}
+
+	session, err = r.Connect(r.ConnectOpts{
 		Address:  rethinkdbhost + ":" + rethinkdbport,
 		Database: rethinkdbname,
 	})
 
-	// if err != nil {
-	// 	session, err := r.Connect(r.ConnectOpts{
-	// 		Address: rethinkdbhost + ":" + rethinkdbport
-	// 		})
-	// }
 	Session = session
 
 }
