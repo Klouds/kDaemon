@@ -142,7 +142,14 @@ func GetNode(id string) (*models.Node, error) {
 	err = res.One(&node)
 
 	if err != nil {
-		return nil, err
+		logging.Log("Node doesnt exist")
+		//if it doesnt work by id, try by name
+		res, err = r.Table("nodes").Filter(r.Row.Field("name").
+			Eq(id)).Run(Session)
+		if err != nil {
+			return nil, err
+		}
+		err = res.One(&node)
 	}
 
 	return &node, err
