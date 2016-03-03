@@ -44,6 +44,11 @@ func InitDB() {
 		Database: rethinkdbname,
 	})
 
+	// if err != nil {
+	// 	session, err := r.Connect(r.ConnectOpts{
+	// 		Address: rethinkdbhost + ":" + rethinkdbport
+	// 		})
+	// }
 	Session = session
 
 }
