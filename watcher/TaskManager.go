@@ -44,7 +44,7 @@ func (th *taskManager) Init() {
 func (th *taskManager) Listen(stop chan bool) {
 	//init node list
 	th.initializeNodes()
-
+	logging.Log("Listening TM")
 	for {
 		select {
 		case <-stop:
@@ -57,6 +57,7 @@ func (th *taskManager) Listen(stop chan bool) {
 
 				//time.Sleep(5 * time.Microsecond)
 				task := job.Val.(Task)
+				logging.Log("Job Received: ", task)
 				th.Dispatch(task)
 
 			}
@@ -69,7 +70,9 @@ func (th *taskManager) Listen(stop chan bool) {
 func (th *taskManager) Dispatch(task Task) {
 	defer th.deleteYourself(&task)
 
-	if len(th.node_managers) <= 0 {
+	logging.Log("Dispatching job: ", task)
+	if len(th.node_managers) <= 0 && task.Name != NodeUp &&
+		task.Name != NodeDown && task.Name != AddNode {
 		//time.Sleep(500 * time.Microsecond)
 		return
 	}
@@ -107,11 +110,13 @@ func (th *taskManager) Dispatch(task Task) {
 		th.deleteContainerData(task.ContainerID)
 
 	case NodeDown:
+		logging.Log("Node Down")
 		nm := th.node_managers[task.NodeID]
 		if task.NodeID != "" && nm != nil {
 			th.node_managers[task.NodeID].AddJob(task)
 		}
 	case NodeUp:
+		logging.Log("Node up")
 		nm := th.node_managers[task.NodeID]
 		if task.NodeID != "" && nm != nil {
 			th.node_managers[task.NodeID].AddJob(task)
@@ -125,6 +130,7 @@ func (th *taskManager) Dispatch(task Task) {
 	case AddNode:
 		if task.NodeID != "" {
 			//Add new node
+			logging.Log("Adding node")
 			th.nodeAddedToCluster(task.NodeID)
 		}
 	}
@@ -166,6 +172,8 @@ func (th *taskManager) nodeAddedToCluster(id string) {
 	stop := make(chan bool)
 	th.stopChannels[id] = stop
 
+	logging.Log(id)
+	logging.Log(manager)
 	go manager.Listen(th.stopChannels[id])
 }
 

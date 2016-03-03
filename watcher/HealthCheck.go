@@ -19,15 +19,15 @@ func CheckNodes() ([]models.Node, error) {
 		return nodes, err
 	}
 
-	for index, _ := range nodes {
+	for _, node := range nodes {
+
 		//Check Node for basic ping
-		conn, err := net.DialTimeout("tcp", nodes[index].DIPAddr+":"+nodes[index].DPort, timeout)
+		conn, err := net.DialTimeout("tcp", node.DIPAddr+":"+node.DPort, timeout)
 		if err != nil {
-			TaskHandler.AddJob(NodeDown, "", "", "", nodes[index].Id)
+			TaskHandler.AddJob(NodeDown, "", "", "", node.Id)
 			continue
 		}
-
-		TaskHandler.AddJob(NodeUp, "", "", "", nodes[index].Id)
+		TaskHandler.AddJob(NodeUp, "", "", "", node.Id)
 
 		conn.Close()
 
@@ -117,7 +117,7 @@ func Rebalance() error {
 	//Lets grab all our nodes
 	nodes, err := database.GetNodesByState("UP")
 
-	if err != nil {
+	if err != nil || len(nodes) == 0 {
 		return errors.New("No Nodes.")
 	}
 
@@ -199,6 +199,9 @@ func RecountContainers() {
 		containermap[container.NodeID] = containermap[container.NodeID] + 1
 	}
 
+	if len(containermap) == 0 {
+		return
+	}
 	for key, value := range containermap {
 		node, err := database.GetNode(key)
 		if err != nil {
