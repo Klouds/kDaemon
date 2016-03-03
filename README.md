@@ -12,7 +12,7 @@ ____
 *Will also run a watcher process that will monitor, fix and rebalance containers on the cluster.*
 
 ## Quickstart Guide
-[![ScreenShot](https://j.gifs.com/yPprOE.gif)](https://www.youtube.com/watch?v=YlxeknZDP9Y)
+[![ScreenShot](https://j.gifs.com/yPprOE.gif)](https://youtu.be/oK-fpD7aFp4)
 Click here for quickstart guide
 
 
