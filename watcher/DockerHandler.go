@@ -38,6 +38,7 @@ func (dh *dockerHandler) IsImagePresent(imagename string) bool {
 	img, _ := dh.client.InspectImage(imagename)
 
 	if img == nil {
+		logging.Log("Image doesnt exist")
 		return false
 	}
 	return true
@@ -83,8 +84,10 @@ func (dh *dockerHandler) DoesContainerExist(containerid string) bool {
 // let's go check.
 //
 //Okay I think I can do this almost as it was before, but changing the returns
-func (dh *dockerHandler) CreateContainer(containerid string, app *models.Application) bool {
-	logging.Log("Whats up")
+func (dh *dockerHandler) CreateContainer(containerid string, app *models.Application, env_variables []string) bool {
+
+	//separate environment variables
+
 	ports := app.GetPorts()
 
 	port := ports[0] + "/tcp"
@@ -99,6 +102,7 @@ func (dh *dockerHandler) CreateContainer(containerid string, app *models.Applica
 		Config: &docker.Config{
 			ExposedPorts: exposedPort,
 			Image:        app.DockerImage,
+			Env:          env_variables,
 		},
 		HostConfig: &docker.HostConfig{
 			PublishAllPorts: true,

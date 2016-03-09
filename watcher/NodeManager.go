@@ -235,7 +235,7 @@ func (nm *NodeManager) launchContainer(task Task) {
 
 	if !containerexists {
 		containercreated := nm.dh.CreateContainer(container.Name,
-			application)
+			application, container.GetEnvironmentVariables())
 
 		if !containercreated {
 			logging.Log("Cant launch uncreated, non-existant container")
