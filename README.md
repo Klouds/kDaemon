@@ -1,5 +1,9 @@
+___
 # Klouds Cluster Daemon
 # Version 0.0 
+___
+
+
 [![wercker status](https://app.wercker.com/status/7a1a06d652cb003d898554754a8c3c3d/s/master "wercker status")](https://app.wercker.com/project/bykey/7a1a06d652cb003d898554754a8c3c3d)
 [![Floobits Status](https://floobits.com/ozzadar/kDaemon.svg)](https://floobits.com/ozzadar/kDaemon/redirect)
 
@@ -11,19 +15,24 @@ ____
 
 *Will also run a watcher process that will monitor, fix and rebalance containers on the cluster.*
 
+___
 ## Quickstart Guide
+___
 [![ScreenShot](https://j.gifs.com/yPprOE.gif)](https://youtu.be/oK-fpD7aFp4)
 Click here for quickstart guide
 
 
-
+___
 # Features
+___
 * Easily mount new docker nodes through either REST calls or the Web UI
 * Create a persistant application library of Docker applications to launch at will
 * Balances containers across the cluster in a containers-per-node manner (at present)
 * Maintains container uptime by routinely health-checking the cluster
 
+___
 ## WEB UI
+___
 
 Web UI for interacting with kDaemon:
 [kDaemon_UI][kDaemon_UI]
@@ -36,21 +45,25 @@ Full stack design can be read here
      [Development Plan][Development Plan] and here
      [Daemon Design] [Daemon Design]
 
-
+___
 ## THE STACK
+___
+
 *The stack consists of multiple docker endpoints exposing their APIs to their internal network (or VPN) and managing the state of the cluster from a central location.*
 
 ```
-    docker --\    
-                
-    docker -->kDaemon 
-                                     
+    docker --\                    
+    docker -->kDaemon                                     
     docker __/   
 
 ```
+
+___
 ## Dependencies
+____
 
 + Your nodes need to be running the docker API 
++ 
 ```
 sudo docker -H 0.0.0.0:2375 -H unix:///var/run/docker.sock -d 
 ```
@@ -63,9 +76,11 @@ sudo docker -H 0.0.0.0:2375 -H unix:///var/run/docker.sock -d
 + You should have golang 1.5+ available on your machine.
 + kDaemon is only tested on Linux. Any machine with an exposed Docker API should be able to become a node however.
 
-
+___
 # Running the Application
+___
     
+
 ## Configuration -- config/app.conf
 
 ```
@@ -81,8 +96,9 @@ sudo docker -H 0.0.0.0:2375 -H unix:///var/run/docker.sock -d
 
 
 
-
+___
 ## To build (linux):
+___
 
 
 ```
@@ -91,18 +107,26 @@ sudo docker -H 0.0.0.0:2375 -H unix:///var/run/docker.sock -d
     go build .
 ```
 
+___
 ## To Run
+___
 
 ``` 
 ./kDaemon
 ```
+
+___
 ## How to use
+___
+
 *You can interact with kDaemon in several ways. The easiest way to get started is to use our web-ui at:*
 [http://github.com/klouds/kdaemon_ui.][kDaemon_UI] 
 
 If you're interested in working directly with the REST APIs, you here's some documentation for you:
-   
+
+___
 #### Adding a node
+___
 
 To add a node, you can POST to **bind_ip:api_port/%API_VERSION%/nodes/create**
 ```
@@ -113,7 +137,9 @@ To add a node, you can POST to **bind_ip:api_port/%API_VERSION%/nodes/create**
     }
 ```
 
+___
 #### Adding an application
+___
 
 To add an application, you can POST to **bind_ip:api_port/%API_VERSION%/applications/create**
 ```
@@ -123,50 +149,58 @@ To add an application, you can POST to **bind_ip:api_port/%API_VERSION%/applicat
         "docker_image": "ghost"
     }
 ```
-
+___
 #### Create a container
+___
 
 To create a container on your most available node, you can POST to **bind_ip:api_port/%API_VERSION%/containers/create**
 
 *note: The application_id is generated when adding a new application.*
+
 ```
     {
         "name":"ghost-blog-ozzadar",
         "application_id":75186c59-ec80-49d6-beb5-1bfac76e8525
-
     }
 ```
-
+___
 #### Launch a container
-
+___
 **POST** to **bind_ip:api_port/%API_VERSION%/container/launch/%CONTAINER_ID%**
-
+___
 ## API Reference
+___
+
 UPDATED (Feb 25 2016) -- 
+
     1) adding a start container command to the list. Separating container creation/launch from each other because what was I thinking?
     2) moved endpoints to /action/id to get rid of annoying pathing errors.
 
-
 ```
- * POST /%API_VERSION%/nodes/create             -- Creates a node
- * PATCH /%API_VERSION%/nodes/update/id         -- Edits a node
- * DELETE /%API_VERSION%/nodes/delete/id        -- Deletes a node
- * GET /%API_VERSION%/nodes/id                  -- Gets node information
- * GET /%API_VERSION%/nodes                     -- Gets all nodes
- 
- * POST /%API_VERSION%/applications/create      -- Creates an application in the database
- * PATCH /%API_VERSION%/applications/update/id  -- Edits an application
- * DELETE /%API_VERSION%/applications/delete/id -- Deletes an application
- * GET /%API_VERSION%/applications/id           -- Gets application information
- * GET /%API_VERSION%/applications              -- Gets all applications
 
- * POST /%API_VERSION%/containers/create        -- Creates a container on the cluster
- * POST /%API_VERSION%/containers/launch/id     -- Launches a container on the cluster
- * POST /%API_VERSION%/containers/launch/id     -- Stops a container on the cluster
- * PATCH /%API_VERSION%/containers/update/id    -- Edits a container 
- * DELETE /%API_VERSION%/containers/delete/id   -- Deletes a container 
- * GET /%API_VERSION%/containers/id             -- Gets container information
- * GET /%API_VERSION%/containers                -- Gets all containers
+ * POST     /%API_VERSION%/nodes/create             -- Creates a node
+ * PATCH    /%API_VERSION%/nodes/update/id          -- Edits a node
+ * DELETE   /%API_VERSION%/nodes/delete/id          -- Deletes a node
+ * GET      /%API_VERSION%/nodes/id                 -- Gets node information
+ * GET      /%API_VERSION%/nodes                    -- Gets all nodes
+
+
+ * POST     /%API_VERSION%/applications/create      -- Creates an application in the database
+ * PATCH    /%API_VERSION%/applications/update/id   -- Edits an application
+ * DELETE   /%API_VERSION%/applications/delete/id   -- Deletes an application
+ * GET      /%API_VERSION%/applications/id          -- Gets application information
+ * GET      /%API_VERSION%/applications             -- Gets all applications
+
+
+ * POST /%API_VERSION%/containers/create            -- Creates a container on the cluster
+ * POST /%API_VERSION%/containers/launch/id         -- Launches a container on the cluster
+ * POST /%API_VERSION%/containers/launch/id         -- Stops a container on the cluster
+ * PATCH /%API_VERSION%/containers/update/id        -- Edits a container 
+ * DELETE /%API_VERSION%/containers/delete/id       -- Deletes a container 
+
+
+ * GET /%API_VERSION%/containers/id                 -- Gets container information
+ * GET /%API_VERSION%/containers                    -- Gets all containers
 
  ```
 
@@ -176,3 +210,6 @@ UPDATED (Feb 25 2016) --
 [Daemon Design]: https://docs.google.com/document/d/1EkI7uQzdt1xMwb1etcweYQFCLthK_l9aHZvHOunshzs/edit?usp=sharing
 [Weave]: http://www.weave.works/
 [kDaemon_UI]:http://github.com/klouds/kDaemon_ui
+
+
+___
