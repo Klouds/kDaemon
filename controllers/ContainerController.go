@@ -22,7 +22,7 @@ func (c *ContainerController) CreateContainer(rw http.ResponseWriter, r *http.Re
 	err := decoder.Decode(&newcontainer)
 
 	if err != nil {
-		c.JSON(rw, http.Invalid, "Malformed JSON")
+		c.JSON(rw, http.StatusBadRequest, "Malformed JSON")
 		return
 	}
 

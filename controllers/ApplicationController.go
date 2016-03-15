@@ -22,7 +22,7 @@ func (c *ApplicationController) CreateApplication(rw http.ResponseWriter, r *htt
 	err := decoder.Decode(&newapp)
 
 	if err != nil {
-		c.JSON(rw, http.Invalid, "Malformed JSON")
+		c.JSON(rw, http.StatusBadRequest, "Malformed JSON")
 		return
 	}
 
