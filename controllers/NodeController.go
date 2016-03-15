@@ -22,7 +22,7 @@ func (c *NodeController) CreateNode(rw http.ResponseWriter, r *http.Request, p h
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&newnode)
 	if err != nil {
-		panic(err)
+		c.JSON(rw, http.Invalid, "Malformed JSON")
 		return
 	}
 
